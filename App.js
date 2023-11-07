@@ -1,20 +1,56 @@
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useFonts } from 'expo-font';
+import Splash from './Screens/Splash';
+import Welcome from './Screens/Welcome';
+import Login from './Screens/Login';
+import CreateUser from './Screens/CreateUser';
+
+const Stack = createStackNavigator();
 
 export default function App() {
+
+  const [fontsLoaded] = useFonts({
+    'Saira-Black': require('./assets/fonts/Saira-Black.ttf'),
+    'Jost-Black': require('./assets/fonts/Jost-Black.ttf'),
+    'Saira-Thin': require('./assets/fonts/Saira-Thin.ttf'),
+    'Saira-Light': require('./assets/fonts/Saira-Light.ttf'),
+    'Saira-Regular': require('./assets/fonts/Saira-Regular.ttf'),
+  });
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Splash">
+        <Stack.Screen
+          name="Splash"
+          component={Splash}
+          options={{ headerShown: false }} // Assuming you don't want a header for the splash screen
+        />
+        <Stack.Screen
+          name="Welcome"
+          component={Welcome}
+          options={{ headerShown: false }} // Customize your header options
+        />
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }} // Customize your header options
+        />
+        <Stack.Screen
+          name="CreateUser"
+          component={CreateUser}
+          options={{ headerShown: false }} // Customize your header options
+        />
+          
+      </Stack.Navigator>
       <StatusBar style="auto" />
-    </View>
+    </NavigationContainer>
   );
 }
 
+// If you have global styles you want to apply, you can define them here
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  // Your styles
 });
