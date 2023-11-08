@@ -8,6 +8,8 @@ import Splash from './Screens/Splash';
 import Welcome from './Screens/Welcome';
 import Login from './Screens/Login';
 import CreateUser from './Screens/CreateUser';
+import ShiftScreen from './Screens/ShiftScreen';
+import Menu from './Screens/Menu';
 
 const Stack = createStackNavigator();
 
@@ -43,6 +45,17 @@ export default function App() {
           component={CreateUser}
           options={{ headerShown: false }} // Customize your header options
         />
+        <Stack.Screen
+          name="ShiftScreen"
+          component={ShiftScreen}
+          options={{ headerShown: false }} // Customize your header options
+        />
+        <Stack.Screen
+          name="Menu"
+          component={Menu}
+          options={{ headerShown: false }} // Customize your header options
+        />
+        
           
       </Stack.Navigator>
       <StatusBar style="auto" />

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from '@react-navigation/native';
 import {
   StyleSheet,
   View,
@@ -19,8 +20,14 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
+  const navigation = useNavigation();
+
+    const navigateToShiftScreen = () => {
+        navigation.navigate('ShiftScreen');
+      };
+
   const handleLogin = () => {
-    // Implement your login logic here
+    navigation.navigate('ShiftScreen');
     console.log(email, password, rememberMe);
   };
 
@@ -71,6 +78,8 @@ const Login = () => {
     </KeyboardAvoidingView>
   );
 };
+
+
 
 const window = Dimensions.get("window");
 const screenWidth = window.width;
