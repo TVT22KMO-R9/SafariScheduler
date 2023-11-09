@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
+import Menu from './Menu';
 import {
   StyleSheet,
   View,
@@ -13,6 +14,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ImageBackground,
+  TouchableWithoutFeedback,
+  Modal,
 } from "react-native";
 
 export default function ShiftScreen() {
@@ -20,6 +23,11 @@ export default function ShiftScreen() {
     const [box2Data, setBox2Data] = useState("");
     const [box3Data, setBox3Data] = useState("");
     const [box4Data, setBox4Data] = useState("");
+    const [isMenuVisible, setMenuVisible] = useState(false);
+
+    const toggleMenu = () => {
+        setMenuVisible(!isMenuVisible);
+      };
 
     const navigation = useNavigation();
 
@@ -60,9 +68,24 @@ return (
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
     />
-    <TouchableOpacity onPress={navigateToMenu} style={styles.button}>
+    <TouchableOpacity onPress={toggleMenu} style={styles.button}>
         <Ionicons name="menu" size={45} color="white" />
     </TouchableOpacity>
+    <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isMenuVisible}
+        onRequestClose={() => {
+          setMenuVisible(false);
+        }}
+      >
+        <TouchableWithoutFeedback onPress={toggleMenu}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+        <View style={styles.menuContainer}>
+          <Menu />
+        </View>
+      </Modal>
     <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>Next shifts</Text>
     <View style={styles.dataBox}>
@@ -127,6 +150,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "black",
       },
+      overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  menuContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: Dimensions.get('window').width * 0.75,
+    height: '100%',
+    backgroundColor: 'white',
+  }
   });
 
   
