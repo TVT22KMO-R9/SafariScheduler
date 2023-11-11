@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SERVER_BASE_URL, REFRESH_TOKEN, ACCESS_TOKEN } from '@env';
+import { SERVER_BASE_URL, REFRESH_TOKEN, ACCESS_TOKEN, REFRESH_ENDPOINT } from '@env';
 
 
 // katsoo löytyykö localstoragesta refresh tokenia
@@ -8,7 +8,7 @@ export const RefreshTokenCheck = async () => {
         const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN);  
         if (refreshToken !== null) {
             console.log("Refresh token löytyi, haetaan tuore accesstoken");
-                const response = await fetch(SERVER_BASE_URL +"/api/refresh", {
+                const response = await fetch(SERVER_BASE_URL + REFRESH_ENDPOINT, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
