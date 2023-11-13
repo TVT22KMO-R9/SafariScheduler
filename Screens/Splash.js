@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, Image, StyleSheet, StatusBar, Animated } from "react-native";
+import { RefreshTokenCheck } from "../utility/RefreshTokenCheck";
 
 const Splash = ({ navigation }) => {
   const spinValue = new Animated.Value(0);
 
   // Function to start the spin animation
-  const startSpinning = () => {
+  const startSpinning =  () => {
+    
+    
     spinValue.setValue(0);
     Animated.loop(
       Animated.sequence([
@@ -26,10 +29,17 @@ const Splash = ({ navigation }) => {
 
   useEffect(() => {
     startSpinning();
-    // After 3 seconds, redirect to the Welcome screen
-    const timer = setTimeout(() => {
-      navigation.navigate("Welcome");
-    }, 3000);
+        const checkTokenAndNavigate = async () => // useeffect ei voi olla async, joten tehdään async funktio sen sisällä jota kutsutaan
+    {
+        await RefreshTokenCheck();  // tarkistaa loppuun ennenkuin antaa timerin alkaa
+        // After 3 seconds, redirect to the Welcome screen
+        const timer = setTimeout(() => 
+      {
+        navigation.navigate("Welcome");
+      }, 3000);
+    }
+
+    checkTokenAndNavigate();  // kutsu
 
     // Clear the timer when the component is unmounted
     return () => {
