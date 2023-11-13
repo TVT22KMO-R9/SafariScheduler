@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
   StyleSheet,
@@ -11,7 +12,10 @@ import {
   Platform,
 } from 'react-native';
 
-const CreateUser = () => {
+// Use your local IP address, "localhost" won´t work
+const URL = 'http://192.168.1.114:8080/api/register'; 
+
+const CreateUser = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,20 +23,59 @@ const CreateUser = () => {
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  const handleCreateUser = () => {
-    if (password === confirmPassword) {
-    // Implement your user creation logic here
-    console.log(email, password, firstName, lastName, phoneNumber);
-  } else {
-    alert("Passwords don't match!");
-  }
-};
+  const handleCreateUser = async () => {
+    // Check if password and confirmPassword match
+    if (password !== confirmPassword) {
+      const errorMessage = 'Passwords do not match';
+      console.log(errorMessage);
+      Alert.alert('Password Mismatch', errorMessage);
+      return; // Exit the function early
+    }
+
+    
+    const userData = {
+      email: email,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: phoneNumber,
+    };
+
+    try {
+      console.log(userData);
+      const response = await fetch(URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        const data = await response.text();
+        console.log('User registration successful:', data)
+        Alert.alert("User created succesfully", data)
+        navigation.navigate("Login")
+      } else if (response.status === 400) {
+        const errorData = await response.text();
+        console.log('User registration failed:', errorData);
+        Alert.alert('User Registration Failed', errorData);
+      } else if (response.status === 500) {
+        const errorData = await response.text();
+        console.log('Internal Server Error:', errorData);
+        Alert.alert('Internal Server Error', errorData);
+      }
+    } catch (error) {
+      // Handle network errors or other issues
+      console.error('User registration error:', error);
+    }
+  };
 
   return (
     <KeyboardAwareScrollView
-  style={{ flex: 1 }}
-  contentContainerStyle={styles.container}
-  keyboardShouldPersistTaps="handled"
+      style={{ flex: 1 }}
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
     >
       <Image
         source={require('../assets/background.png')}
@@ -90,7 +133,7 @@ const CreateUser = () => {
   );
 };
 
-const window = Dimensions.get("window");
+const window = Dimensions.get('window');
 const screenWidth = window.width;
 const screenHeight = window.height;
 
@@ -124,10 +167,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     backgroundColor: 'rgba(0, 130, 255, 0.7)',
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
-    borderColor: "black",
+    borderColor: 'black',
     borderWidth: 2,
   },
   buttonText: {
@@ -137,8 +180,8 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 1)',
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
