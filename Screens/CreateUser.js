@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {REGISTER_ENDPOINT, SERVER_BASE_URL} from '@env'
 import {
   StyleSheet,
   View,
@@ -12,9 +13,6 @@ import {
   Platform,
 } from 'react-native';
 
-// Use your local IP address, "localhost" won´t work
-const URL = 'http://192.168.1.114:8080/api/register'; 
-
 const CreateUser = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,15 +22,14 @@ const CreateUser = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
 
   const handleCreateUser = async () => {
-    // Check if password and confirmPassword match
-    if (password !== confirmPassword) {
-      const errorMessage = 'Passwords do not match';
-      console.log(errorMessage);
-      Alert.alert('Password Mismatch', errorMessage);
+    if(password.length < 8){
+      Alert.alert('Password needs to be at least 8 characters long')
+      return;
+    } else if (password !== confirmPassword) {
+      Alert.alert('Password Mismatch');
       return; // Exit the function early
     }
 
-    
     const userData = {
       email: email,
       password: password,
@@ -43,7 +40,7 @@ const CreateUser = ({ navigation }) => {
 
     try {
       console.log(userData);
-      const response = await fetch(URL, {
+      const response = await fetch(`${SERVER_BASE_URL}${REGISTER_ENDPOINT}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +63,6 @@ const CreateUser = ({ navigation }) => {
         Alert.alert('Internal Server Error', errorData);
       }
     } catch (error) {
-      // Handle network errors or other issues
       console.error('User registration error:', error);
     }
   };
