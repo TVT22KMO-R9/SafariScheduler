@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
+import {CUSTOM_SHIFT_AMOUNT_ENDPOINT, SERVER_BASE_URL} from '@env';
 import Menu from './Menu';
 import {
   StyleSheet,
@@ -37,7 +38,7 @@ export default function ShiftScreen() {
 
       useEffect(() => {
         // Fetch data for box 1
-        fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX1")
+        fetch(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "4") 
           .then((response) => response.text())
           .then((data) => setBox1Data(data))
           .catch((error) => console.error("Error fetching data for box 1", error));
