@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
+import {LOGIN_ENDPOINT, SERVER_BASE_URL} from '@env'
+import { encode as base64Encode } from 'base-64';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
   View,
@@ -8,12 +11,11 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  Button,
+  Alert,
   Dimensions,
-  KeyboardAvoidingView,
   Platform,
-  ImageBackground,
 } from "react-native";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -22,19 +24,53 @@ const Login = () => {
 
   const navigation = useNavigation();
 
-    const navigateToShiftScreen = () => {
-        navigation.navigate('ShiftScreen');
-      };
-
+  const apiLogin = async (email, password) => {
+    try {
+      const base64Credentials = base64Encode(`${email}:${password}`);
+      const response = await fetch(`${SERVER_BASE_URL}${LOGIN_ENDPOINT}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${base64Credentials}`,
+          'Content-Type': 'application/json'
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Login failed: ${response.statusText} - ${errorText}`);
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+  
   const handleLogin = () => {
-    navigation.navigate('ShiftScreen');
-    console.log(email, password, rememberMe);
+    apiLogin(email, password)
+      .then(response => {
+        const token = response.token;
+        AsyncStorage.setItem('userToken', token)
+          .then(() => {
+            console.log('Token stored successfully'); //Testiominaisuus, voi poistaa joskus
+            console.log(`User's Role: ${response.role}`); //Testiominaisuus, voi poistaa joskus
+            navigation.navigate('ShiftScreen', { userRole: response.role });
+          })
+          .catch(error => {
+            console.error('AsyncStorage error: ', error.message);
+          });
+      })
+      .catch(error => {
+        Alert.alert('Login Failed', error.message);
+      });
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <KeyboardAwareScrollView
+    style={{ flex: 1 }}
+    contentContainerStyle={styles.container}
+    keyboardShouldPersistTaps="handled"
     >
       <Image
         source={require("../assets/background.png")}
@@ -61,9 +97,9 @@ const Login = () => {
           onPress={() => setRememberMe(!rememberMe)}
         >
           <Ionicons
-            name={rememberMe ? 'checkbox' : 'square-outline'}
+            name={rememberMe ? 'checkbox-outline' : 'square-outline'}
             size={30}
-            color={rememberMe ? 'rgba(0, 240, 0, 1)' : 'black'}
+            color={rememberMe ? 'rgba(0, 0, 0, 1)' : 'black'}
           />
         </TouchableOpacity>
         <Text style={styles.label}>Remember Me</Text>
@@ -71,11 +107,11 @@ const Login = () => {
       <TouchableOpacity
         style={styles.buttonContainer}
         onPress={handleLogin}
-        activeOpacity={0.8} // touch feedback
+        activeOpacity={0.8}
       >
         <Text style={styles.buttonText}>LOGIN</Text>
       </TouchableOpacity>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 
