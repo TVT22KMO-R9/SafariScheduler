@@ -209,15 +209,10 @@ const [endTime, setEndTime] = useState({ hour: "", minute: "" });
   onChangeText={setDetails}
 />
   
-      {/* Confirm and Cancel Buttons */}
-    <View style={styles.buttonContainer}>
+      {/* Confirm Button */}
       <TouchableOpacity style={styles.confirmButton} onPress={submitShift}>
         <Text style={styles.confirmButtonText}>CONFIRM</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.navigate('ShiftScreen')}>
-        <Text style={styles.cancelButtonText}>CANCEL</Text>
-      </TouchableOpacity>
-    </View>
       {/* Pickeri päivämäärälle */}
       <Modal
   animationType="slide"
@@ -418,23 +413,8 @@ const styles = StyleSheet.create({
     marginBottom: screenHeight * 0.2,
     fontSize: screenWidth * 0.05,
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: screenWidth * 0.9,
-    alignItems: "center",
-  },
   confirmButton: {
     backgroundColor: "rgba(0, 205, 0, 0.8)", // Confirm button color
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginHorizontal: 10,
-    borderColor: "black",
-    borderWidth: 2,
-  },
-  cancelButton: {
-    backgroundColor: "rgba(205, 0, 0, 0.8)", // Cancel button color
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -445,16 +425,7 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: "white",
     textAlign: "center",
-    fontSize: screenWidth * 0.08,
-    fontFamily: "Saira-Regular",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-  cancelButtonText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: screenWidth * 0.08,
+    fontSize: screenWidth * 0.07,
     fontFamily: "Saira-Regular",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },

@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     transform: [{ rotateY: "180deg" }],
   },
   label: {
-    fontSize: screenWidth * 0.08,
+    fontSize: screenWidth * 0.06,
     fontFamily: "Saira-Regular",
     color: "white",
     textShadowColor: "rgba(0, 0, 0, 1)",
