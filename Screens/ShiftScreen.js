@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { CUSTOM_SHIFT_AMOUNT_ENDPOINT, SERVER_BASE_URL } from '@env'
 import Menu from './Menu';
 import {
   StyleSheet,
@@ -18,7 +19,6 @@ export default function ShiftScreen() {
     const [box1Data, setBox1Data] = useState("");
     const [box2Data, setBox2Data] = useState("");
     const [box3Data, setBox3Data] = useState("");
-    const [box4Data, setBox4Data] = useState("");
     const [isMenuVisible, setMenuVisible] = useState(false);
     const route = useRoute();
     const userRole = route.params?.userRole;
@@ -39,28 +39,24 @@ export default function ShiftScreen() {
       };
 
       useEffect(() => {
-        // Fetch data for box 1
-        fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX1")
-          .then((response) => response.text())
-          .then((data) => setBox1Data(data))
-          .catch((error) => console.error("Error fetching data for box 1", error));
+        const fetchData = async (endpoint, setDataFunction) => {
+          try {
+            const response = await fetch(endpoint);
+            const data = await response.text();
+            setDataFunction(data);
+          } catch (error) {
+            console.error(`Error fetching data for ${setDataFunction.name}`, error);
+          }
+        };
       
-        // Fetch data for box 2
-        fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX2")
-          .then((response) => response.text())
-          .then((data) => setBox2Data(data))
-          .catch((error) => console.error("Error fetching data for box 2", error));
-
-          fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX3")
-          .then((response) => response.text())
-          .then((data) => setBox3Data(data))
-          .catch((error) => console.error("Error fetching data for box 2", error));
-
-          fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX4")
-          .then((response) => response.text())
-          .then((data) => setBox4Data(data))
-          .catch((error) => console.error("Error fetching data for box 2", error));
-      }, []);
+        const fetchBoxData = async () => {
+          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "1", setBox1Data);
+          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "2", setBox2Data);
+          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "3", setBox3Data);
+        };
+      
+        fetchBoxData();
+      }, [isMenuVisible]);
     
 
 return (
@@ -100,9 +96,6 @@ return (
     <View style={styles.dataBox}>
       <Text style={styles.dataBoxText}>{box3Data}</Text>
     </View>
-    <View style={styles.dataBox}>
-      <Text style={styles.dataBoxText}>{box4Data}</Text>
-    </View>
     <TouchableOpacity
           style={styles.reportHoursButton}
           onPress={navigateToReportHours}
@@ -135,7 +128,7 @@ const styles = StyleSheet.create({
       resizeMode: "cover",
     },
     label: {
-    fontSize: screenHeight * 0.07,
+    fontSize: screenHeight * 0.05,
     fontWeight: "bold",
     paddingTop: 170,
       fontFamily: "Saira-Regular",
@@ -177,7 +170,7 @@ const styles = StyleSheet.create({
   reportHoursButton: {
     width: '80%',
     backgroundColor: 'rgba(0, 150, 255, 0.7)',
-    padding: 7,
+    padding: 13,
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -188,7 +181,7 @@ const styles = StyleSheet.create({
 },
 reportHoursButtonText: {
     color: 'white',
-    fontSize: screenWidth * 0.1,
+    fontSize: screenWidth * 0.08,
     fontFamily: 'Saira-Regular',
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
