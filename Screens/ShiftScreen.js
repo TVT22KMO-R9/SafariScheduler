@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from '@react-navigation/native';
-import {CUSTOM_SHIFT_AMOUNT_ENDPOINT, SERVER_BASE_URL} from '@env';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Menu from './Menu';
 import {
   StyleSheet,
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Image,
-  Button,
   Dimensions,
   KeyboardAvoidingView,
-  Platform,
-  ImageBackground,
   TouchableWithoutFeedback,
   Modal,
 } from "react-native";
@@ -25,6 +20,8 @@ export default function ShiftScreen() {
     const [box3Data, setBox3Data] = useState("");
     const [box4Data, setBox4Data] = useState("");
     const [isMenuVisible, setMenuVisible] = useState(false);
+    const route = useRoute();
+    const userRole = route.params?.userRole;
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -36,9 +33,14 @@ export default function ShiftScreen() {
         navigation.navigate('Menu');
       };
 
+    const navigateToReportHours = () => {
+        navigation.navigate('ReportHours');
+        
+      };
+
       useEffect(() => {
         // Fetch data for box 1
-        fetch(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "4") 
+        fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX1")
           .then((response) => response.text())
           .then((data) => setBox1Data(data))
           .catch((error) => console.error("Error fetching data for box 1", error));
@@ -84,11 +86,11 @@ return (
           <View style={styles.overlay} />
         </TouchableWithoutFeedback>
         <View style={styles.menuContainer}>
-          <Menu />
+        <Menu userRole={userRole}/>
         </View>
       </Modal>
     <Image source={require("../assets/logo.png")} style={styles.logo} />
-      <Text style={styles.label}>Next shifts</Text>
+      <Text style={styles.label}>NEXT SHIFTS</Text>
     <View style={styles.dataBox}>
       <Text style={styles.dataBoxText}>{box1Data}</Text>
     </View>
@@ -101,10 +103,18 @@ return (
     <View style={styles.dataBox}>
       <Text style={styles.dataBoxText}>{box4Data}</Text>
     </View>
+    <TouchableOpacity
+          style={styles.reportHoursButton}
+          onPress={navigateToReportHours}
+        >
+          <Text style={styles.reportHoursButtonText}>REPORT HOURS</Text>
+        </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }
-
+const window = Dimensions.get('window');
+const screenWidth = window.width;
+const screenHeight = window.height;
 const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -115,7 +125,7 @@ const styles = StyleSheet.create({
         width: 200,
         height: 500,
         position: "absolute",
-        top: 0,
+        top: screenHeight * -0.1,
         resizeMode: "contain",
       },
     backgroundImage: {
@@ -125,13 +135,14 @@ const styles = StyleSheet.create({
       resizeMode: "cover",
     },
     label: {
-    fontSize: 40,
+    fontSize: screenHeight * 0.07,
+    fontWeight: "bold",
     paddingTop: 170,
       fontFamily: "Saira-Regular",
       color: "white",
       textShadowColor: "rgba(0, 0, 0, 1)",
       textShadowOffset: { width: 1, height: 1 },
-      textShadowRadius: 1,
+      textShadowRadius: 10,
     },
     button: {
     position: 'absolute',
@@ -162,5 +173,27 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width * 0.75,
     height: '100%',
     backgroundColor: 'white',
-  }
+  },
+  reportHoursButton: {
+    width: '80%',
+    backgroundColor: 'rgba(0, 150, 255, 0.7)',
+    padding: 7,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: screenHeight * 0.1,
+    borderColor: 'black',
+    borderWidth: 2,
+},
+reportHoursButtonText: {
+    color: 'white',
+    fontSize: screenWidth * 0.1,
+    fontFamily: 'Saira-Regular',
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+},
   });
+
+  
