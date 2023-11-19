@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { CUSTOM_SHIFT_AMOUNT_ENDPOINT, SERVER_BASE_URL } from '@env'
 import Menu from './Menu';
 import {
   StyleSheet,
@@ -39,27 +40,24 @@ export default function ShiftScreen() {
       };
 
       useEffect(() => {
-        // Fetch data for box 1
-        fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX1")
-          .then((response) => response.text())
-          .then((data) => setBox1Data(data))
-          .catch((error) => console.error("Error fetching data for box 1", error));
+        const fetchData = async (endpoint, setDataFunction) => {
+          try {
+            const response = await fetch(endpoint);
+            const data = await response.text();
+            setDataFunction(data);
+          } catch (error) {
+            console.error(`Error fetching data for ${setDataFunction.name}`, error);
+          }
+        };
       
-        // Fetch data for box 2
-        fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX2")
-          .then((response) => response.text())
-          .then((data) => setBox2Data(data))
-          .catch((error) => console.error("Error fetching data for box 2", error));
-
-          fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX3")
-          .then((response) => response.text())
-          .then((data) => setBox3Data(data))
-          .catch((error) => console.error("Error fetching data for box 2", error));
-
-          fetch("YOUR_BACKEND_ENDPOINT_FOR_BOX4")
-          .then((response) => response.text())
-          .then((data) => setBox4Data(data))
-          .catch((error) => console.error("Error fetching data for box 2", error));
+        const fetchBoxData = async () => {
+          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "1", setBox1Data);
+          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "2", setBox2Data);
+          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "3", setBox3Data);
+          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "4", setBox4Data);
+        };
+      
+        fetchBoxData();
       }, []);
     
 
