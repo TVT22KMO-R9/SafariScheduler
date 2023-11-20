@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { UPCOMING_SHIFTS, SERVER_BASE_URL} from '@env'
-import { encode as base64Encode } from 'base-64';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu from '../Components/Menu';
+import ShiftDescription from "../Components/shiftDescription";
+
 import {
   StyleSheet,
   View,
@@ -22,8 +23,14 @@ export default function ShiftScreen() {
     const [box2Data, setBox2Data] = useState("");
     const [box3Data, setBox3Data] = useState("");
     const [isMenuVisible, setMenuVisible] = useState(false);
+    const [selectedBox, setSelectedBox] = useState(null);
     const route = useRoute();
     const userRole = route.params?.userRole;
+
+    const openShiftDescription = (boxData) => {
+      setSelectedBox(boxData);
+      setMenuVisible(true);
+    };
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -78,7 +85,37 @@ return (
     <TouchableOpacity onPress={toggleMenu} style={styles.button}>
         <Ionicons name="menu" size={45} color="white" />
     </TouchableOpacity>
-    <Modal
+    
+    <Image source={require("../assets/logo.png")} style={styles.logo} />
+      <Text style={styles.label}>NEXT SHIFTS</Text>
+      <TouchableOpacity
+        onPress={() => openShiftDescription(box1Data)}
+        style={styles.dataBox}
+      >
+        <Text style={styles.dataBoxText}>{box1Data}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => openShiftDescription(box2Data)}
+        style={styles.dataBox}
+      >
+        <Text style={styles.dataBoxText}>{box2Data}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => openShiftDescription(box3Data)}
+        style={styles.dataBox}
+      >
+        <Text style={styles.dataBoxText}>{box3Data}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+          style={styles.reportHoursButton}
+          onPress={navigateToReportHours}
+        >
+          <Text style={styles.reportHoursButtonText}>REPORT HOURS</Text>
+        </TouchableOpacity>
+
+        <Modal
         animationType="slide"
         transparent={true}
         visible={isMenuVisible}
@@ -93,23 +130,7 @@ return (
         <Menu userRole={userRole}/>
         </View>
       </Modal>
-    <Image source={require("../assets/logo.png")} style={styles.logo} />
-      <Text style={styles.label}>NEXT SHIFTS</Text>
-    <View style={styles.dataBox}>
-      <Text style={styles.dataBoxText}>{box1Data}</Text>
-    </View>
-    <View style={styles.dataBox}>
-      <Text style={styles.dataBoxText}>{box2Data}</Text>
-    </View>
-    <View style={styles.dataBox}>
-      <Text style={styles.dataBoxText}>{box3Data}</Text>
-    </View>
-    <TouchableOpacity
-          style={styles.reportHoursButton}
-          onPress={navigateToReportHours}
-        >
-          <Text style={styles.reportHoursButtonText}>REPORT HOURS</Text>
-        </TouchableOpacity>
+  
     </KeyboardAvoidingView>
   );
 }
