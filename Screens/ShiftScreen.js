@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { CUSTOM_SHIFT_AMOUNT_ENDPOINT, SERVER_BASE_URL } from '@env'
-import Menu from './Menu';
+import { UPCOMING_SHIFTS, SERVER_BASE_URL} from '@env'
+import { encode as base64Encode } from 'base-64';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Menu from '../Components/Menu';
 import {
   StyleSheet,
   View,
@@ -41,22 +43,28 @@ export default function ShiftScreen() {
       useEffect(() => {
         const fetchData = async (endpoint, setDataFunction) => {
           try {
-            const response = await fetch(endpoint);
+            const authToken = await AsyncStorage.getItem('userToken');
+            const response = await fetch(endpoint, {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            });
             const data = await response.text();
             setDataFunction(data);
           } catch (error) {
             console.error(`Error fetching data for ${setDataFunction.name}`, error);
           }
         };
-      
+        
+
         const fetchBoxData = async () => {
-          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "1", setBox1Data);
-          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "2", setBox2Data);
-          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "3", setBox3Data);
+          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox1Data);
+          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox2Data);
+          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox3Data);
         };
       
         fetchBoxData();
-      }, [isMenuVisible]);
+      }, []);
     
 
 return (

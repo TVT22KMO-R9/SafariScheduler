@@ -9,7 +9,6 @@ import Welcome from './Screens/Welcome';
 import Login from './Screens/Login';
 import CreateUser from './Screens/CreateUser';
 import ShiftScreen from './Screens/ShiftScreen';
-import Menu from './Screens/Menu';
 import ReportHours from './Screens/ReportHours';
 import ManageShifts from './Screens/ManageShifts';
 
@@ -50,11 +49,6 @@ export default function App() {
         <Stack.Screen
           name="ShiftScreen"
           component={ShiftScreen}
-          options={{ headerShown: false }} // Customize your header options
-        />
-        <Stack.Screen
-          name="Menu"
-          component={Menu}
           options={{ headerShown: false }} // Customize your header options
         />
         <Stack.Screen
