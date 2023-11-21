@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { CUSTOM_SHIFT_AMOUNT_ENDPOINT, SERVER_BASE_URL } from '@env'
-import Menu from './Menu';
+import { UPCOMING_SHIFTS, SERVER_BASE_URL} from '@env'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Menu from '../Components/Menu';
+import Description from "../Components/Description";
+
 import {
   StyleSheet,
   View,
@@ -19,9 +22,16 @@ export default function ShiftScreen() {
     const [box1Data, setBox1Data] = useState("");
     const [box2Data, setBox2Data] = useState("");
     const [box3Data, setBox3Data] = useState("");
+    const [isDescriptionVisible, setDescriptionVisible] = useState(false);
+    const [selectedBoxData, setSelectedBoxData] = useState("");
     const [isMenuVisible, setMenuVisible] = useState(false);
     const route = useRoute();
     const userRole = route.params?.userRole;
+
+    const handleDataBoxPress = (data) => {
+      setSelectedBoxData(data);
+      setDescriptionVisible(!isDescriptionVisible);
+    };
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -41,22 +51,28 @@ export default function ShiftScreen() {
       useEffect(() => {
         const fetchData = async (endpoint, setDataFunction) => {
           try {
-            const response = await fetch(endpoint);
+            const authToken = await AsyncStorage.getItem('userToken');
+            const response = await fetch(endpoint, {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            });
             const data = await response.text();
             setDataFunction(data);
           } catch (error) {
             console.error(`Error fetching data for ${setDataFunction.name}`, error);
           }
         };
-      
+        
+
         const fetchBoxData = async () => {
-          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "1", setBox1Data);
-          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "2", setBox2Data);
-          await fetchData(SERVER_BASE_URL + CUSTOM_SHIFT_AMOUNT_ENDPOINT + "3", setBox3Data);
+          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox1Data);
+          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox2Data);
+          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox3Data);
         };
       
         fetchBoxData();
-      }, [isMenuVisible]);
+      }, []);
     
 
 return (
@@ -78,7 +94,7 @@ return (
           setMenuVisible(false);
         }}
       >
-        <TouchableWithoutFeedback onPress={toggleMenu}>
+       <TouchableWithoutFeedback onPress={toggleMenu}>
           <View style={styles.overlay} />
         </TouchableWithoutFeedback>
         <View style={styles.menuContainer}>
@@ -87,16 +103,33 @@ return (
       </Modal>
     <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>NEXT SHIFTS</Text>
-    <View style={styles.dataBox}>
-      <Text style={styles.dataBoxText}>{box1Data}</Text>
-    </View>
-    <View style={styles.dataBox}>
-      <Text style={styles.dataBoxText}>{box2Data}</Text>
-    </View>
-    <View style={styles.dataBox}>
-      <Text style={styles.dataBoxText}>{box3Data}</Text>
-    </View>
-    <TouchableOpacity
+      <TouchableOpacity
+        style={styles.dataBox}
+        onPress={() => handleDataBoxPress(box1Data)}
+      >
+        <Text style={styles.dataBoxText}>{box1Data}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.dataBox}
+        onPress={() => handleDataBoxPress(box2Data)}
+      >
+        <Text style={styles.dataBoxText}>{box2Data}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.dataBox}
+        onPress={() => handleDataBoxPress(box3Data)}
+      >
+        <Text style={styles.dataBoxText}>{box3Data}</Text>
+      </TouchableOpacity>
+    <TouchableWithoutFeedback onPress={() => setDescriptionVisible(false)}>
+      <Description
+        isVisible={isDescriptionVisible}
+        data={selectedBoxData}
+        onClose={() => setDescriptionVisible(false)}
+      />
+
+        </TouchableWithoutFeedback>
+      <TouchableOpacity
           style={styles.reportHoursButton}
           onPress={navigateToReportHours}
         >
@@ -145,7 +178,7 @@ const styles = StyleSheet.create({
     },
     dataBox: {
         backgroundColor: "white",
-        width: "80%",
+        width: "70%",
         padding: 10,
         margin: 10,
         borderRadius: 5,
