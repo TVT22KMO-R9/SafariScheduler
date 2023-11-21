@@ -55,6 +55,7 @@ const Login = () => {
           .then(() => {
             console.log('Token stored successfully'); //Testiominaisuus, voi poistaa joskus
             console.log(`User's Role: ${response.role}`); //Testiominaisuus, voi poistaa joskus
+            console.log(`User token: ${token}`); //Testiominaisuus, voi poistaa joskus
             navigation.navigate('ShiftScreen', { userRole: response.role });
           })
           .catch(error => {

@@ -15,7 +15,7 @@ const Description = ({ isVisible, data, onClose }) => {
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <View style={{ backgroundColor: "white", borderWidth: 2, padding: 20, width: '80%', height: '10%' }}>
+          <View style={{ backgroundColor: "white", borderWidth: 2, padding: 20, width: '80%', height: '10%', borderRadius: 5, }}>
             <Text>{data}</Text>
           </View>
         </View>
