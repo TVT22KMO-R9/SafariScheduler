@@ -19,9 +19,9 @@ import {
 } from "react-native";
 
 export default function ShiftScreen() {
-    const [box1Data, setBox1Data] = useState("");
-    const [box2Data, setBox2Data] = useState("");
-    const [box3Data, setBox3Data] = useState("");
+    const [box1Data, setBox1Data] = useState([]);
+    const [box2Data, setBox2Data] = useState([]);
+    const [box3Data, setBox3Data] = useState([]);
     const [isDescriptionVisible, setDescriptionVisible] = useState(false);
     const [selectedBoxData, setSelectedBoxData] = useState("");
     const [isMenuVisible, setMenuVisible] = useState(false);
