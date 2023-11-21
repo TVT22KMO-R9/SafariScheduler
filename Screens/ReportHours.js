@@ -13,9 +13,9 @@ import {
   Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 import { SERVER_BASE_URL, ADD_AND_UPDATE_SHIFT_ENDPOINT } from "@env";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
@@ -24,7 +24,7 @@ const ReportHours = () => {
   const navigation = useNavigation();
   const [date, setDate] = useState({ year: "2023", month: "1", day: "1" });
   const [startTime, setStartTime] = useState({ hour: "", minute: "" });
-const [endTime, setEndTime] = useState({ hour: "", minute: "" });
+  const [endTime, setEndTime] = useState({ hour: "", minute: "" });
   const [breakMinutes, setBreakMinutes] = useState(0);
   const [isPickerVisible, setPickerVisible] = useState(false);
   const [details, setDetails] = useState("");
@@ -52,10 +52,19 @@ const [endTime, setEndTime] = useState({ hour: "", minute: "" });
 
   // Function to submit shift data to the server
   const submitShift = async () => {
-    const formattedDate = `${date.year}-${date.month.padStart(2, '0')}-${date.day.padStart(2, '0')}`;
-    const formattedStartTime = `${startTime.hour.padStart(2, '0')}:${startTime.minute.padStart(2, '0')}`;
-    const formattedEndTime = `${endTime.hour.padStart(2, '0')}:${endTime.minute.padStart(2, '0')}`;
-  
+    const formattedDate = `${date.year}-${date.month.padStart(
+      2,
+      "0"
+    )}-${date.day.padStart(2, "0")}`;
+    const formattedStartTime = `${startTime.hour.padStart(
+      2,
+      "0"
+    )}:${startTime.minute.padStart(2, "0")}`;
+    const formattedEndTime = `${endTime.hour.padStart(
+      2,
+      "0"
+    )}:${endTime.minute.padStart(2, "0")}`;
+
     const shiftData = {
       date: formattedDate,
       startTime: formattedStartTime,
@@ -63,43 +72,45 @@ const [endTime, setEndTime] = useState({ hour: "", minute: "" });
       breaksTotal: breakMinutes,
       description: details,
     };
-  
+
     // Log the data you're about to send
     console.log("Submitting shift data:", shiftData);
-  
+
     const getTokenAndMakeRequest = async (shiftData) => {
       try {
-        const token = await AsyncStorage.getItem('userToken');
-        if (!token) throw new Error('Token not found');
-    
+        const token = await AsyncStorage.getItem("userToken");
+        if (!token) throw new Error("Token not found");
+
         const url = `${SERVER_BASE_URL}${ADD_AND_UPDATE_SHIFT_ENDPOINT}`;
         const response = await fetch(url, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(shiftData),
         });
 
-  
-      console.log("Response Status:", response.status); // Testiominaisuus, voi poistaa joskus
-  
-      const responseData = await response.json();
-      console.log("Response Data:", responseData); // Testiominaisuus, voi poistaa joskus
-  
-      if (response.ok) {
-        Alert.alert("Shift reported successfully", "", [{
-          text: "OK",
-          onPress: () => navigation.navigate('History') // Navigate to History screen
-        }]);
-      } else {
-        Alert.alert("Failed to report shift", responseData.message);
+        console.log("Response Status:", response.status); // Testiominaisuus, voi poistaa joskus
+
+        const responseData = await response.json();
+        console.log("Response Data:", responseData); // Testiominaisuus, voi poistaa joskus
+
+        if (response.ok) {
+          Alert.alert("Shift reported successfully", "", [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("History"), // Navigate to History screen
+            },
+          ]);
+        } else {
+          Alert.alert("Failed to report shift", responseData.message);
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+        Alert.alert("An error occurred while reporting the shift");
       }
-    } catch (error) {
-      console.error("Fetch error:", error);
-      Alert.alert("An error occurred while reporting the shift");
-    }}
+    };
     await getTokenAndMakeRequest(shiftData);
   };
 
@@ -107,11 +118,12 @@ const [endTime, setEndTime] = useState({ hour: "", minute: "" });
     setPickerVisible(!isPickerVisible);
   };
   const formatDate = (date) => {
-    return `${date.day.padStart(2, '0')}.${date.month.padStart(2, '0')}.${date.year}`;
+    return `${date.day.padStart(2, "0")}.${date.month.padStart(2, "0")}.${
+      date.year
+    }`;
   };
   const startMinutesInputRef = useRef(null);
   const endMinutesInputRef = useRef(null);
-
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -119,181 +131,204 @@ const [endTime, setEndTime] = useState({ hour: "", minute: "" });
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
       />
-  
+
       {/* Button to Show Date Picker Modal */}
       <TouchableOpacity onPress={togglePicker} style={styles.dateButton}>
-  <Text style={styles.buttonText}>
-    {date.year !== '2023' || date.month !== '1' || date.day !== '1' 
-      ? formatDate(date) 
-      : 'SELECT DATE'}
-  </Text>
-</TouchableOpacity>
-  
-<View style={styles.timeContainer}>
-  {/* Start Time Input */}
-  <View style={styles.timeInputContainer}>
-  <TextInput
-  style={styles.timeInput}
-  value={startTime.hour}
-  onChangeText={(text) => {
-    setStartTime({ ...startTime, hour: text });
-    if (text.length === 2) {
-      startMinutesInputRef.current.focus();
-    }
-  }}
-  keyboardType="numeric"
-  maxLength={2}
-  placeholder="HH"
-/>
+        <Text style={styles.buttonText}>
+          {date.year !== "2023" || date.month !== "1" || date.day !== "1"
+            ? formatDate(date)
+            : "SELECT DATE"}
+        </Text>
+      </TouchableOpacity>
 
-<TextInput
-  style={styles.timeInput}
-  value={startTime.minute}
-  onChangeText={(text) => setStartTime({ ...startTime, minute: text })}
-  keyboardType="numeric"
-  maxLength={2}
-  placeholder="MM"
-  ref={startMinutesInputRef}
-/>
-  </View>
+      <View style={styles.timeContainer}>
+        {/* Start Time Input */}
+        <View style={styles.timeInputContainer}>
+          <TextInput
+            style={styles.timeInput}
+            value={startTime.hour}
+            onChangeText={(text) => {
+              setStartTime({ ...startTime, hour: text });
+              if (text.length === 2) {
+                startMinutesInputRef.current.focus();
+              }
+            }}
+            keyboardType="numeric"
+            maxLength={2}
+            placeholder="HH"
+          />
 
-  <Text style={styles.dash}>-</Text>
+          <TextInput
+            style={styles.timeInput}
+            value={startTime.minute}
+            onChangeText={(text) =>
+              setStartTime({ ...startTime, minute: text })
+            }
+            keyboardType="numeric"
+            maxLength={2}
+            placeholder="MM"
+            ref={startMinutesInputRef}
+          />
+        </View>
 
-  {/* End Time Input */}
-  <View style={styles.timeInputContainer}>
-  <TextInput
-  style={styles.timeInput}
-  value={endTime.hour}
-  onChangeText={(text) => {
-    setEndTime({ ...endTime, hour: text });
-    if (text.length === 2) {
-      endMinutesInputRef.current.focus();
-    }
-  }}
-  keyboardType="numeric"
-  maxLength={2}
-  placeholder="HH"
-/>
+        <Text style={styles.dash}>-</Text>
 
-<TextInput
-  style={styles.timeInput}
-  value={endTime.minute}
-  onChangeText={(text) => setEndTime({ ...endTime, minute: text })}
-  keyboardType="numeric"
-  maxLength={2}
-  placeholder="MM"
-  ref={endMinutesInputRef}
-/>
-  </View>
-</View>
-  
+        {/* End Time Input */}
+        <View style={styles.timeInputContainer}>
+          <TextInput
+            style={styles.timeInput}
+            value={endTime.hour}
+            onChangeText={(text) => {
+              setEndTime({ ...endTime, hour: text });
+              if (text.length === 2) {
+                endMinutesInputRef.current.focus();
+              }
+            }}
+            keyboardType="numeric"
+            maxLength={2}
+            placeholder="HH"
+          />
+
+          <TextInput
+            style={styles.timeInput}
+            value={endTime.minute}
+            onChangeText={(text) => setEndTime({ ...endTime, minute: text })}
+            keyboardType="numeric"
+            maxLength={2}
+            placeholder="MM"
+            ref={endMinutesInputRef}
+          />
+        </View>
+      </View>
+
       {/* Break Time Adjustment */}
       <View style={styles.breakContainer}>
         <Text style={styles.breakButtonText}>BREAKS</Text>
         <View style={styles.breakAdjustContainer}>
-          <TouchableOpacity onPress={() => handleBreakChange(-15)} style={styles.breakButton}>
+          <TouchableOpacity
+            onPress={() => handleBreakChange(-15)}
+            style={styles.breakButton}
+          >
             <Text style={styles.breakButtonMinus}>-</Text>
           </TouchableOpacity>
           <Text style={styles.breakText}>{`${breakMinutes} min`}</Text>
-          <TouchableOpacity onPress={() => handleBreakChange(15)} style={styles.breakButton}>
+          <TouchableOpacity
+            onPress={() => handleBreakChange(15)}
+            style={styles.breakButton}
+          >
             <Text style={styles.breakButtonPlus}>+</Text>
           </TouchableOpacity>
         </View>
       </View>
-  
+
       {/* Details Input */}
       <TextInput
-  style={styles.input}
-  placeholder="Enter work description"
-  value={details}
-  onChangeText={setDetails}
-/>
-  
+        style={styles.input}
+        placeholder="Enter work description"
+        value={details}
+        onChangeText={setDetails}
+      />
+
       {/* Confirm Button */}
       <TouchableOpacity style={styles.confirmButton} onPress={submitShift}>
         <Text style={styles.confirmButtonText}>CONFIRM</Text>
       </TouchableOpacity>
       {/* Pickeri päivämäärälle */}
       <Modal
-  animationType="slide"
-  transparent={true}
-  visible={isPickerVisible}
-  onRequestClose={() => {
-    setPickerVisible(!isPickerVisible);
-  }}
->
-  <View style={styles.centeredView}>
-    <View style={styles.modalView}>
-
-      <View style={styles.container}>
-  {/* Label and Picker for Year */}
-  <Text style={styles.label}>Year</Text>
-  <View style={styles.pickerContainer}>
-    <Picker
-      selectedValue={date.year}
-      onValueChange={(itemValue) => setDate({ ...date, year: itemValue })}
-      style={styles.picker}>
-      {years.map((year) => (
-        <Picker.Item key={year} label={year.toString()} value={year} />
-      ))}
-    </Picker>
-  </View>
-
-  {/* Label and Picker for Month */}
-  <Text style={styles.label}>Month</Text>
-  <View style={styles.pickerContainer}>
-    <Picker
-      selectedValue={date.month}
-      onValueChange={(itemValue) => setDate({ ...date, month: itemValue })}
-      style={styles.picker}>
-      {months.map((month) => (
-        <Picker.Item key={month} label={month.toString()} value={month} />
-      ))}
-    </Picker>
-  </View>
-
-  {/* Label and Picker for Day */}
-  <Text style={styles.label}>Day</Text>
-  <View style={styles.pickerContainer}>
-    <Picker
-      selectedValue={date.day}
-      onValueChange={(itemValue) => setDate({ ...date, day: itemValue })}
-      style={styles.picker}>
-      {days.map((day) => (
-        <Picker.Item key={day} label={day.toString()} value={day} />
-      ))}
-    </Picker>
-  </View>
-</View>
-
-      {/* Sulje Modal (päivämäärä valikko) */}
-      <TouchableOpacity
-        style={styles.buttonClose}
-        onPress={() => setPickerVisible(!isPickerVisible)}
+        animationType="slide"
+        transparent={true}
+        visible={isPickerVisible}
+        onRequestClose={() => {
+          setPickerVisible(!isPickerVisible);
+        }}
       >
-        <Text style={styles.textStyle}>Confirm</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View style={styles.container}>
+              {/* Label and Picker for Year */}
+              <Text style={styles.label}>Year</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={date.year}
+                  onValueChange={(itemValue) =>
+                    setDate({ ...date, year: itemValue })
+                  }
+                  style={styles.picker}
+                >
+                  {years.map((year) => (
+                    <Picker.Item
+                      key={year}
+                      label={year.toString()}
+                      value={year}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              {/* Label and Picker for Month */}
+              <Text style={styles.label}>Month</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={date.month}
+                  onValueChange={(itemValue) =>
+                    setDate({ ...date, month: itemValue })
+                  }
+                  style={styles.picker}
+                >
+                  {months.map((month) => (
+                    <Picker.Item
+                      key={month}
+                      label={month.toString()}
+                      value={month}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              {/* Label and Picker for Day */}
+              <Text style={styles.label}>Day</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={date.day}
+                  onValueChange={(itemValue) =>
+                    setDate({ ...date, day: itemValue })
+                  }
+                  style={styles.picker}
+                >
+                  {days.map((day) => (
+                    <Picker.Item key={day} label={day.toString()} value={day} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+
+            {/* Sulje Modal (päivämäärä valikko) */}
+            <TouchableOpacity
+              style={styles.buttonClose}
+              onPress={() => setPickerVisible(!isPickerVisible)}
+            >
+              <Text style={styles.textStyle}>Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
 const styles = StyleSheet.create({
   pickerContainer: {
     borderWidth: 2,
-    borderColor: 'black',
+    borderColor: "black",
     borderRadius: 5,
     width: screenWidth * 0.7,
     height: screenHeight * 0.05,
-    justifyContent: 'center',
-    marginBottom: '10%',
-    
+    justifyContent: "center",
+    marginBottom: "10%",
   },
   label: {
     fontSize: screenWidth * 0.1,
-    color: 'black',
-    fontFamily: 'Saira-Regular',
+    color: "black",
+    fontFamily: "Saira-Regular",
   },
   backgroundImage: {
     position: "absolute",
@@ -373,7 +408,7 @@ const styles = StyleSheet.create({
     flex: 0.5,
     alignItems: "center",
     justifyContent: "center",
-  marginHorizontal: screenWidth * 0.03,
+    marginHorizontal: screenWidth * 0.03,
   },
   breakButtonText: {
     fontSize: screenWidth * 0.1,
@@ -436,8 +471,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
   modalView: {
     backgroundColor: "white",
@@ -447,7 +481,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -486,23 +520,22 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   timeInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 5,
-    borderColor: 'black',
+    borderColor: "black",
     borderWidth: 2,
     padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+    backgroundColor: "rgba(255, 255, 255, 1)",
   },
   timeInput: {
     width: screenWidth * 0.16,
     marginHorizontal: 2,
-    textAlign: 'center',
-    fontFamily: 'Saira-Regular',
+    textAlign: "center",
+    fontFamily: "Saira-Regular",
     fontSize: screenWidth * 0.1,
   },
-
 });
 
 export default ReportHours;
