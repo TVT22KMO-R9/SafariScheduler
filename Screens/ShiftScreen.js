@@ -47,6 +47,18 @@ export default function ShiftScreen() {
         navigation.navigate('ReportHours');
         
       };
+      const formatShiftData = (shift) => {
+        const date = new Date(shift.date);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const formattedDate = `${day}.${month}.${year}`;
+      
+        const startTime = shift.startTime ? shift.startTime.substring(0, 5) : '';
+        const endTime = shift.endTime ? shift.endTime.substring(0, 5) : '';
+      
+        return `${formattedDate} ${startTime} - ${endTime}`;
+      };
 
       useEffect(() => {
         const fetchData = async (endpoint, setDataFunction) => {
@@ -66,9 +78,23 @@ export default function ShiftScreen() {
         
 
         const fetchBoxData = async () => {
-          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox1Data);
-          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox2Data);
-          await fetchData(SERVER_BASE_URL + UPCOMING_SHIFTS, setBox3Data);
+          const fetchShifts = async () => {
+            try {
+              const authToken = await AsyncStorage.getItem('userToken');
+              const response = await fetch(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`, {
+                headers: {
+                  'Authorization': `Bearer ${authToken}`,
+                },
+              });
+              const shifts = await response.json();
+              if (shifts.length > 0) setBox1Data(formatShiftData(shifts[0]));
+              if (shifts.length > 1) setBox2Data(formatShiftData(shifts[1]));
+              if (shifts.length > 2) setBox3Data(formatShiftData(shifts[2]));
+            } catch (error) {
+              console.error('Error fetching shifts:', error);
+            }
+          };
+          await fetchShifts();
         };
       
         fetchBoxData();
@@ -183,6 +209,8 @@ const styles = StyleSheet.create({
         margin: 10,
         borderRadius: 5,
         alignItems: "center",
+        borderColor: "black",
+        borderWidth: 2,
       },
       dataBoxText: {
         fontSize: 16,
@@ -221,5 +249,4 @@ reportHoursButtonText: {
     textShadowRadius: 10,
 },
   });
-
   
