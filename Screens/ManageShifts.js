@@ -14,6 +14,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import { WORKERS, ADD_SHIFT, SERVER_BASE_URL, DELETE_SHIFT } from "@env";
+import { useNavigation } from "@react-navigation/native";
+import DeleteShifts from './DeleteShifts';
 
 const ManageShifts = () => {
   const [workers, setWorkers] = useState([]);
@@ -26,10 +28,10 @@ const ManageShifts = () => {
   const [endTime, setEndTime] = useState("");
   const [description, setDescription] = useState("");
   const [breaksTotal, setBreaksTotal] = useState("");
-  const [isMenuVisible, setMenuVisible] = useState(false);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [date, setDate] = useState({ year: "2023", month: "1", day: "1" });
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
+  const navigation = useNavigation();
 
   const generateNumberArray = (start, end) => {
     let numbers = [];
@@ -180,31 +182,8 @@ const ManageShifts = () => {
     setShiftDate(formattedDate);
   };
 
-  const handleDeleteShift = async (shiftId) => {
-    const token = await fetchAuthToken();
-    if (!token) return;
-
-    try {
-      const deleteEndpoint = `${SERVER_BASE_URL}${DELETE_SHIFT.replace(
-        "{shiftId}",
-        shiftId
-      )}`;
-      const response = await fetch(deleteEndpoint, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        Alert.alert("Success", "Shift deleted successfully.");
-        // Update local state or UI as needed
-      } else {
-        Alert.alert("Error", "Failed to delete the shift.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred.");
-    }
+  const handleDeleteShift = () => {
+    navigation.navigate("DeleteShifts");
   };
 
   const openModal = async () => {
@@ -252,7 +231,7 @@ const ManageShifts = () => {
       <Modal
         visible={isDatePickerVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
       >
         <View style={styles.datecenteredView}>
           <View style={styles.datemodalView}>
@@ -387,7 +366,7 @@ const ManageShifts = () => {
         </View>
         {/* Modal for Selecting Worker */}
         <Modal
-          animationType="slide"
+          animationType="fade"
           transparent={true}
           visible={isModalVisible}
           onRequestClose={closeModal}
@@ -442,6 +421,9 @@ const ManageShifts = () => {
       <TouchableOpacity style={styles.assignButton} onPress={handleAssignShift}>
         <Text style={styles.buttonText}>ASSIGN SHIFT</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteShift}>
+        <Text style={styles.buttonText}>REMOVE SHIFTS</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -450,6 +432,17 @@ screenWidth = Dimensions.get("window").width;
 screenHeight = Dimensions.get("window").height;
 
 const styles = StyleSheet.create({
+  deleteButton: {
+    backgroundColor: "rgba(255, 0, 0, 0.8)",
+    borderRadius: 5,
+    padding: 5,
+    marginVertical: 10,
+    alignItems: "center",
+    width: screenWidth * 0.9,
+    borderColor: "black",
+    borderWidth: 2,
+    marginTop: "30%",
+  },
   addButton: {
     backgroundColor: "rgba(0, 0, 0, 0.7)",
     borderRadius: 5,
@@ -457,7 +450,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     alignItems: "center",
     width: screenWidth * 0.9,
-    borderColor: "black",
+    borderColor: "white",
     borderWidth: 2,
   },
   dash: {
@@ -532,17 +525,17 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   button: {
-    backgroundColor: "rgba(83, 237, 255, 0.8)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 5,
     padding: 5,
     marginVertical: 10,
     alignItems: "center",
     width: "90%",
-    borderColor: "black",
+    borderColor: "white",
     borderWidth: 2,
   },
   assignButton: {
-    backgroundColor: "rgba(0, 205, 0, 0.7)",
+    backgroundColor: "rgba(77, 205, 0, 0.7)",
     borderRadius: 5,
     padding: 5,
     marginVertical: 10,
@@ -552,13 +545,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   dateButton: {
-    backgroundColor: "rgba(144, 11, 144, 0.8)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 5,
     padding: 5,
     marginVertical: 10,
     alignItems: "center",
     width: "90%",
-    borderColor: "black",
+    borderColor: "white",
     borderWidth: 2,
   },
   buttonText: {
@@ -599,6 +592,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 5,
     fontFamily: "Saira-Regular",
+    fontSize: screenWidth * 0.06,
   },
   item: {
     padding: 10,
@@ -608,7 +602,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   itemText: {
-    fontSize: 18,
+    fontSize: screenWidth * 0.08,
     fontFamily: "Saira-Regular",
   },
   buttonClose: {

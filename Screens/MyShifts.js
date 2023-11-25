@@ -1,0 +1,205 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  ScrollView,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { UPCOMING_SHIFTS, SERVER_BASE_URL } from "@env";
+
+const MyShifts = () => {
+  const [shifts, setShifts] = useState([]);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString();
+    const weekday = date.toLocaleString('default', { weekday: 'short' }).substring(0, 2);
+    return { day, weekday };
+  };
+
+  const groupShiftsByMonth = (shifts) => {
+    const grouped = {};
+    shifts.forEach(shift => {
+      const month = new Date(shift.date).getMonth();
+      const year = new Date(shift.date).getFullYear();
+      const monthYear = `${month}-${year}`;
+      if (!grouped[monthYear]) {
+        grouped[monthYear] = [];
+      }
+      grouped[monthYear].push(shift);
+    });
+    return grouped;
+  };
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    return `${hours}:${minutes}`; // Returns time in HH:mm format
+  };
+
+  const fetchShifts = async () => {
+    try {
+      const authToken = await AsyncStorage.getItem("userToken");
+      if (!authToken) {
+        Alert.alert("Error", "Authentication token not found");
+        return;
+      }
+
+      const response = await fetch(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const groupedShifts = groupShiftsByMonth(data);
+        setShifts(groupedShifts);
+      } else {
+        Alert.alert("Error", "Failed to fetch shifts");
+      }
+    } catch (error) {
+      console.error("Error fetching shifts:", error);
+      Alert.alert("Error", "An error occurred while fetching shifts");
+    }
+    console.log(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`);
+  };
+
+  useEffect(() => {
+    fetchShifts();
+  }, []);
+
+  const renderShiftsByMonth = () => {
+    return Object.keys(shifts).map(monthYear => {
+      const [month, year] = monthYear.split('-');
+      const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
+      return (
+        <View key={monthYear}>
+          <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
+          {shifts[monthYear].map(shift => {
+            const { day, weekday } = formatDate(shift.date);
+            return (
+              <View key={shift.id} style={styles.shiftContainer}>
+                <View style={styles.weekdayContainer}>
+                  <Text style={styles.dayText}>{day}</Text>
+                  <Text style={styles.weekdayText}>{weekday.toUpperCase()}</Text>
+                </View>
+                <View style={styles.timeContainer}>
+                  <Text style={styles.shiftText}>
+                    {formatTime(shift.startTime)} - {shift.endTime && formatTime(shift.endTime)}
+                  </Text>
+                  <Text style={styles.shiftDescription}>{shift.description}</Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      );
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Image
+        source={require("../assets/background.png")}
+        style={styles.backgroundImage}
+      />
+      <ScrollView>
+        {renderShiftsByMonth()}
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  backgroundImage: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  shiftContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0)",
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
+    width: Dimensions.get("window").width * 0.9,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+
+  },
+  shiftText: {
+    fontSize: Dimensions.get("window").width * 0.08,
+    fontFamily: "Saira-Regular",
+    color: "white",
+    paddingHorizontal:7,
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 4,
+  },
+  timeContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shiftDescription: {
+    fontSize: Dimensions.get("window").width * 0.05,
+    color: "white",
+    fontFamily: "Saira-Regular",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 3,
+  },
+  dayText: {
+    fontSize: Dimensions.get("window").width * 0.15,
+    fontWeight: 'bold',
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 3,
+    fontFamily: "Saira-Regular",
+  },
+  weekdayContainer: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+  weekdayText: {
+    fontSize: Dimensions.get("window").width * 0.06,
+    color: "white",
+    fontFamily: "Saira-Regular",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 3,
+  },
+  dashText: {
+    fontSize: Dimensions.get("window").width * 0.07,
+    fontFamily: "Saira-Regular",
+    color: "white",
+    paddingHorizontal:4,
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 4,
+  },
+  monthHeader: {
+    fontSize: Dimensions.get("window").width * 0.1,
+    fontFamily: "Saira-Regular",
+    color: "white",
+    textAlign: "center",
+    marginVertical: 10,
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+    textTransform: "uppercase",
+  },
+});
+
+export default MyShifts;

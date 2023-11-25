@@ -235,7 +235,7 @@ const ReportHours = () => {
       </TouchableOpacity>
       {/* Pickeri päivämäärälle */}
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={isPickerVisible}
         onRequestClose={() => {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.9,
     borderColor: "black",
     borderWidth: 2,
-    backgroundColor: "rgba(255, 255, 255, 1)",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
   },
   breakAdjustContainer: {
     flexDirection: "row",
@@ -412,11 +412,11 @@ const styles = StyleSheet.create({
   },
   breakButtonText: {
     fontSize: screenWidth * 0.1,
-    color: "black",
+    color: "white",
     fontFamily: "Saira-Regular",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 0,
+    textShadowRadius: 10,
     alignItems: "center",
   },
   breakText: {
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     borderRadius: 5,
     fontFamily: "Saira-Regular",
-    backgroundColor: "white",
+    backgroundColor: "rgba(255, 255, 255, 1)",
     marginBottom: screenHeight * 0.2,
     fontSize: screenWidth * 0.05,
   },

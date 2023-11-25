@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     backgroundColor: 'rgba(0, 205, 0, 0.7)',
-    borderRadius: 20,
+    borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 20,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   input: {
     height: screenWidth * 0.2,
     width: "80%",
-    borderRadius: 10,
+    borderRadius: 5,
     borderColor: "black",
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderWidth: 1,

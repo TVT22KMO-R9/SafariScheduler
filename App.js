@@ -11,16 +11,14 @@ import CreateUser from './Screens/CreateUser';
 import ShiftScreen from './Screens/ShiftScreen';
 import ReportHours from './Screens/ReportHours';
 import ManageShifts from './Screens/ManageShifts';
+import DeleteShifts from './Screens/DeleteShifts';
+import MyShifts from './Screens/MyShifts';
 
 const Stack = createStackNavigator();
 
 export default function App() {
 
   const [fontsLoaded] = useFonts({
-    'Saira-Black': require('./assets/fonts/Saira-Black.ttf'),
-    'Jost-Black': require('./assets/fonts/Jost-Black.ttf'),
-    'Saira-Thin': require('./assets/fonts/Saira-Thin.ttf'),
-    'Saira-Light': require('./assets/fonts/Saira-Light.ttf'),
     'Saira-Regular': require('./assets/fonts/Saira-Regular.ttf'),
   });
   return (
@@ -29,47 +27,51 @@ export default function App() {
         <Stack.Screen
           name="Splash"
           component={Splash}
-          options={{ headerShown: false }} // Assuming you don't want a header for the splash screen
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Welcome"
           component={Welcome}
-          options={{ headerShown: false }} // Customize your header options
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Login"
           component={Login}
-          options={{ headerShown: false }} // Customize your header options
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="CreateUser"
           component={CreateUser}
-          options={{ headerShown: false }} // Customize your header options
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="ShiftScreen"
           component={ShiftScreen}
-          options={{ headerShown: false }} // Customize your header options
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="ReportHours"
           component={ReportHours}
-          options={{ headerShown: false }} // Customize your header options
+          options={{ headerShown: false }} 
         />
         <Stack.Screen
           name="ManageShifts"
           component={ManageShifts}
-          options={{ headerShown: false }} // Customize your header options
+          options={{ headerShown: false }}
         />
-        
+        <Stack.Screen
+          name="DeleteShifts"
+          component={DeleteShifts}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MyShifts"
+          component={MyShifts}
+          options={{ headerShown: false }}
+        />
           
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
   );
 }
-
-// If you have global styles you want to apply, you can define them here
-const styles = StyleSheet.create({
-  // Your styles
-});
