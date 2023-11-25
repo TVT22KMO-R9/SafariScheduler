@@ -13,6 +13,7 @@ import ReportHours from './Screens/ReportHours';
 import ManageShifts from './Screens/ManageShifts';
 import DeleteShifts from './Screens/DeleteShifts';
 import MyShifts from './Screens/MyShifts';
+import History from './Screens/History';
 
 const Stack = createStackNavigator();
 
@@ -67,6 +68,11 @@ export default function App() {
         <Stack.Screen
           name="MyShifts"
           component={MyShifts}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="History"
+          component={History}
           options={{ headerShown: false }}
         />
           
