@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { UPCOMING_SHIFTS, SERVER_BASE_URL} from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu from '../Components/Menu';
@@ -27,6 +27,8 @@ export default function ShiftScreen() {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const route = useRoute();
     const userRole = route.params?.userRole;
+    const navigation = useNavigation();
+    
 
     const handleDataBoxPress = (data) => {
       setSelectedBoxData(data);
@@ -37,11 +39,6 @@ export default function ShiftScreen() {
         setMenuVisible(!isMenuVisible);
       };
 
-    const navigation = useNavigation();
-
-    const navigateToMenu = () => {
-        navigation.navigate('Menu');
-      };
 
     const navigateToReportHours = () => {
         navigation.navigate('ReportHours');
@@ -61,40 +58,23 @@ export default function ShiftScreen() {
       };
 
       useEffect(() => {
-        const fetchData = async (endpoint, setDataFunction) => {
+        const fetchBoxData = async () => {
           try {
             const authToken = await AsyncStorage.getItem('userToken');
-            const response = await fetch(endpoint, {
+            console.log('Fetching shifts with token:', authToken);
+            const response = await fetch(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`, {
               headers: {
-                Authorization: `Bearer ${authToken}`,
+                'Authorization': `Bearer ${authToken}`,
               },
             });
-            const data = await response.text();
-            setDataFunction(data);
+            const shifts = await response.json();
+            console.log('Fetched shifts:', shifts);
+            if (shifts.length > 0) setBox1Data(formatShiftData(shifts[0]));
+            if (shifts.length > 1) setBox2Data(formatShiftData(shifts[1]));
+            if (shifts.length > 2) setBox3Data(formatShiftData(shifts[2]));
           } catch (error) {
-            console.error(`Error fetching data for ${setDataFunction.name}`, error);
+            console.error('Error fetching shifts:', error);
           }
-        };
-        
-
-        const fetchBoxData = async () => {
-          const fetchShifts = async () => {
-            try {
-              const authToken = await AsyncStorage.getItem('userToken');
-              const response = await fetch(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`, {
-                headers: {
-                  'Authorization': `Bearer ${authToken}`,
-                },
-              });
-              const shifts = await response.json();
-              if (shifts.length > 0) setBox1Data(formatShiftData(shifts[0]));
-              if (shifts.length > 1) setBox2Data(formatShiftData(shifts[1]));
-              if (shifts.length > 2) setBox3Data(formatShiftData(shifts[2]));
-            } catch (error) {
-              console.error('Error fetching shifts:', error);
-            }
-          };
-          await fetchShifts();
         };
       
         fetchBoxData();
@@ -109,7 +89,7 @@ return (
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
     />
-    <TouchableOpacity onPress={toggleMenu} style={styles.button}>
+    <TouchableOpacity style={styles.button} onPress={toggleMenu}>
         <Ionicons name="menu" size={45} color="white" />
     </TouchableOpacity>
     <Modal

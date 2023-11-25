@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -12,6 +12,11 @@ import {
 
 export default function Menu({ userRole }) {
   const navigation = useNavigation();
+  
+  // useEffect to handle re-rendering when the Menu becomes visible
+  useEffect(() => {
+    console.log("Menu component re-rendered with user role:", userRole);
+  }, [userRole]);
 
   // Function to handle navigation
   const handlePress = (label) => {
@@ -28,7 +33,7 @@ export default function Menu({ userRole }) {
     };
     const screenName = screens[label];
     if (screenName) {
-      navigation.navigate(screenName);
+      navigation.navigate(screenName,  { userRole });
     } else {
       console.warn(`No screen found for label: ${label}`);
     }
