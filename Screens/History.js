@@ -38,9 +38,6 @@ export default function ShiftScreen() {
 
   const navigation = useNavigation();
 
-  const navigateToMenu = () => {
-    navigation.navigate('Menu');
-  };
 
   const formatShiftData = (shift) => {
     const date = new Date(shift.date);
@@ -105,16 +102,16 @@ export default function ShiftScreen() {
       <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>YOUR HISTORY</Text>
       <ScrollView style={styles.scrollView}>
-        {shifts.map((shift, index) => (
-            <TouchableOpacity
-            key={index}
-            style={styles.dataBox}
-            onPress={() => handleDataBoxPress(formatShiftData(shift))}
-            >
-            <Text style={styles.dataBoxText}>{formatShiftData(shift)}</Text>
-            </TouchableOpacity>
-        ))}
-        </ScrollView>
+      {shifts.map((shift, index) => (
+        <TouchableOpacity
+          key={index}
+          style={styles.dataBox}
+          onPress={() => handleDataBoxPress(formatShiftData(shift))}
+        >
+          <Text style={styles.dataBoxText}>{formatShiftData(shift)}</Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
       <TouchableWithoutFeedback onPress={() => setDescriptionVisible(false)}>
         <Description
           isVisible={isDescriptionVisible}
@@ -157,6 +154,7 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 10,
+    marginTop: 70,
   },
   button: {
     position: 'absolute',
@@ -171,8 +169,10 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 5,
     alignItems: "center",
+    justifyContent: "center",
     borderColor: "black",
     borderWidth: 2,
+    alignSelf: "center",
   },
   dataBoxText: {
     fontSize: 16,
