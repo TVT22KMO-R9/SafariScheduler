@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, useRoute } from '@react-navigation/native';
+import Menu from '../Components/Menu';
 import {
   View,
   Text,
@@ -9,12 +12,22 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UPCOMING_SHIFTS, SERVER_BASE_URL } from "@env";
 
 const MyShifts = () => {
   const [shifts, setShifts] = useState([]);
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const route = useRoute();
+  const userRole = route.params?.userRole;
+
+  const toggleMenu = () => {
+    setMenuVisible(!isMenuVisible);
+  };
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -107,7 +120,25 @@ const MyShifts = () => {
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
       />
-      <ScrollView>
+      <TouchableOpacity onPress={toggleMenu} style={styles.button}>
+        <Ionicons name="menu" size={45} color="white" />
+      </TouchableOpacity>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isMenuVisible}
+        onRequestClose={() => {
+          setMenuVisible(false);
+        }}
+      >
+        <TouchableWithoutFeedback onPress={toggleMenu}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+        <View style={styles.menuContainer}>
+          <Menu userRole={userRole} />
+        </View>
+      </Modal>
+      <ScrollView style={styles.scrollView}>
         {renderShiftsByMonth()}
       </ScrollView>
     </View>
@@ -199,6 +230,27 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
     textTransform: "uppercase",
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  menuContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: Dimensions.get('window').width * 0.75,
+    height: '100%',
+    backgroundColor: 'white',
+  },
+  button: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    padding: 10,
+  },
+  scrollView: {
+    marginTop: 70,
   },
 });
 
