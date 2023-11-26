@@ -4,7 +4,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { SERVER_BASE_URL, LAST_31_SHIFTS_ENDPOINT } from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu from '../Components/Menu';
-import Description from "../Components/Description";
 
 import {
   StyleSheet,
@@ -21,16 +20,10 @@ import {
 
 export default function ShiftScreen() {
   const [shifts, setShifts] = useState([]);
-  const [isDescriptionVisible, setDescriptionVisible] = useState(false);
-  const [selectedBoxData, setSelectedBoxData] = useState("");
   const [isMenuVisible, setMenuVisible] = useState(false);
   const route = useRoute();
   const userRole = route.params?.userRole;
 
-  const handleDataBoxPress = (data) => {
-    setSelectedBoxData(data);
-    setDescriptionVisible(!isDescriptionVisible);
-  };
 
   const toggleMenu = () => {
     setMenuVisible(!isMenuVisible);
@@ -39,41 +32,90 @@ export default function ShiftScreen() {
   const navigation = useNavigation();
 
 
-  const formatShiftData = (shift) => {
-    const date = new Date(shift.date);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const formattedDate = `${day}.${month}.${year}`;
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString();
+    const weekday = date.toLocaleString('default', { weekday: 'short' }).substring(0, 2);
+    return { day, weekday };
+  };
 
-    const startTime = shift.startTime ? shift.startTime.substring(0, 5) : '';
-    const endTime = shift.endTime ? shift.endTime.substring(0, 5) : '';
+  const groupShiftsByMonth = (shifts) => {
+    const grouped = {};
+    shifts.forEach(shift => {
+      const month = new Date(shift.date).getMonth();
+      const year = new Date(shift.date).getFullYear();
+      const monthYear = `${month}-${year}`;
+      if (!grouped[monthYear]) {
+        grouped[monthYear] = [];
+      }
+      grouped[monthYear].push(shift);
+    });
+    return grouped;
+  };
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    return `${hours}:${minutes}`; // Returns time in HH:mm format
+  };
 
-    return `${formattedDate} ${startTime} - ${endTime}`;
+  const fetchShifts = async () => {
+    try {
+      const authToken = await AsyncStorage.getItem("userToken");
+      if (!authToken) {
+        Alert.alert("Error", "Authentication token not found");
+        return;
+      }
+
+      const response = await fetch(`${SERVER_BASE_URL}${LAST_31_SHIFTS_ENDPOINT}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const groupedShifts = groupShiftsByMonth(data);
+        setShifts(groupedShifts);
+      } else {
+        Alert.alert("Error", "Failed to fetch shifts");
+      }
+    } catch (error) {
+      console.error("Error fetching shifts:", error);
+      Alert.alert("Error", "An error occurred while fetching shifts");
+    }
+    console.log(`${SERVER_BASE_URL}${LAST_31_SHIFTS_ENDPOINT}`);
   };
 
   useEffect(() => {
-    const fetchData = async (endpoint, setDataFunction) => {
-      try {
-        const authToken = await AsyncStorage.getItem('userToken');
-        const response = await fetch(endpoint, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-        const data = await response.json();
-        setDataFunction(data);
-      } catch (error) {
-        console.error(`Error fetching data for ${setDataFunction.name}`, error);
-      }
-    };
-
-    const fetchShiftData = async () => {
-      await fetchData(`${SERVER_BASE_URL}${LAST_31_SHIFTS_ENDPOINT}`, setShifts);
-    };
-
-    fetchShiftData();
+    fetchShifts();
   }, []);
+
+  const renderShiftsByMonth = () => {
+    return Object.keys(shifts).map(monthYear => {
+      const [month, year] = monthYear.split('-');
+      const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
+      return (
+        <View key={monthYear}>
+          <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
+          {shifts[monthYear].map(shift => {
+            const { day, weekday } = formatDate(shift.date);
+            return (
+              <View key={shift.id} style={styles.shiftContainer}>
+                <View style={styles.weekdayContainer}>
+                  <Text style={styles.dayText}>{day}</Text>
+                  <Text style={styles.weekdayText}>{weekday.toUpperCase()}</Text>
+                </View>
+                <View style={styles.timeContainer}>
+                  <Text style={styles.shiftText}>
+                    {formatTime(shift.startTime)} - {shift.endTime && formatTime(shift.endTime)}
+                  </Text>
+                  <Text style={styles.shiftDescription}>{shift.description}</Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      );
+    });
+  };
 
   return (
     <KeyboardAvoidingView style={styles.container}>
@@ -99,26 +141,9 @@ export default function ShiftScreen() {
           <Menu userRole={userRole} />
         </View>
       </Modal>
-      <Image source={require("../assets/logo.png")} style={styles.logo} />
-      <Text style={styles.label}>YOUR HISTORY</Text>
       <ScrollView style={styles.scrollView}>
-      {shifts.map((shift, index) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.dataBox}
-          onPress={() => handleDataBoxPress(formatShiftData(shift))}
-        >
-          <Text style={styles.dataBoxText}>{formatShiftData(shift)}</Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
-      <TouchableWithoutFeedback onPress={() => setDescriptionVisible(false)}>
-        <Description
-          isVisible={isDescriptionVisible}
-          data={selectedBoxData}
-          onClose={() => setDescriptionVisible(false)}
-        />
-      </TouchableWithoutFeedback>
+        {renderShiftsByMonth()}
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -132,55 +157,95 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  logo: {
-    width: 150,
-    height: 500,
-    position: "absolute",
-    top: screenHeight * -0.1,
-    resizeMode: "contain",
-  },
   backgroundImage: {
     position: "absolute",
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
-  label: {
-    fontSize: screenHeight * 0.05,
-    fontWeight: "bold",
-    paddingTop: 170,
+  shiftContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0)",
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
+    width: Dimensions.get("window").width * 0.9,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+
+  },
+  shiftText: {
+    fontSize: Dimensions.get("window").width * 0.08,
     fontFamily: "Saira-Regular",
     color: "white",
+    paddingHorizontal:7,
     textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 4,
+  },
+  timeContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shiftDescription: {
+    fontSize: Dimensions.get("window").width * 0.05,
+    color: "white",
+    fontFamily: "Saira-Regular",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 3,
+  },
+  dayText: {
+    fontSize: Dimensions.get("window").width * 0.15,
+    fontWeight: 'bold',
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 3,
+    fontFamily: "Saira-Regular",
+  },
+  weekdayContainer: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+  weekdayText: {
+    fontSize: Dimensions.get("window").width * 0.06,
+    color: "white",
+    fontFamily: "Saira-Regular",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 3,
+  },
+  dashText: {
+    fontSize: Dimensions.get("window").width * 0.07,
+    fontFamily: "Saira-Regular",
+    color: "white",
+    paddingHorizontal:4,
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 4,
+  },
+  monthHeader: {
+    fontSize: Dimensions.get("window").width * 0.1,
+    fontFamily: "Saira-Regular",
+    color: "white",
+    textAlign: "center",
+    marginVertical: 10,
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
-    marginTop: 70,
+    textTransform: "uppercase",
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   button: {
     position: 'absolute',
     top: 20,
     left: 20,
     padding: 10,
-  },
-  dataBox: {
-    backgroundColor: "white",
-    width: "70%",
-    padding: 10,
-    margin: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
-    borderColor: "black",
-    borderWidth: 2,
-    alignSelf: "center",
-  },
-  dataBoxText: {
-    fontSize: 16,
-    color: "black",
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   menuContainer: {
     position: 'absolute',
@@ -191,7 +256,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   scrollView: {
-    flex: 1,
-    width: '100%',
+    marginTop: 70,
   },
 });

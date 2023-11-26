@@ -31,7 +31,7 @@ export default function ShiftScreen() {
     
 
     const handleDataBoxPress = (data) => {
-      setSelectedBoxData(data);
+      setSelectedBoxData(data.description);
       setDescriptionVisible(!isDescriptionVisible);
     };
 
@@ -53,8 +53,12 @@ export default function ShiftScreen() {
       
         const startTime = shift.startTime ? shift.startTime.substring(0, 5) : '';
         const endTime = shift.endTime ? shift.endTime.substring(0, 5) : '';
-      
-        return `${formattedDate} ${startTime} - ${endTime}`;
+
+        const description = shift.description || '';
+
+        const frontPageDisplay = `${formattedDate}            ${startTime} - ${endTime}`;
+        
+        return { frontPageDisplay, description };
       };
 
       useEffect(() => {
@@ -69,6 +73,7 @@ export default function ShiftScreen() {
             });
             const shifts = await response.json();
             console.log('Fetched shifts:', shifts);
+            
             if (shifts.length > 0) setBox1Data(formatShiftData(shifts[0]));
             if (shifts.length > 1) setBox2Data(formatShiftData(shifts[1]));
             if (shifts.length > 2) setBox3Data(formatShiftData(shifts[2]));
@@ -93,7 +98,6 @@ return (
         <Ionicons name="menu" size={45} color="white" />
     </TouchableOpacity>
     <Modal
-        animationType="slide"
         transparent={true}
         visible={isMenuVisible}
         onRequestClose={() => {
@@ -113,19 +117,21 @@ return (
         style={styles.dataBox}
         onPress={() => handleDataBoxPress(box1Data)}
       >
-        <Text style={styles.dataBoxText}>{box1Data}</Text>
+        <Text style={styles.dataBoxText}>{box1Data.frontPageDisplay}</Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.dataBox}
         onPress={() => handleDataBoxPress(box2Data)}
       >
-        <Text style={styles.dataBoxText}>{box2Data}</Text>
+        <Text style={styles.dataBoxText}>{box2Data.frontPageDisplay}</Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.dataBox}
         onPress={() => handleDataBoxPress(box3Data)}
       >
-        <Text style={styles.dataBoxText}>{box3Data}</Text>
+        <Text style={styles.dataBoxText}>{box3Data.frontPageDisplay}</Text>
       </TouchableOpacity>
     <TouchableWithoutFeedback onPress={() => setDescriptionVisible(false)}>
       <Description
@@ -169,7 +175,7 @@ const styles = StyleSheet.create({
     label: {
     fontSize: screenHeight * 0.05,
     fontWeight: "bold",
-    paddingTop: 170,
+    paddingTop: 100,
       fontFamily: "Saira-Regular",
       color: "white",
       textShadowColor: "rgba(0, 0, 0, 1)",
@@ -191,12 +197,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderColor: "black",
         borderWidth: 2,
+        
       },
-      dataBoxText: {
-        fontSize: 16,
-        color: "black",
+    dataBoxText: {
+      fontSize: 16,
+      color: "black",
+      fontFamily: "Saira-Regular",
+      fontWeight: "bold",
       },
-      overlay: {
+    overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
