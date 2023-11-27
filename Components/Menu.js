@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, } from "@react-navigation/native";
 import {
   StyleSheet,
   View,
@@ -12,6 +12,12 @@ import {
 
 export default function Menu({ userRole }) {
   const navigation = useNavigation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // useEffect to handle re-rendering when the Menu becomes visible
+  useEffect(() => {
+    console.log("Menu component re-rendered with user role:", userRole);
+  }, [userRole]);
 
   // Function to handle navigation
   const handlePress = (label) => {
@@ -28,11 +34,14 @@ export default function Menu({ userRole }) {
     };
     const screenName = screens[label];
     if (screenName) {
-      navigation.navigate(screenName);
+      navigation.navigate(screenName,  { userRole });
+      //close menu component before navigating to next screen
+      setIsMenuOpen(false);
     } else {
       console.warn(`No screen found for label: ${label}`);
     }
   };
+  
 
   // Define menu items based on user roles
   let menuItems = [];
