@@ -51,14 +51,14 @@ export default function ShiftScreen() {
         const date = new Date(shift.date);
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        const formattedDate = `${day}.${month}.${year}`;
       
+        const formattedDate = `${day}.${month}`;
+    
         const startTime = shift.startTime ? shift.startTime.substring(0, 5) : '';
         const endTime = shift.endTime ? shift.endTime.substring(0, 5) : '';
       
-        return `${formattedDate} ${startTime} - ${endTime}`;
-      };
+        return `${formattedDate} ${startTime}-${endTime}`;
+    };
 
       useEffect(() => {
         const fetchData = async (endpoint, setDataFunction) => {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     padding: 10,
     },
     dataBox: {
-        backgroundColor: "white",
+        backgroundColor: "rgba(40, 40, 40, 0.4)",
         width: "70%",
         padding: 10,
         margin: 10,
@@ -213,8 +213,12 @@ const styles = StyleSheet.create({
         borderWidth: 2,
       },
       dataBoxText: {
-        fontSize: 16,
-        color: "black",
+        fontSize: screenWidth * 0.07,
+        color: "white",
+        fontFamily: "Saira-Regular",
+        textShadowColor: "rgba(0, 0, 0, 1)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10,
       },
       overlay: {
     flex: 1,
