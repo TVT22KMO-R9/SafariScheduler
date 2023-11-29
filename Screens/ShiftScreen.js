@@ -40,7 +40,6 @@ export default function ShiftScreen() {
     console.log("onko menu näkyvissä:" + isMenuVisible)
   };
 
-
   const navigateToReportHours = () => {
     navigation.navigate('ReportHours');
 
@@ -57,7 +56,7 @@ export default function ShiftScreen() {
 
     const description = shift.description || '';
 
-    const frontPageDisplay = `${formattedDate}            ${startTime} - ${endTime}`;
+    const frontPageDisplay = `${formattedDate} , ${startTime} - ${endTime}`;
 
     return { frontPageDisplay, description };
   };
@@ -86,13 +85,10 @@ export default function ShiftScreen() {
     fetchBoxData();
   }, []);
 
+  //triggers an effect when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      // Set isMenuVisible to true when returning to ShiftScreen
       setMenuVisible(false);
-      return () => {
-        // Cleanup if needed
-      };
     }, [])
   );
 
