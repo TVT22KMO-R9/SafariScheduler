@@ -142,7 +142,7 @@ const ReportHours = () => {
       </TouchableOpacity>
 
       <View style={styles.timeContainer}>
-        {/* Start Time Input */}
+        {/* Start Time Input*/}
         <View style={styles.timeInputContainer}>
           <TextInput
             style={styles.timeInput}
@@ -155,7 +155,7 @@ const ReportHours = () => {
             }}
             keyboardType="numeric"
             maxLength={2}
-            placeholder="HH"
+            placeholder="HH :"
           />
 
           <TextInput
@@ -186,7 +186,7 @@ const ReportHours = () => {
             }}
             keyboardType="numeric"
             maxLength={2}
-            placeholder="HH"
+            placeholder="HH :"
           />
 
           <TextInput
@@ -521,8 +521,6 @@ const styles = StyleSheet.create({
   },
   timeInputContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
     borderRadius: 5,
     borderColor: "black",
     borderWidth: 2,
@@ -533,8 +531,7 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.16,
     marginHorizontal: 2,
     textAlign: "center",
-    fontFamily: "Saira-Regular",
-    fontSize: screenWidth * 0.1,
+    fontSize: screenWidth * 0.08,
   },
 });
 
