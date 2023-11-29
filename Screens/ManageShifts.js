@@ -17,6 +17,9 @@ import { WORKERS, ADD_SHIFT, SERVER_BASE_URL, DELETE_SHIFT } from "@env";
 import { useNavigation } from "@react-navigation/native";
 import DeleteShifts from './DeleteShifts';
 
+screenWidth = Dimensions.get("window").width;
+screenHeight = Dimensions.get("window").height;
+
 const ManageShifts = () => {
   const [workers, setWorkers] = useState([]);
   const [filteredWorkers, setFilteredWorkers] = useState([]);
@@ -132,7 +135,7 @@ const ManageShifts = () => {
       console.log("Start Time:", startTime);
       return;
     }
-  
+
     const shiftData = {
       id: selectedWorker.id,
       date: shiftDate,
@@ -142,14 +145,14 @@ const ManageShifts = () => {
       breaksTotal: breaksTotal,
     };
     console.log("Shift Data:", shiftData);
-  
+
     try {
       const token = await fetchAuthToken();
       if (!token) {
         Alert.alert("Error", "Authentication token not found");
         return;
       }
-  
+
       const response = await fetch(`${SERVER_BASE_URL}${ADD_SHIFT}`, {
         method: "PUT",
         headers: {
@@ -158,7 +161,7 @@ const ManageShifts = () => {
         },
         body: JSON.stringify(shiftData),
       });
-  
+
       if (response.ok) {
         const responseData = await response.json();
         Alert.alert("Success", "Shift assigned successfully.");
@@ -209,7 +212,7 @@ const ManageShifts = () => {
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
       />
-
+      <Text style={{ textAlign: 'center', color: 'white' }}>Manage shifts</Text>
       {/* Button to Open Worker Selection Modal */}
       <TouchableOpacity onPress={openModal} style={styles.button}>
         <Text style={styles.buttonText}>
@@ -319,7 +322,7 @@ const ManageShifts = () => {
               }}
               keyboardType="numeric"
               maxLength={2}
-              placeholder="HH"
+              placeholder="HH :"
             />
 
             <TextInput
@@ -350,7 +353,7 @@ const ManageShifts = () => {
               }}
               keyboardType="numeric"
               maxLength={2}
-              placeholder="HH"
+              placeholder="HH :"
             />
 
             <TextInput
@@ -428,9 +431,6 @@ const ManageShifts = () => {
   );
 };
 
-screenWidth = Dimensions.get("window").width;
-screenHeight = Dimensions.get("window").height;
-
 const styles = StyleSheet.create({
   deleteButton: {
     backgroundColor: "rgba(255, 0, 0, 0.8)",
@@ -463,21 +463,17 @@ const styles = StyleSheet.create({
   },
   timeInputContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
     borderRadius: 5,
     borderColor: "black",
     borderWidth: 2,
     padding: 10,
     backgroundColor: "rgba(255, 255, 255, 1)",
-    width: screenWidth * 0.4,
   },
   timeInput: {
-    width: screenWidth * 0.15,
+    width: screenWidth * 0.16,
     marginHorizontal: 2,
     textAlign: "center",
-    fontFamily: "Saira-Regular",
-    fontSize: screenWidth * 0.1,
+    fontSize: screenWidth * 0.08,
   },
   timeContainer: {
     flexDirection: "row",
