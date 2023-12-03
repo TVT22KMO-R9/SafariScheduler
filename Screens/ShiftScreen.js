@@ -5,6 +5,7 @@ import { UPCOMING_SHIFTS, SERVER_BASE_URL } from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu from '../Components/Menu';
 import Description from "../Components/Description";
+import Logout from '../Components/Logout';
 
 import {
   StyleSheet,
@@ -120,6 +121,7 @@ export default function ShiftScreen() {
           <Menu userRole={userRole} />
         </View>
       </Modal>
+      <Logout />
       <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>NEXT SHIFTS</Text>
       <TouchableOpacity
@@ -246,4 +248,10 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
+  logoutbutton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    padding: 10,
+  }
 });
