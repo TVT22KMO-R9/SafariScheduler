@@ -4,6 +4,7 @@ import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/nativ
 import { SERVER_BASE_URL, LAST_31_SHIFTS_ENDPOINT } from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu from '../Components/Menu';
+import Logout from '../Components/Logout';
 
 import {
   StyleSheet,
@@ -146,8 +147,9 @@ export default function ShiftScreen() {
           <Menu userRole={userRole} />
         </View>
       </Modal>
+      <Logout />
       <ScrollView style={styles.scrollView}>
-        <Text style={{ textAlign: 'center', color: 'white' }}>My shift history</Text>
+        <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, }}>My shift history</Text>
         {renderShiftsByMonth()}
       </ScrollView>
     </KeyboardAvoidingView>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Menu from '../Components/Menu';
+import Logout from '../Components/Logout';
 import {
   View,
   Text,
@@ -146,8 +147,9 @@ const MyShifts = () => {
           <Menu userRole={userRole} />
         </View>
       </Modal>
+      <Logout />
       <ScrollView style={styles.scrollView}>
-      <Text style={{ textAlign: 'center', color: 'white' }}>Upcoming shifts</Text> 
+      <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, }}>Upcoming shifts</Text> 
         {renderShiftsByMonth()}
       </ScrollView>
     </View>
