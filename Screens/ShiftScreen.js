@@ -83,16 +83,6 @@ export default function ShiftScreen() {
       }
     };
 
-    fetchBoxData();
-  }, []);
-
-  //triggers an effect when the screen comes into focus
-  useFocusEffect(
-    React.useCallback(() => {
-      setMenuVisible(false);
-    }, [])
-  );
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
