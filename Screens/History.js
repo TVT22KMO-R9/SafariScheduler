@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { SERVER_BASE_URL, LAST_31_SHIFTS_ENDPOINT } from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu from '../Components/Menu';
+import Logout from '../Components/Logout';
 
 import {
   StyleSheet,
@@ -24,13 +25,11 @@ export default function ShiftScreen() {
   const route = useRoute();
   const userRole = route.params?.userRole;
 
-
   const toggleMenu = () => {
     setMenuVisible(!isMenuVisible);
   };
 
   const navigation = useNavigation();
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -88,6 +87,13 @@ export default function ShiftScreen() {
     fetchShifts();
   }, []);
 
+  //triggers when the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      setMenuVisible(false);
+    }, [])
+  );
+
   const renderShiftsByMonth = () => {
     return Object.keys(shifts).map(monthYear => {
       const [month, year] = monthYear.split('-');
@@ -141,7 +147,9 @@ export default function ShiftScreen() {
           <Menu userRole={userRole} />
         </View>
       </Modal>
+      <Logout />
       <ScrollView style={styles.scrollView}>
+        <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, }}>My shift history</Text>
         {renderShiftsByMonth()}
       </ScrollView>
     </KeyboardAvoidingView>
@@ -177,7 +185,7 @@ const styles = StyleSheet.create({
     fontSize: Dimensions.get("window").width * 0.08,
     fontFamily: "Saira-Regular",
     color: "white",
-    paddingHorizontal:7,
+    paddingHorizontal: 7,
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 4,
@@ -221,7 +229,7 @@ const styles = StyleSheet.create({
     fontSize: Dimensions.get("window").width * 0.07,
     fontFamily: "Saira-Regular",
     color: "white",
-    paddingHorizontal:4,
+    paddingHorizontal: 4,
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 4,

@@ -34,7 +34,7 @@ export default function Menu({ userRole }) {
     };
     const screenName = screens[label];
     if (screenName) {
-      navigation.navigate(screenName,  { userRole });
+      navigation.navigate(screenName, { userRole });
       //close menu component before navigating to next screen
       setIsMenuOpen(false);
     } else {

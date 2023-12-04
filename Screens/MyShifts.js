@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Menu from '../Components/Menu';
+import Logout from '../Components/Logout';
 import {
   View,
   Text,
@@ -114,6 +115,13 @@ const MyShifts = () => {
     });
   };
 
+  //triggers when the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      setMenuVisible(false);
+    }, [])
+  );
+
   return (
     <View style={styles.container}>
       <Image
@@ -123,6 +131,7 @@ const MyShifts = () => {
       <TouchableOpacity onPress={toggleMenu} style={styles.button}>
         <Ionicons name="menu" size={45} color="white" />
       </TouchableOpacity>
+      
       <Modal
         animationType="slide"
         transparent={true}
@@ -138,7 +147,9 @@ const MyShifts = () => {
           <Menu userRole={userRole} />
         </View>
       </Modal>
+      <Logout />
       <ScrollView style={styles.scrollView}>
+      <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, }}>Upcoming shifts</Text> 
         {renderShiftsByMonth()}
       </ScrollView>
     </View>
