@@ -171,10 +171,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: 200,
-    height: 500,
+    width: 250,
+    height: 250,
     position: "absolute",
-    top: screenHeight * -0.1,
+    top: screenHeight * +0.08,
     resizeMode: "contain",
   },
   backgroundImage: {
