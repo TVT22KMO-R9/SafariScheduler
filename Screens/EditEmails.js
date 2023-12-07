@@ -15,8 +15,10 @@ import { REGISTER_ENDPOINT, SERVER_BASE_URL } from '@env' //Laita toimimaan
 const EditEmails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
+    const [isDeleteEmailVisible, setIsDeleteEmailVisible] = useState(false);
     const [role, setRole] = useState('');
     const [newEmail, setNewEmail] = useState('');
+    const [deleteEmail, setDeleteEmail] = useState('');
     const route = useRoute();
     const userRole = route.params?.userRole;
     const [userData, setUserData] = useState([]);
@@ -26,13 +28,49 @@ const EditEmails = () => {
     };
 
     //Muuttaa add email-napin TextInsertiksi
-    const handleAddNewEmail = () => {
+    const handleNewEmailButton = () => {
         setIsNewEmailVisible(true);
     };
 
-    const handleDeleteEmail = () => {
+    //Muuttaa delete email-napin TextInsertiksi
+    const handleDeleteEmailButton = () => {
+        setIsDeleteEmailVisible(true)
+    }
+
+    const handleDeleteEmail = async () => {
         // TODO : api-kutsu delete approved email. Poistaa sähköpostin ja käyttäjän. Esimerkki -> navigation.navigate("DeleteShifts");
-        Alert.alert("Testing email removal") //testaukseen
+        try {
+            const authToken = await AsyncStorage.getItem("userToken"); //laita funktioon
+            if (!authToken) {
+                Alert.alert("Error", "Authentication token not found");
+                return;
+            }
+            try {
+                const response = await fetch(`https://workhoursapp-9a5bdf993d73.herokuapp.com/api/company/workers/email/${deleteEmail}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.text();
+                    setUserData(data); // Set fetched data to state
+                    console.log('User deleted:', data)
+
+                } else {
+                    throw new Error('Failed to delete email');
+                }
+            } catch (error) {
+                console.error('Error deleting email:', error);
+            }
+        } catch (error) {
+            console.error('Async function error:', error);
+        }
+        Alert.alert("Testing email removal", deleteEmail) //testaukseen
+        setIsDeleteEmailVisible(false)
+        setDeleteEmail('')
     };
 
     const handleSeeUsersInfo = async () => {
@@ -67,7 +105,7 @@ const EditEmails = () => {
             console.error('Async function error:', error);
         }
     }
-    /* Add new approved email toiminnot------------------------ */
+    /* Add new approved email toiminnot*/
     const AddNewEmail = async () => {
         try {
             const authToken = await AsyncStorage.getItem("userToken");
@@ -103,87 +141,98 @@ const EditEmails = () => {
                 Alert.alert('Error', 'Failed to add email');
             }
             setIsNewEmailVisible(false);
+            setNewEmail('')
+            setRole('')
         } catch (error) {
             console.error('Async function error:', error);
         }
     };
 
-    //triggers when the screen comes into focus, ensures menu is visible
+    //triggers when the screen comes into focus, can be used to format states
     useFocusEffect(
         React.useCallback(() => {
-            setMenuVisible(false);
-            setIsNewEmailVisible(false);
+            setMenuVisible(false)
+            setIsNewEmailVisible(false)
+            setIsDeleteEmailVisible(false)
             setUserData([])
         }, [])
     );
 
     return (
-
         <View style={styles.container}>
-
             <Image
                 source={require("../assets/background.png")}
                 style={styles.backgroundImage}
+
             />
-            <TouchableOpacity onPress={toggleMenu} style={styles.button}>
-                <Ionicons name="menu" size={45} color="white" />
-            </TouchableOpacity>
-
-            {/* Add new email-toiminta */}
-            {!isNewEmailVisible && (
-                <TouchableOpacity
-                    onPress={handleAddNewEmail}
-                    style={styles.addButton}
-                >
-                    <Text style={styles.buttonText}>ADD NEW EMAIL</Text>
-                </TouchableOpacity>
-            )}
-            {isNewEmailVisible && (
-
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={styles.emailInputContainer}
-                >
-                    <TextInput
-                        style={styles.emailInput}
-                        placeholder="Add new approved email"
-                        value={newEmail}
-                        onChangeText={setNewEmail}
-                    />
-                    <TextInput
-                        style={styles.emailInput}
-                        placeholder="Enter user role"
-                        value={role}
-                        onChangeText={setRole}
-                    />
-                    <TouchableOpacity style={{ ...styles.addButton, backgroundColor: 'green' }} onPress={AddNewEmail}>
-                        <Text style={styles.buttonText}>CONFIRM</Text>
+            <View style={{ paddingTop: 100 }}>
+                {/* Add new email-toiminta */}
+                {!isNewEmailVisible && (
+                    <TouchableOpacity
+                        onPress={handleNewEmailButton}
+                        style={styles.addButton}
+                    >
+                        <Text style={styles.buttonText}>ADD NEW EMAIL</Text>
                     </TouchableOpacity>
-                </KeyboardAvoidingView>
+                )}
+                {isNewEmailVisible && (
+                   <>
+                        <TextInput
+                            style={styles.emailInput}
+                            placeholder="Add new approved email"
+                            value={newEmail}
+                            onChangeText={setNewEmail}
+                        />
+                        <TextInput
+                            style={styles.emailInput}
+                            placeholder="Enter user role"
+                            value={role}
+                            onChangeText={setRole}
+                        />
+                        <TouchableOpacity style={{ ...styles.addButton, backgroundColor: 'green' }} onPress={AddNewEmail}>
+                            <Text style={styles.buttonText}>CONFIRM</Text>
+                        </TouchableOpacity>
+                    </>
 
-            )}
-            {/* Remove email-toiminta */}
-            <TouchableOpacity style={styles.addButton} onPress={handleDeleteEmail}>
-                <Text style={styles.buttonText}>REMOVE EMAIL</Text>
-            </TouchableOpacity>
+                )}
+                {/* Remove email-toiminta */}
+                {!isDeleteEmailVisible && (
+                    <TouchableOpacity style={styles.addButton} onPress={handleDeleteEmailButton}>
+                        <Text style={styles.buttonText}>REMOVE EMAIL</Text>
+                    </TouchableOpacity>
+                )}
+                {isDeleteEmailVisible && (
+                    <KeyboardAvoidingView
+                        enabled={false}
+                    >
+                        <TextInput
+                            style={styles.emailInput}
+                            placeholder='Enter e-mail to be deleted'
+                            value={deleteEmail}
+                            onChangeText={setDeleteEmail}
+                        />
+                        <TouchableOpacity style={{ ...styles.addButton, backgroundColor: 'green' }} onPress={handleDeleteEmail}>
+                            <Text style={styles.buttonText}>CONFIRM</Text>
+                        </TouchableOpacity>
+                    </KeyboardAvoidingView>
+                )}
 
-            <TouchableOpacity style={styles.addButton} onPress={handleSeeUsersInfo}>
-                <Text style={styles.buttonText}>VIEW USERS INFO</Text>
-            </TouchableOpacity>
+                {/* Käyttäjien sähköpostit:*/}
+                <TouchableOpacity style={styles.addButton} onPress={handleSeeUsersInfo}>
+                    <Text style={styles.buttonText}>VIEW USERS INFO</Text>
+                </TouchableOpacity>
 
-            {/* Display fetched user data in a scrollable box */}
-            <ScrollView style={styles.scrollView}>
-
-                {userData.map((user, index) => (
-                    <View style={styles.userDataContainer} key={index}>
-                        {/* <Text style={styles.userDataText}>ID: {user.id}</Text> */}
-                        <Text style={styles.userDataText}>Email: {user.email}</Text>
-                        <Text style={styles.userDataText}>Role: {user.role}</Text>
-                        <Text style={styles.userDataText}>Registered: {user.registered ? 'Yes' : 'No'}</Text>
-                    </View>
-                ))}
-            </ScrollView>
-
+                <ScrollView style={styles.scrollView}>
+                    {userData.map((user, index) => (
+                        <View style={styles.userDataContainer} key={index}>
+                            {/* <Text style={styles.userDataText}>ID: {user.id}</Text> */}
+                            <Text style={styles.userDataText}>Email: {user.email}</Text>
+                            <Text style={styles.userDataText}>Role: {user.role}</Text>
+                            <Text style={styles.userDataText}>Registered: {user.registered ? 'Yes' : 'No'}</Text>
+                        </View>
+                    ))}
+                </ScrollView>
+            </View>
             {/* Menuvalikko */}
             <Modal
                 animationType="slide"
@@ -200,7 +249,15 @@ const EditEmails = () => {
                     <Menu userRole={userRole} />
                 </View>
             </Modal>
+
+
+            <TouchableOpacity onPress={toggleMenu} style={styles.button}>
+                <Ionicons name="menu" size={45} color="white" />
+            </TouchableOpacity>
+
+
             <Logout />
+
         </View>
     );
 };
@@ -238,9 +295,7 @@ const styles = StyleSheet.create({
     addButton: {
         backgroundColor: "rgba(0, 0, 0, 0.7)",
         borderRadius: 5,
-        //paddingVertical: 0, // Adjust this value to change the vertical size of the buttons
-        //paddingHorizontal: 5,
-        marginVertical: 6, // Adjust vertical margin if needed
+        marginVertical: 6,
         alignItems: "center",
         width: screenWidth * 0.9,
         borderColor: "white",
@@ -267,7 +322,7 @@ const styles = StyleSheet.create({
         alignContent: "center",
     },
     scrollView: { //User Data
-        maxHeight: 250, // Set a maximum height for the scrollable box
+        maxHeight: 300, // Set a maximum height for the scrollable box
         marginVertical: 10,
         paddingHorizontal: 20,
 
@@ -282,8 +337,8 @@ const styles = StyleSheet.create({
         color: 'white'
     },
     emailInputContainer: { //prevents movement of the screen on textInput
-    paddingTop: 100
-  },
+        paddingTop: 100
+    },
 });
 
 export default EditEmails;
