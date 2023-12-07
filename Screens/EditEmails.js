@@ -53,13 +53,14 @@ const EditEmails = () => {
                         Authorization: `Bearer ${authToken}`
                     },
                 });
-
                 if (response.ok) {
                     const data = await response.text();
                     setUserData(data); // Set fetched data to state
                     console.log('User deleted:', data)
+                    Alert.alert("User deleted:", data)
 
                 } else {
+                    Alert.alert("Failed to delete email")
                     throw new Error('Failed to delete email');
                 }
             } catch (error) {
@@ -68,7 +69,6 @@ const EditEmails = () => {
         } catch (error) {
             console.error('Async function error:', error);
         }
-        Alert.alert("Testing email removal", deleteEmail) //testaukseen
         setIsDeleteEmailVisible(false)
         setDeleteEmail('')
     };
@@ -89,12 +89,10 @@ const EditEmails = () => {
                         Authorization: `Bearer ${authToken}`
                     },
                 });
-
                 if (response.ok) {
                     const data = await response.json();
                     setUserData(data); // Set fetched data to state
                     console.log('Users data retrieved:', data)
-
                 } else {
                     throw new Error('Failed to get users data email');
                 }
@@ -193,7 +191,6 @@ const EditEmails = () => {
                             <Text style={styles.buttonText}>CONFIRM</Text>
                         </TouchableOpacity>
                     </>
-
                 )}
                 {/* Remove email-toiminta */}
                 {!isDeleteEmailVisible && (
@@ -249,13 +246,9 @@ const EditEmails = () => {
                     <Menu userRole={userRole} />
                 </View>
             </Modal>
-
-
             <TouchableOpacity onPress={toggleMenu} style={styles.button}>
                 <Ionicons name="menu" size={45} color="white" />
             </TouchableOpacity>
-
-
             <Logout />
 
         </View>
