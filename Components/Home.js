@@ -1,14 +1,16 @@
 import React from 'react';
 import { TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, } from '@react-navigation/native';
 
 const Home = () => {
 
+    const route = useRoute();
     const navigation = useNavigation();
+    const userRole = route.params?.userRole;
 
     const navigateToHome = () => {
-        navigation.navigate('ShiftScreen');
+      navigation.navigate('ShiftScreen', { userRole });
     }
 
   return (
