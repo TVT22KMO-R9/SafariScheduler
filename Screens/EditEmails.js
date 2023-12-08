@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import Menu from '../Components/Menu';
 import Logout from '../Components/Logout';
+import Home from '../Components/Home';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     View, Text, StyleSheet,
@@ -161,8 +162,11 @@ const EditEmails = () => {
             <Image
                 source={require("../assets/background.png")}
                 style={styles.backgroundImage}
-
             />
+            <TouchableOpacity onPress={toggleMenu} style={styles.button}>
+                <Ionicons name="menu" size={45} color="white" />
+            </TouchableOpacity>
+            <Home/>
             <View style={{ paddingTop: 100 }}>
                 {/* Add new email-toiminta */}
                 {!isNewEmailVisible && (

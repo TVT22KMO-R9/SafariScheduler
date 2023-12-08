@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu from '../Components/Menu';
 import Description from "../Components/Description";
 import Logout from '../Components/Logout';
+import Home from "../Components/Home";
 
 import {
   StyleSheet,
@@ -121,6 +122,7 @@ export default function ShiftScreen() {
           <Menu userRole={userRole} />
         </View>
       </Modal>
+      <Home />
       <Logout />
       <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>NEXT SHIFTS</Text>
@@ -171,7 +173,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: 250,
+    width: 200,
     height: 250,
     position: "absolute",
     top: screenHeight * +0.08,

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -11,11 +12,15 @@ import {
   TextInput,
   Button,
   Image,
+  TouchableWithoutFeedback
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { SERVER_BASE_URL, ADD_AND_UPDATE_SHIFT_ENDPOINT } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Home from "../Components/Home";
+import Logout from "../Components/Logout";
+import Menu from '../Components/Menu';
 
 const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
@@ -28,6 +33,13 @@ const ReportHours = () => {
   const [breakMinutes, setBreakMinutes] = useState(0);
   const [isPickerVisible, setPickerVisible] = useState(false);
   const [details, setDetails] = useState("");
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const route = useRoute();
+  const userRole = route.params?.userRole;
+
+  const toggleMenu = () => {
+    setMenuVisible(!isMenuVisible);
+};
 
   // Generate number arrays for Picker
   const generateNumberArray = (start, end) => {
@@ -131,6 +143,26 @@ const ReportHours = () => {
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
       />
+      <TouchableOpacity onPress={toggleMenu} style={styles.menubutton}>
+                <Ionicons name="menu" size={45} color="white" />
+            </TouchableOpacity>
+      <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isMenuVisible}
+                onRequestClose={() => {
+                    setMenuVisible(false);
+                }}
+            >
+                <TouchableWithoutFeedback onPress={toggleMenu}>
+                    <View style={styles.overlay} />
+                </TouchableWithoutFeedback>
+                <View style={styles.menuContainer}>
+                    <Menu userRole={userRole} />
+                </View>
+            </Modal>
+      <Home />
+      <Logout/>
 
       {/* Button to Show Date Picker Modal */}
       <TouchableOpacity onPress={togglePicker} style={styles.dateButton}>
@@ -324,11 +356,13 @@ const styles = StyleSheet.create({
     height: screenHeight * 0.05,
     justifyContent: "center",
     marginBottom: "10%",
+    
   },
   label: {
     fontSize: screenWidth * 0.1,
     color: "black",
     fontFamily: "Saira-Regular",
+    
   },
   backgroundImage: {
     position: "absolute",
@@ -341,6 +375,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingTop: 0,
+  
   },
   dateButton: {
     marginVertical: 10,
@@ -351,6 +386,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "black",
     borderWidth: 2,
+    marginTop: "16%",
   },
   dash: {
     fontSize: screenWidth * 0.15,
@@ -533,6 +569,34 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: screenWidth * 0.08,
   },
+  button: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    padding: 10,
+},
+overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+menubutton: {
+  position: 'absolute',
+  top: 20,
+  left: 20,
+  padding: 10,
+},
+overlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+menuContainer: {
+  position: 'absolute',
+  left: 0,
+  top: 0,
+  width: '75%',
+  height: '100%',
+  backgroundColor: 'white',
+},
 });
 
 export default ReportHours;

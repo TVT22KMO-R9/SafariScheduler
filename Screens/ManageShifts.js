@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -10,12 +11,16 @@ import {
   Alert,
   Image,
   Dimensions,
+  TouchableWithoutFeedback,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import { WORKERS, ADD_SHIFT, SERVER_BASE_URL, DELETE_SHIFT } from "@env";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect, useRoute } from "@react-navigation/native";
 import DeleteShifts from './DeleteShifts';
+import Home from "../Components/Home";
+import Logout from "../Components/Logout";
+import Menu from '../Components/Menu';
 
 screenWidth = Dimensions.get("window").width;
 screenHeight = Dimensions.get("window").height;
@@ -35,6 +40,19 @@ const ManageShifts = () => {
   const [date, setDate] = useState({ year: "2023", month: "1", day: "1" });
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
   const navigation = useNavigation();
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const route = useRoute();
+  const userRole = route.params?.userRole;
+
+  const toggleMenu = () => {
+    setMenuVisible(!isMenuVisible);
+};
+
+useFocusEffect(
+  React.useCallback(() => {
+      setMenuVisible(false);
+  }, [])
+);
 
   const generateNumberArray = (start, end) => {
     let numbers = [];
@@ -212,10 +230,31 @@ const ManageShifts = () => {
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
       />
-      <Text style={{ textAlign: 'center', color: 'white' }}>Manage shifts</Text>
+      <TouchableOpacity onPress={toggleMenu} style={styles.menubutton}>
+                <Ionicons name="menu" size={45} color="white" />
+            </TouchableOpacity>
+      <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isMenuVisible}
+                onRequestClose={() => {
+                    setMenuVisible(false);
+                }}
+            >
+                <TouchableWithoutFeedback onPress={toggleMenu}>
+                    <View style={styles.overlay} />
+                </TouchableWithoutFeedback>
+                <View style={styles.menuContainer}>
+                    <Menu userRole={userRole} />
+                </View>
+            </Modal>
+      <Home/>
+      <Logout/>
+
+      <Text style={{ textAlign: 'center',marginTop: "20%", fontSize: 25, color: 'white' }}>Manage shifts</Text>
       {/* Button to Open Worker Selection Modal */}
       <TouchableOpacity onPress={openModal} style={styles.button}>
-        <Text style={styles.buttonText}>
+        <Text style={styles.workerText}>
           {selectedWorker
             ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
             : "SELECT WORKER"}
@@ -551,7 +590,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   buttonText: {
-    fontSize: screenWidth * 0.1,
+    fontSize: screenWidth * 0.09,
     color: "white",
     fontFamily: "Saira-Regular",
     textShadowColor: "rgba(0, 0, 0, 1)",
@@ -655,6 +694,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "90%",
   },
+  menubutton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    padding: 10,
+},
+overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+menuContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '75%',
+    height: '100%',
+    backgroundColor: 'white',
+},
+workerText: {
+  
+  fontSize: screenWidth * 0.09,
+  color: "white",
+  fontFamily: "Saira-Regular",
+  textShadowColor: "rgba(0, 0, 0, 1)",
+  textShadowOffset: { width: -1, height: 1 },
+  textShadowRadius: 10,
+  paddingLeft: 20,
+},
 });
 
 export default ManageShifts;
