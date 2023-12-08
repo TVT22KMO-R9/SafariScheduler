@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import Menu from '../Components/Menu';
 import Logout from '../Components/Logout';
+import Home from '../Components/Home';
 
 const EditEmails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
@@ -50,6 +51,7 @@ const EditEmails = () => {
             <TouchableOpacity onPress={toggleMenu} style={styles.button}>
                 <Ionicons name="menu" size={45} color="white" />
             </TouchableOpacity>
+            <Home/>
 
 
             {!isNewEmailVisible && (
