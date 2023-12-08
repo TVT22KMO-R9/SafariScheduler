@@ -10,13 +10,13 @@ import {
     Image, TextInput, Alert, ScrollView,
     KeyboardAvoidingView,
 } from 'react-native';
-import { REGISTER_ENDPOINT, SERVER_BASE_URL } from '@env' //Laita toimimaan
+import { WORKERS, SERVER_BASE_URL } from '@env' //Laita toimimaan
 
 const EditEmails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
     const [isDeleteEmailVisible, setIsDeleteEmailVisible] = useState(false);
-    const [role, setRole] = useState('');
+    const [roleWithEmail, setRoleWithEmail] = useState('');
     const [newEmail, setNewEmail] = useState('');
     const [deleteEmail, setDeleteEmail] = useState('');
     const route = useRoute();
@@ -38,15 +38,15 @@ const EditEmails = () => {
     }
 
     const handleDeleteEmail = async () => {
-        // TODO : api-kutsu delete approved email. Poistaa sähköpostin ja käyttäjän. Esimerkki -> navigation.navigate("DeleteShifts");
+        //Api-kutsu delete approved email. Poistaa sähköpostin ja käyttäjän (jos luotu)
         try {
-            const authToken = await AsyncStorage.getItem("userToken"); //laita funktioon
+            const authToken = await AsyncStorage.getItem("userToken");
             if (!authToken) {
                 Alert.alert("Error", "Authentication token not found");
                 return;
             }
             try {
-                const response = await fetch(`https://workhoursapp-9a5bdf993d73.herokuapp.com/api/company/workers/email/${deleteEmail}`, {
+                const response = await fetch(`${SERVER_BASE_URL}${WORKERS}/email/${deleteEmail}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ const EditEmails = () => {
                 });
                 if (response.ok) {
                     const data = await response.text();
-                    setUserData(data); // Set fetched data to state
+                    //setUserData(data); // Set fetched data to state
                     console.log('User deleted:', data)
                     Alert.alert("User deleted:", data)
 
@@ -72,17 +72,16 @@ const EditEmails = () => {
         setIsDeleteEmailVisible(false)
         setDeleteEmail('')
     };
-
+    //Esimies voi katsoa mitkä sähköpostit on hyväksytty, ja onko käyttäjä luotu.
     const handleSeeUsersInfo = async () => {
-        //käyttäjä voi katsoa mitkä sähköpostit on hyväksytty, ja onko käyttäjä luotu---------------------------------------------------------------
         try {
-            const authToken = await AsyncStorage.getItem("userToken"); //laita funktioon
+            const authToken = await AsyncStorage.getItem("userToken");
             if (!authToken) {
                 Alert.alert("Error", "Authentication token not found");
                 return;
             }
             try {
-                const response = await fetch(`https://workhoursapp-9a5bdf993d73.herokuapp.com/api/company/workers/email`, {
+                const response = await fetch(`${SERVER_BASE_URL}${WORKERS}/email`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -103,7 +102,8 @@ const EditEmails = () => {
             console.error('Async function error:', error);
         }
     }
-    /* Add new approved email toiminnot*/
+
+    //Esimies voi lisätä sähköpostin (ja roolin) hyväksytylle listalle, jotta käyttäjän voi luoda
     const AddNewEmail = async () => {
         try {
             const authToken = await AsyncStorage.getItem("userToken");
@@ -111,14 +111,12 @@ const EditEmails = () => {
                 Alert.alert("Error", "Authentication token not found");
                 return;
             }
-
             const emailData = {
-                email: newEmail,
-                role: role
+                email: newEmail.toLowerCase(),
+                role: roleWithEmail.toUpperCase()
             };
-
             try {
-                const response = await fetch(`https://workhoursapp-9a5bdf993d73.herokuapp.com/api/company/workers/add`, {
+                const response = await fetch(`${SERVER_BASE_URL}${WORKERS}/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -136,23 +134,26 @@ const EditEmails = () => {
                 }
             } catch (error) {
                 console.error('Error entering email:', error);
-                Alert.alert('Error', 'Failed to add email');
+                Alert.alert('Error', toString(error));
             }
             setIsNewEmailVisible(false);
-            setNewEmail('')
-            setRole('')
+            setNewEmail('') //nollaa tekstikentät napin painalluksen jälkeen
+            setRoleWithEmail('')
         } catch (error) {
             console.error('Async function error:', error);
         }
     };
 
-    //triggers when the screen comes into focus, can be used to format states
+    //triggers when the screen comes into focus. Muuten tekstikentät jää auki, ja data näkyviin.
     useFocusEffect(
         React.useCallback(() => {
             setMenuVisible(false)
             setIsNewEmailVisible(false)
             setIsDeleteEmailVisible(false)
+            setNewEmail('')
+            setDeleteEmail('')
             setUserData([])
+            setRoleWithEmail('')
         }, [])
     );
 
@@ -178,14 +179,16 @@ const EditEmails = () => {
                         <TextInput
                             style={styles.emailInput}
                             placeholder="Add new approved email"
+                            keyboardType="email-address"
+                            autoCapitalize="none"
                             value={newEmail}
                             onChangeText={setNewEmail}
                         />
                         <TextInput
                             style={styles.emailInput}
                             placeholder="Enter user role"
-                            value={role}
-                            onChangeText={setRole}
+                            value={roleWithEmail}
+                            onChangeText={setRoleWithEmail}
                         />
                         <TouchableOpacity style={{ ...styles.addButton, backgroundColor: 'green' }} onPress={AddNewEmail}>
                             <Text style={styles.buttonText}>CONFIRM</Text>
@@ -205,7 +208,9 @@ const EditEmails = () => {
                         <TextInput
                             style={styles.emailInput}
                             placeholder='Enter e-mail to be deleted'
-                            value={deleteEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            value={deleteEmail.toLowerCase()}
                             onChangeText={setDeleteEmail}
                         />
                         <TouchableOpacity style={{ ...styles.addButton, backgroundColor: 'green' }} onPress={handleDeleteEmail}>
@@ -214,7 +219,7 @@ const EditEmails = () => {
                     </KeyboardAvoidingView>
                 )}
 
-                {/* Käyttäjien sähköpostit:*/}
+                {/* Approved emailit näkyviin listana:*/}
                 <TouchableOpacity style={styles.addButton} onPress={handleSeeUsersInfo}>
                     <Text style={styles.buttonText}>VIEW USERS INFO</Text>
                 </TouchableOpacity>
@@ -250,10 +255,11 @@ const EditEmails = () => {
                 <Ionicons name="menu" size={45} color="white" />
             </TouchableOpacity>
             <Logout />
-
         </View>
     );
 };
+
+
 
 const styles = StyleSheet.create({
     backgroundImage: {
