@@ -122,7 +122,7 @@ const ReportHours = () => {
           Alert.alert("Shift reported successfully", "", [
             {
               text: "OK",
-              onPress: () => navigation.navigate("History"), // Navigate to History screen
+              onPress: () => navigation.navigate("History",  { userRole }), // Navigate to History screen
             },
           ]);
         } else {
