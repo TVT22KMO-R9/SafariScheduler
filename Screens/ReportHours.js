@@ -10,9 +10,9 @@ import {
   Alert,
   ScrollView,
   TextInput,
-  Button,
+  KeyboardAvoidingView,
   Image,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -148,7 +148,7 @@ const ReportHours = () => {
   const endMinutesInputRef = useRef(null);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0, }}>
       <Image
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
@@ -173,6 +173,7 @@ const ReportHours = () => {
             </Modal>
       <Home />
       <Logout/>
+      <Text style={{ textAlign: 'center',marginTop: "20%", fontSize: 25, color: 'white' }}>Report hours</Text>
 
       {/* Button to Show Date Picker Modal */}
       <TouchableOpacity onPress={togglePicker} style={styles.dateButton}>
@@ -356,7 +357,7 @@ const ReportHours = () => {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 const styles = StyleSheet.create({
@@ -398,7 +399,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "black",
     borderWidth: 2,
-    marginTop: "16%",
   },
   dash: {
     fontSize: screenWidth * 0.15,
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     fontFamily: "Saira-Regular",
     backgroundColor: "rgba(255, 255, 255, 1)",
-    marginBottom: screenHeight * 0.2,
+    marginBottom: screenHeight * 0.15,
     fontSize: screenWidth * 0.05,
   },
   confirmButton: {
@@ -596,10 +596,6 @@ menubutton: {
   top: 20,
   left: 20,
   padding: 10,
-},
-overlay: {
-  flex: 1,
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
 },
 menuContainer: {
   position: 'absolute',

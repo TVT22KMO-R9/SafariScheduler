@@ -12,6 +12,7 @@ import {
   Image,
   Dimensions,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
@@ -234,7 +235,7 @@ useFocusEffect(
   const endMinutesInputRef = useRef(null);
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0, }}>
       <Image
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
@@ -473,7 +474,7 @@ useFocusEffect(
       <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteShift}>
         <Text style={styles.buttonText}>REMOVE SHIFTS</Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -728,6 +729,10 @@ workerText: {
   textShadowOffset: { width: -1, height: 1 },
   textShadowRadius: 10,
   paddingLeft: 20,
+},
+keyboardAvoidingContainer: {
+  flex: 1,
+  justifyContent: 'center',
 },
 });
 
