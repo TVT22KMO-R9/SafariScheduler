@@ -92,6 +92,7 @@ export default function ShiftScreen() {
   useFocusEffect(
     React.useCallback(() => {
       setMenuVisible(false);
+      fetchShifts();
     }, [])
   );
 

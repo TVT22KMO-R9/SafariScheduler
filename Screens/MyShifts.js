@@ -120,6 +120,7 @@ const MyShifts = () => {
   useFocusEffect(
     React.useCallback(() => {
       setMenuVisible(false);
+      fetchShifts();
     }, [])
   );
 

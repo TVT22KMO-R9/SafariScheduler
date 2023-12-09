@@ -27,6 +27,7 @@ export default function ShiftScreen() {
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
   const [selectedBoxData, setSelectedBoxData] = useState("");
   const [isMenuVisible, setMenuVisible] = useState(false);
+  const [shifts, setShifts] = useState([]);
   const route = useRoute();
   const userRole = route.params?.userRole;
   const navigation = useNavigation();
@@ -87,10 +88,55 @@ export default function ShiftScreen() {
     fetchBoxData();
   }, []);
 
+  const groupShiftsByMonth = (shifts) => {
+    const grouped = {};
+    shifts.forEach(shift => {
+      const month = new Date(shift.date).getMonth();
+      const year = new Date(shift.date).getFullYear();
+      const monthYear = `${month}-${year}`;
+      if (!grouped[monthYear]) {
+        grouped[monthYear] = [];
+      }
+      grouped[monthYear].push(shift);
+    });
+    return grouped;
+  };
+  
+  const fetchShifts = async () => {
+    try {
+      const authToken = await AsyncStorage.getItem("userToken");
+      if (!authToken) {
+        Alert.alert("Error", "Authentication token not found");
+        return;
+      }
+
+      const response = await fetch(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const groupedShifts = groupShiftsByMonth(data);
+        setShifts(groupedShifts);
+      } else {
+        Alert.alert("Error", "Failed to fetch shifts");
+      }
+    } catch (error) {
+      console.error("Error fetching shifts:", error);
+      Alert.alert("Error", "An error occurred while fetching shifts");
+    }
+    console.log(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`);
+  };
+
+  useEffect(() => {
+    fetchShifts();
+  }, []);
+
   //triggers an effect when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       setMenuVisible(false);
+      fetchShifts();
     }, [])
   );
 
