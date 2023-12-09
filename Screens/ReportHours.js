@@ -27,7 +27,12 @@ const screenWidth = Dimensions.get("window").width;
 
 const ReportHours = () => {
   const navigation = useNavigation();
-  const [date, setDate] = useState({ year: "2023", month: "1", day: "1" });
+  const currentDate = new Date();
+  const [date, setDate] = useState({
+    year: currentDate.getFullYear().toString(),
+    month: (currentDate.getMonth() + 1).toString(),
+    day: currentDate.getDate().toString(),
+  });
   const [startTime, setStartTime] = useState({ hour: "", minute: "" });
   const [endTime, setEndTime] = useState({ hour: "", minute: "" });
   const [breakMinutes, setBreakMinutes] = useState(0);
@@ -41,6 +46,7 @@ const ReportHours = () => {
     setMenuVisible(!isMenuVisible);
 };
 
+
   // Generate number arrays for Picker
   const generateNumberArray = (start, end) => {
     let numbers = [];
@@ -50,8 +56,12 @@ const ReportHours = () => {
     return numbers;
   };
 
-  // Arrays for days, months, years, hours, and minutes
-  const days = generateNumberArray(1, 31);
+  const generateDaysArray = (year, month) => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, index) => (index + 1).toString());
+  };
+
+  const days = generateDaysArray(date.year, date.month);
   const months = generateNumberArray(1, 12);
   const years = generateNumberArray(2020, 2050); // Adjust the range as needed
 
@@ -167,9 +177,7 @@ const ReportHours = () => {
       {/* Button to Show Date Picker Modal */}
       <TouchableOpacity onPress={togglePicker} style={styles.dateButton}>
         <Text style={styles.buttonText}>
-          {date.year !== "2023" || date.month !== "1" || date.day !== "1"
-            ? formatDate(date)
-            : "SELECT DATE"}
+          {"SELECT DATE"}
         </Text>
       </TouchableOpacity>
 
@@ -328,7 +336,11 @@ const ReportHours = () => {
                   style={styles.picker}
                 >
                   {days.map((day) => (
-                    <Picker.Item key={day} label={day.toString()} value={day} />
+                    <Picker.Item
+                      key={day}
+                      label={day.toString()}
+                      value={day}
+                    />
                   ))}
                 </Picker>
               </View>

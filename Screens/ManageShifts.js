@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   View,
@@ -37,7 +37,11 @@ const ManageShifts = () => {
   const [description, setDescription] = useState("");
   const [breaksTotal, setBreaksTotal] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-  const [date, setDate] = useState({ year: "2023", month: "1", day: "1" });
+  const [date, setDate] = useState({
+    year: new Date().getFullYear().toString(),
+    month: (new Date().getMonth() + 1).toString(),
+    day: new Date().getDate().toString(),
+  });
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
   const navigation = useNavigation();
   const [isMenuVisible, setMenuVisible] = useState(false);
@@ -62,7 +66,12 @@ useFocusEffect(
     return numbers;
   };
 
-  const days = generateNumberArray(1, 31);
+  const generateDaysArray = (year, month) => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, index) => (index + 1).toString());
+  };
+
+  const days = generateDaysArray(date.year, date.month);
   const months = generateNumberArray(1, 12);
   const years = generateNumberArray(2020, 2050);
 
@@ -264,9 +273,7 @@ useFocusEffect(
       {/* Button to Show Date Picker Modal */}
       <TouchableOpacity onPress={toggleDatePicker} style={styles.dateButton}>
         <Text style={styles.buttonText}>
-          {date.year !== "2023" || date.month !== "1" || date.day !== "1"
-            ? formatDate(date) // Correct usage of formatDate
-            : "SELECT DATE"}
+          {"SELECT DATE"}
         </Text>
       </TouchableOpacity>
       {/* Date Picker Modal */}
