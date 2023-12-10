@@ -1,55 +1,89 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, Alert } from "react-native";
-import ImagePicker from 'react-native-image-crop-picker';
+import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { IMGUPLOAD, SERVER_BASE_URL } from '@env';
 import { getToken } from "../utility/Token";    
+
 
 const UploadImgScreen = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const navigation = useNavigation();
 
+    function fetchWithTimeout(url, options, timeout = 7000) {
+        return Promise.race([
+          fetch(url, options),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), timeout)
+          ),
+        ]);
+      }
+
     const pickAndUploadImage = async () => {
         try {
-            const image = await ImagePicker.openPicker({
-                width: 600,
-                height: 800,
-                cropping: true,
-            });
-
-            setSelectedImage(image);
-            const token = await getToken();
-            const formData = new FormData();
-            formData.append('image', {
-                uri: image.path,
-                name: 'image.jpg',
-                type: 'image/jpeg',
-            });
-
-            const response = await fetch(SERVER_BASE_URL + IMGUPLOAD, {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'multipart/form-data',
-                },
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error(`Upload failed: ${response.statusText}`);
+            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (permissionResult.granted === false) {
+                Alert.alert("Permission to access camera roll is required!");
+                return;
             }
 
-            Alert.alert('Success', 'Image uploaded successfully');
-            navigation.navigate('Settings');
+            const pickerResult = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
+
+            if (pickerResult.cancelled === true) {
+                return;
+            }
+
+            setSelectedImage({ localUri: pickerResult.uri });
+            await uploadImage(pickerResult.uri);
         } catch (error) {
             console.error(error);
-            Alert.alert('Error', 'Image upload failed');
+            Alert.alert("An error occurred while picking the image.");
         }
     };
 
+    const uploadImage = async (uri) => {
+        const token = await getToken();
+        let formData = new FormData();
+        formData.append('image', {
+          uri: uri,
+          type: 'image/jpeg',
+          name: 'image.jpg'
+        });
+      
+        try {
+          const response = await fetchWithTimeout(SERVER_BASE_URL+IMGUPLOAD,  {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + token
+            },
+            body: formData
+          }, 7000);
+      
+          if (!response.ok) {
+            throw new Error('Upload failed');
+          }
+      
+          const json = await response.json();
+          Alert.alert("Image uploaded successfully!");
+          navigation.navigate('ShiftScreen');
+        } catch (error) {
+          console.error(error);
+          Alert.alert("Upload failed", error.toString());
+        }
+      };
+      
+
+
+
+
     return (
         <View style={styles.container}>
-            {selectedImage && <Image source={{ uri: selectedImage.path }} style={styles.image} />}
+            {selectedImage?.localUri && <Image source={{ uri: selectedImage.localUri }} style={styles.image} />}
             <TouchableOpacity style={styles.buttonContainer} onPress={pickAndUploadImage}>
                 <Text style={styles.buttonText}>Select and Upload Image</Text>
             </TouchableOpacity>
