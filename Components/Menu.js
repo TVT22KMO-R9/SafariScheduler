@@ -31,6 +31,7 @@ export default function Menu({ userRole }) {
       "MANAGE SHIFTS": "ManageShifts",
       "OTHERS HISTORY": "OthersHistory",
       "EDIT EMAILS": "EditEmails",
+      "IMAGEUPLOAD": "UploadImgScreen"
     };
     const screenName = screens[label];
     if (screenName) {
@@ -72,6 +73,7 @@ export default function Menu({ userRole }) {
       { label: "OTHERS HISTORY", icon: "folder" },
       { label: "EDIT EMAILS", icon: "mail" },
       { label: "SETTINGS", icon: "settings" },
+      { label: "IMAGEUPLOAD", icon: "image"}
     ];
   }
 

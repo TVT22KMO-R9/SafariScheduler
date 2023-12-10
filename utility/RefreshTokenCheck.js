@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SERVER_BASE_URL, REFRESH_TOKEN, ACCESS_TOKEN, REFRESH_ENDPOINT } from '@env';
+import { getToken } from './Token';
 
 
 // katsoo löytyykö localstoragesta refresh tokenia

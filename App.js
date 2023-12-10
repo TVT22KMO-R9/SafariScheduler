@@ -15,6 +15,7 @@ import DeleteShifts from './Screens/DeleteShifts';
 import MyShifts from './Screens/MyShifts';
 import History from './Screens/History';
 import EditEmails from './Screens/EditEmails';
+import UploadImgScreen from './Screens/UploadImgScreen';
 
 const Stack = createStackNavigator();
 
@@ -79,6 +80,11 @@ export default function App() {
         <Stack.Screen
           name="EditEmails"
           component={EditEmails}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="UploadImgScreen"
+          component={UploadImgScreen}
           options={{ headerShown: false }}
         />
           
