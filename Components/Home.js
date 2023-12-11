@@ -12,6 +12,7 @@ const Home = () => {
     const navigateToHome = () => {
       navigation.navigate('ShiftScreen', { userRole });
     }
+    
 
   return (
     <TouchableOpacity style={styles.logoutbutton} onPress={navigateToHome}>
