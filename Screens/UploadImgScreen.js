@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, Alert } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
-import { IMGUPLOAD, SERVER_BASE_URL } from '@env';
-import { getToken } from "../utility/Token";    
+import { IMGUPLOAD, SERVER_BASE_URL, COMPANY_SETTINGS } from '@env';
+import { getToken } from "../utility/Token";  
+import  { removeBackground, removeBackgroundURL, setBackgroundURL, saveBackground } from "../utility/BackGroundCheck";
+import {  DeviceEventEmitter } from 'react-native';
 
 
 const UploadImgScreen = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const navigation = useNavigation();
-
-
 
     const handleUpload = async () => {
       if (!selectedImage || !selectedImage.localUri) {
@@ -38,9 +38,11 @@ const UploadImgScreen = () => {
       xhr.setRequestHeader('Content-Type', 'multipart/form-data');
       xhr.onload = () => {
           if (xhr.status === 200) {
-              Alert.alert('Image uploaded successfully!');
-              // + navigation
-          } else {
+                Alert.alert('Image uploaded successfully!');
+                DeviceEventEmitter.emit('newImageUploaded');
+                
+         
+         } else {
               Alert.alert('Something went wrong!');
           }
       };
@@ -52,6 +54,36 @@ const UploadImgScreen = () => {
   
       xhr.send(formData);
   }
+
+  const handleDelete = async () => {
+    const token = await getToken();
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', SERVER_BASE_URL + IMGUPLOAD, true);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    xhr.onload = () => {
+        if (xhr.status === 200) {
+            
+            Alert.alert('Image deleted successfully!');
+            DeviceEventEmitter.emit('backgroundImageChanged');
+            // + navigation
+        } else {
+            Alert.alert('Something went wrong!');
+        }
+    };
+    xhr.onerror = (e) => {
+        console.error('XHR Error', e);
+        console.log(xhr.responseText);
+        Alert.alert('Delete failed');
+    };
+
+    xhr.send();
+
+    await removeBackground();
+    await removeBackgroundURL();
+    }
+
+   
+
   
 
 
@@ -61,19 +93,26 @@ const UploadImgScreen = () => {
         alert('Permission to access camera roll is required!');
         return;
     }
+
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
-    });
-    if (pickerResult.cancelled) {
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+      });
+    if (pickerResult.canceled) {
+        alert('Image picker cancelled');
         return;
     }
-    if (pickerResult.assets && pickerResult.assets.length > 0) {
-        // Assuming only one image is selected
-        const selectedUri = pickerResult.assets[0].uri;
-        setSelectedImage({ localUri: selectedUri });
-    } else {
-        alert('No image was selected.');
+
+    if (!pickerResult.assets || pickerResult.assets.length === 0) {
+        alert('Could not get picked image');
+        return;
     }
-};
+
+    setSelectedImage({ localUri: pickerResult.assets[0].uri });
+    };
+
+
+
 
 
 
@@ -86,7 +125,9 @@ const UploadImgScreen = () => {
             <TouchableOpacity style={styles.buttonContainer} onPress={handleUpload}>
                 <Text style={styles.buttonText}>Upload Image</Text>
             </TouchableOpacity>
-
+            <TouchableOpacity style={styles.buttonContainer} onPress={handleDelete}>
+                <Text style={styles.buttonText}>Reset to default</Text>
+            </TouchableOpacity>
 
         </View>
     );

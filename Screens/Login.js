@@ -20,7 +20,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { saveRefreshToken, RefreshTokenCheck, removeRefreshToken, getRefreshToken } from "../utility/RefreshToken";
 import { saveToken } from "../utility/Token";
 import ApiLoadingAnimation from "../utility/ApiLoadingAnimation";
-import { downloadAndSaveBackgroundFromURL } from "../utility/BackGroundCheck";
+import { downloadAndSaveBackgroundFromURL, settingsHasBackground, saveBackground, savedBackgroundURL, getBackgroundURL, setBackgroundURL } from "../utility/BackGroundCheck";
+
 
 
 const Login = () => {   
@@ -127,34 +128,44 @@ const Login = () => {
     }
   };
   
-  const handleLogin = async () => {   // muutettu async token ja refreshtoken settejä varten ja try catch blokit - tero
+  const handleLogin = async () => {  // muutettu async ja hiottu logiikkaan refreshTokenia ja taustakuvalogiikkaa - tero
     try {
-      const response = await apiLogin(email, password);
-      const token = response.token;
-      const refreshToken = response.refreshToken;
-  
-      if(refreshToken.length > 1) {
-        saveRefreshToken(refreshToken);
-      }
+        const response = await apiLogin(email, password);
+        const token = response.token;
+        const refreshToken = response.refreshToken;
 
-      // katso onko companysettingseissä taustakuva ja lataa se -tero
-      
-  
-      await saveToken(token);
-      console.log('Token stored successfully');
-      console.log(`User's Role: ${response.role}`);
-      console.log(`User token: ${token}`);
-      navigation.navigate('ShiftScreen', { userRole: response.role });
+        if(refreshToken.length > 1) {
+            saveRefreshToken(refreshToken);
+        }
+
+        // jos companysettingseissä on taustakuva niin käsittele se
+        if(settingsHasBackground(response.companySettings)) {
+          console.log('Company settings has background image');
+            await handleBackGroundSettings(response.companySettings.backgroundImageURL);
+        }
+
+        await saveToken(token);
+        console.log('Token stored successfully');
+        console.log(`User's Role: ${response.role}`);
+        console.log(`User token: ${token}`);
+        navigation.navigate('ShiftScreen', { userRole: response.role });
     } catch (error) {
-      console.error('Login Failed: ', error.message);
-      Alert.alert('Login Failed', error.message);
+        console.error('Login Failed: ', error.message);
+        Alert.alert('Login Failed', error.message);
     }
-  };
+};
 
- 
-  const handleBackGroundSettings = async (url) => {
-    await downloadAndSaveBackgroundFromURL(url);
-  };
+const handleBackGroundSettings = async (newBackgroundURL) => {
+    const savedBackgroundURL = await getBackgroundURL();
+
+    if (newBackgroundURL !== savedBackgroundURL) {
+        console.log('Background image URL has changed, downloading and saving new background image');
+        const newBackground = await downloadAndSaveBackgroundFromURL(newBackgroundURL);
+        await saveBackground(newBackground);
+        await setBackgroundURL(newBackgroundURL);
+    }
+    console.log('Background image URL is up to date');
+};
 
 
   

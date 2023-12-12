@@ -1,83 +1,76 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BACKGROUND } from "@env";
-import RNFetchBlob from "rn-fetch-blob";
+import { BACKGROUND, BACKGROUND_URL } from "@env";
+import * as FileSystem from 'expo-file-system';
 
-
-export const hasBackground = async () => {
+// tallenna background kuvan url 
+export const setBackgroundURL = async (url) => {
     try {
-        const background = await AsyncStorage.getItem(BACKGROUND);
-        return background !== null;
+        await AsyncStorage.setItem(BACKGROUND_URL, url);
     } catch (error) {
-        console.error("Error checking background existence:", error);
-        return false;
+        console.error("Error setting background URL:", error);
     }
 }
 
-export const getBackground = async () => {
+// hae background kuvan url
+export const getBackgroundURL = async () => {
     try {
-        return await AsyncStorage.getItem(BACKGROUND);
+        const url = await AsyncStorage.getItem(BACKGROUND_URL);
+        return url;
     } catch (error) {
-        console.error("Error getting background:", error);
-        return null;
+        console.error("Error getting background URL:", error);
     }
 }
 
-export const saveBackground = async (background) => {
+// poista background kuvan url
+export const removeBackgroundURL = async () => {
     try {
-        // jos uusi background, poista vanha
+        await AsyncStorage.removeItem(BACKGROUND_URL);
+    } catch (error) {
+        console.error("Error removing background URL:", error);
+    }
+}
+
+// lataa ja tallenna kuva urlista
+export const downloadAndSaveBackgroundFromURL = async (url) => {
+    try {
+        const filename = FileSystem.documentDirectory + BACKGROUND;
+        const result = await FileSystem.downloadAsync(url, filename);
+        return result.uri;
+    } catch (error) {
+        console.error("Error downloading image:", error);
+    }
+}
+
+// poista mahdollinen vanha ja tallenna uusi taustakuva
+export const saveBackground = async (uri) => {
+    try {
+        const oldBackground = await AsyncStorage.getItem(BACKGROUND);
         if (oldBackground !== null) {
             await removeBackground();
+            console.log('Old background removed');
         }
-        await AsyncStorage.setItem(BACKGROUND, background);
+        await AsyncStorage.setItem(BACKGROUND, uri);
+        console.log('New background stored');
     } catch (error) {
         console.error("Error saving background:", error);
     }
 }
 
+// poista vanha taustakuva
 export const removeBackground = async () => {
     try {
         await AsyncStorage.removeItem(BACKGROUND);
+        console.log('Background removed');
     } catch (error) {
         console.error("Error removing background:", error);
     }
 }
 
-export const downloadAndSaveBackgroundFromURL = async (url) => {
-    try {
-        const imageData = await downloadImage(url); 
-        await saveBackground(imageData);
-    } catch (error) {
-        console.error("Error downloading and saving background:", error);
+// katso onko companysettingsseissä taustakuva
+export const settingsHasBackground = (settings) => {
+    if (settings && settings.backgroundImageURL && settings.backgroundImageURL.length > 1) {
+        return true;
     }
-}
-
-const downloadImage = async (url) => {
-    try {
-        const response = await RNFetchBlob.config({
-            fileCache: true
-        }).fetch('GET', url);
-
-        const imagePath = response.path();
-        let base64Data = '';
-        await RNFetchBlob.fs.readFile(imagePath, 'base64')
-            .then((data) => {
-                base64Data = data;
-            });
-
-        await RNFetchBlob.fs.unlink(imagePath);
-
-        return base64Data;
-    }
-    catch (error) {
-        console.error("Error downloading image:", error);
-        return null;
-    }
-}
-
-export const settingsHasBackground = async () => {
-
-
-
-
-    
+    console.log('Company settings does not have background image');
+    return false;
 }

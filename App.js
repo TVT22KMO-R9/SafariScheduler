@@ -88,11 +88,7 @@ export default function App() {
           component={UploadImgScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-         name="Settings"
-          component={Settings}
-          options={{ headerShown: false }}
-        />
+    
           
       </Stack.Navigator>
       <StatusBar style="auto" />
