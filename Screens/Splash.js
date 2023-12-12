@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Image, StyleSheet, StatusBar, Animated } from "react-native";
-import { RefreshTokenCheck } from "../utility/RefreshTokenCheck";
+import { RefreshTokenCheck } from "../utility/RefreshToken";
 
 const Splash = ({ navigation }) => {
   const spinValue = new Animated.Value(0);
@@ -37,8 +37,9 @@ const Splash = ({ navigation }) => {
         timer = setTimeout(() => 
         {
         if (hasRefreshtoken) {
-          navigation.navigate("ShiftScreen");
+          navigation.navigate("Login");
         } else {
+          console.log("Ei refresh tokenia");
         navigation.navigate("Welcome");
         }
       }, 3000);

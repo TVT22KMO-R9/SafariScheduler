@@ -14,27 +14,31 @@ import {
   Alert,
   Dimensions,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { saveRefreshToken, hasRefreshToken, removeRefreshToken } from "../utility/RefreshTokenCheck";
+import { saveRefreshToken, RefreshTokenCheck, removeRefreshToken, getRefreshToken } from "../utility/RefreshToken";
 import { saveToken } from "../utility/Token";
-
+import ApiLoadingAnimation from "../utility/ApiLoadingAnimation";
+import { downloadAndSaveBackgroundFromURL } from "../utility/BackGroundCheck";
 
 
 const Login = () => {   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [hasRefreshToken, setRefreshToken] = useState(false); // - tero
+  const [hasRefreshToken, setHasRefreshToken] = useState(false); // - tero
 
   const navigation = useNavigation();
 
   useEffect (() => {   // - tero
     // tarkista refreshTokenin tila
     const checkRefreshToken = async () => {
-      const hasToken = await hasRefreshToken();
+      const hasToken = await RefreshTokenCheck();
       setHasRefreshToken(hasToken);
     }
+    checkRefreshToken();
+    
   }, []);
 
 
@@ -58,7 +62,7 @@ const Login = () => {
       const response = await fetch(`${SERVER_BASE_URL}${REFRESH_ENDPOINT}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${refreshToken}`,
+          'Authorization': `Bearer `+ refreshToken,
           'Content-Type': 'application/json'
         },
       });
@@ -73,9 +77,9 @@ const Login = () => {
   
       const json = await response.json();
       const token = json.token;
-      const refreshToken = json.refreshToken;
+      const refreshTokenCheck = json.refreshToken;
   
-      if(refreshToken && refreshToken.length > 1) { // ei tule refresh tokenia mutta tarkistetaan kuitenkin jos logiikka muuttuu
+      if(refreshTokenCheck && refreshTokenCheck.length > 1) { // ei tule refresh tokenia mutta tarkistetaan kuitenkin jos logiikka muuttuu
         saveRefreshToken(refreshToken);
       }
   
@@ -132,8 +136,11 @@ const Login = () => {
       if(refreshToken.length > 1) {
         saveRefreshToken(refreshToken);
       }
+
+      // katso onko companysettingseissä taustakuva ja lataa se -tero
+      
   
-      await AsyncStorage.setItem('userToken', token);
+      await saveToken(token);
       console.log('Token stored successfully');
       console.log(`User's Role: ${response.role}`);
       console.log(`User token: ${token}`);
@@ -143,57 +150,72 @@ const Login = () => {
       Alert.alert('Login Failed', error.message);
     }
   };
+
+ 
+  const handleBackGroundSettings = async (url) => {
+    await downloadAndSaveBackgroundFromURL(url);
+  };
+
+
   
 
   
 
   return (
     <KeyboardAwareScrollView
-    style={{ flex: 1 }}
-    contentContainerStyle={styles.container}
-    keyboardShouldPersistTaps="handled"
-    >
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
-      <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Password"
-        secureTextEntry
-      />
-      <View style={styles.checkboxContainer}>
-        <TouchableOpacity
-          style={styles.checkbox}
-          onPress={() => setRememberMe(!rememberMe)}
-        >
-          <Ionicons
-            name={rememberMe ? 'checkbox-outline' : 'square-outline'}
-            size={30}
-            color={rememberMe ? 'rgba(0, 0, 0, 1)' : 'black'}
+      style={{ flex: 1 }}
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+    > 
+    <Image
+    source={require("../assets/background.png")}
+    style={styles.backgroundImage}
+  />
+      {hasRefreshToken ? (
+        <ApiLoadingAnimation source={require("../assets/logo.png")} logoStyle={styles.logo} />
+      ) : (
+        <>
+         
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
-        </TouchableOpacity>
-        <Text style={styles.label}>Remember Me</Text>
-      </View>
-      <TouchableOpacity
-        style={styles.buttonContainer}
-        onPress={handleLogin}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.buttonText}>LOGIN</Text>
-      </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Password"
+            secureTextEntry
+          />
+          <View style={styles.checkboxContainer}>
+            <TouchableOpacity
+              style={styles.checkbox}
+              onPress={() => setRememberMe(!rememberMe)}
+            >
+              <Ionicons
+                name={rememberMe ? 'checkbox-outline' : 'square-outline'}
+                size={30}
+                color={rememberMe ? 'rgba(0, 0, 0, 1)' : 'black'}
+              />
+            </TouchableOpacity>
+            <Text style={styles.label}>Remember Me</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.buttonContainer}
+            onPress={handleLogin}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>LOGIN</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </KeyboardAwareScrollView>
   );
+  
 };
 
 
@@ -214,6 +236,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderColor: "black",
     borderWidth: 2,
+  },
+  activityIndicator: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 80,
   },
   buttonText: {
     color: "white",
@@ -267,6 +295,12 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 1,
   },
+  logo: {
+    width: 250,
+    height: 250,
+    resizeMode: "contain",
+    marginTop: -370,
+  }
 });
 
 export default Login;

@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { removeToken, checkToken, getToken} from '../utility/Token';
-import { RefreshTokenCheck, removeRefreshToken } from '../utility/RefreshTokenCheck';
+import { RefreshTokenCheck, removeRefreshToken } from '../utility/RefreshToken';
 import { LOGOUT_ENDPOINT, SERVER_BASE_URL } from '@env';
 
 const Logout = () => {
@@ -40,7 +40,7 @@ const Logout = () => {
       await handleServerLogout(temporaryTokenSave);
       console.log('Server logout onnistui');
 
-      temporaryTokenSave = null; // tyhjennys varmuuden vuoksi
+      temporaryTokenSave = null; // tyhjennys varmuuden vuoksi -tero
 
       // Navigate to the home screen
       navigation.navigate('Welcome');
@@ -53,7 +53,7 @@ const Logout = () => {
   const handleServerLogout = async (token) => {
     try {
       const response = await fetch(`${SERVER_BASE_URL}${LOGOUT_ENDPOINT}`, {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
         },

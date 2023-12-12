@@ -8,7 +8,6 @@ import { saveToken } from './Token';
 export const RefreshTokenCheck = async () => {
     const refreshToken = await getRefreshToken();
     if (refreshToken === null ) {
-        console.log("Refresh tokenia ei löytynyt")
         return false;
     }
     console.log("Refresh token löytyi")
