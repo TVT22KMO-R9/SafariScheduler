@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Image, DeviceEventEmitter } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getToken } from './Token';
-import { SERVER_BASE_URL, COMPANY_SETTINGS } from '@env';
+import { SERVER_BASE_URL, COMPANY_SETTINGS, BACKGROUND } from '@env';
 import { saveBackground, setBackgroundURL , downloadAndSaveBackgroundFromURL} from './BackGroundCheck';
 
 const BackgroundImage = ({ style }) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
 
   const fetchBackgroundImage = async () => {
-    const savedImage = await AsyncStorage.getItem('backgroundImage');
+    const savedImage = await AsyncStorage.getItem(BACKGROUND);
     if (savedImage) {
       setBackgroundImage({ uri: savedImage });
     } else {
@@ -39,11 +39,12 @@ const BackgroundImage = ({ style }) => {
         },
       });
       const data = await response.json();
+      console.log(data);
       if(!response.ok) {
         console.error("Error fetching company settings:", data);
         return;
       }
-      const url = data.companySettings.backgroundImageURL;
+      const url = data.backgroundImageURL;
       try {
         const newBackground = await downloadAndSaveBackgroundFromURL(url);
         await saveBackground(newBackground);
@@ -53,7 +54,7 @@ const BackgroundImage = ({ style }) => {
         return;
       }
   
-      DeviceEventEmitter.emit('backgroundImageChanged');
+      fetchBackgroundImage();
     });
   
     return () => {

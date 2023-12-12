@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, Alert, KeyboardAvoidingView } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { IMGUPLOAD, SERVER_BASE_URL, COMPANY_SETTINGS } from '@env';
 import { getToken } from "../utility/Token";  
 import  { removeBackground, removeBackgroundURL, setBackgroundURL, saveBackground } from "../utility/BackGroundCheck";
 import {  DeviceEventEmitter } from 'react-native';
+import BackgroundImage from "../utility/BackGroundImage";
 
 
 const UploadImgScreen = () => {
@@ -38,10 +39,10 @@ const UploadImgScreen = () => {
       xhr.setRequestHeader('Content-Type', 'multipart/form-data');
       xhr.onload = () => {
           if (xhr.status === 200) {
-                Alert.alert('Image uploaded successfully!');
-                DeviceEventEmitter.emit('newImageUploaded');
-                
-         
+                try { Alert.alert('Success! Log out and back in to see the changes!');}
+                finally {
+                  DeviceEventEmitter.emit('newImageUploaded');
+                }
          } else {
               Alert.alert('Something went wrong!');
           }
@@ -117,20 +118,23 @@ const UploadImgScreen = () => {
 
 
     return (
-        <View style={styles.container}>
-            
-            <TouchableOpacity style={styles.buttonContainer} onPress={pickImage}>
-                <Text style={styles.buttonText}>Select Image</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.buttonContainer} onPress={handleUpload}>
+        <KeyboardAvoidingView style={styles.container}>
+          <BackgroundImage style={styles.backgroundImage}/>
+          {selectedImage && (
+            <>
+              <Image source={{ uri: selectedImage.localUri }} style={styles.image} />
+              <TouchableOpacity style={styles.buttonContainer} onPress={handleUpload}>
                 <Text style={styles.buttonText}>Upload Image</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.buttonContainer} onPress={handleDelete}>
-                <Text style={styles.buttonText}>Reset to default</Text>
-            </TouchableOpacity>
-
-        </View>
-    );
+              </TouchableOpacity>
+            </>
+          )}<TouchableOpacity style={styles.buttonContainer} onPress={pickImage}>
+          <Text style={styles.buttonText}>Select Image</Text>
+        </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonContainer} onPress={handleDelete}>
+            <Text style={styles.buttonText}>Reset to default</Text>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
+      );
 };
 
 const window = Dimensions.get("window");
@@ -145,7 +149,10 @@ const styles = StyleSheet.create({
         width: window.width * 0.6,
         height: window.width * 0.6,
         marginBottom: 20,
-        resizeMode: "contain",
+        borderRadius: 15,
+        resizeMode: "cover",
+        borderColor: "black",
+        borderWidth: 2,
     },
     buttonContainer: {
         width: window.width * 0.6,
@@ -166,7 +173,12 @@ const styles = StyleSheet.create({
         textShadowColor: "rgba(0, 0, 0, 1)",
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 10,
-    },
+    },backgroundImage: {
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        resizeMode: "cover",
+      }
 });
 
 export default UploadImgScreen;

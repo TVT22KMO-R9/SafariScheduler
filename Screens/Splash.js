@@ -6,11 +6,9 @@ const Splash = ({ navigation }) => {
   const spinValue = new Animated.Value(0);
 
   // Function to start the spin animation
-  const startSpinning =  () => {
-    
-    
+  const startSpinning = () => {
     spinValue.setValue(0);
-    Animated.loop(
+    spinAnimation = Animated.loop(
       Animated.sequence([
         Animated.delay(300),
         Animated.timing(spinValue, {
@@ -24,8 +22,10 @@ const Splash = ({ navigation }) => {
           useNativeDriver: true,
         }),
       ])
-    ).start();
+    );
+    spinAnimation.start();
   };
+  
 
   useEffect(() => {
     startSpinning();
@@ -50,8 +50,9 @@ const Splash = ({ navigation }) => {
     // Clear the timer when the component is unmounted
     return () => {
       clearTimeout(timer);
-      // Stop the animation when the component is unmounted
-      Animated.loop().stop(); // This will stop the looped animation
+      if (spinAnimation) {
+        spinAnimation.stop();
+      }
     };
   }, [navigation]);
 
