@@ -24,12 +24,6 @@ export const getBackground = async () => {
 
 export const saveBackground = async (background) => {
     try {
-        // jos on vanha background, tarkista ettei uusi ole sama
-        const oldBackground = await getBackground();
-        if (oldBackground === background) {
-            console.log("Background is already saved");
-            return;
-        }
         // jos uusi background, poista vanha
         if (oldBackground !== null) {
             await removeBackground();
