@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
-import {LOGIN_ENDPOINT, SERVER_BASE_URL} from '@env'
+import {LOGIN_ENDPOINT, LOGIN_SHORT, SERVER_BASE_URL} from '@env'
 import { encode as base64Encode } from 'base-64';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -16,6 +16,8 @@ import {
   Platform,
 } from "react-native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { saveRefreshToken } from "../utility/RefreshTokenCheck";
+import { saveToken } from "../utility/Token";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,14 +29,24 @@ const Login = () => {
   const apiLogin = async (email, password) => {
     try {
       const base64Credentials = base64Encode(`${email}:${password}`);
-      const response = await fetch(`${SERVER_BASE_URL}${LOGIN_ENDPOINT}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${base64Credentials}`,
-          'Content-Type': 'application/json'
-        },
-      });
-  
+      let response;
+      if(rememberMe) {  // ohjataan eri endpointiin riippuen onko remember me valittu
+        response = await fetch(`${SERVER_BASE_URL}${LOGIN_ENDPOINT}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${base64Credentials}`,
+            'Content-Type': 'application/json'
+          },
+        });
+      } else {
+        response = await fetch(`${SERVER_BASE_URL}${LOGIN_SHORT}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${base64Credentials}`,
+            'Content-Type': 'application/json'
+          },
+        });
+      }
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Login failed: ${response.statusText} - ${errorText}`);
@@ -47,25 +59,29 @@ const Login = () => {
     }
   };
   
-  const handleLogin = () => {
-    apiLogin(email, password)
-      .then(response => {
-        const token = response.token;
-        AsyncStorage.setItem('userToken', token)
-          .then(() => {
-            console.log('Token stored successfully'); //Testiominaisuus, voi poistaa joskus
-            console.log(`User's Role: ${response.role}`); //Testiominaisuus, voi poistaa joskus
-            console.log(`User token: ${token}`); //Testiominaisuus, voi poistaa joskus
-            navigation.navigate('ShiftScreen', { userRole: response.role });
-          })
-          .catch(error => {
-            console.error('AsyncStorage error: ', error.message);
-          });
-      })
-      .catch(error => {
-        Alert.alert('Login Failed', error.message);
-      });
+  const handleLogin = async () => {   // muutettu async token ja refreshtoken settejä varten ja try catch blokit - tero
+    try {
+      const response = await apiLogin(email, password);
+      const token = response.token;
+      const refreshToken = response.refreshToken;
+  
+      if(refreshToken.length > 1) {
+        saveRefreshToken(refreshToken);
+      }
+  
+      await AsyncStorage.setItem('userToken', token);
+      console.log('Token stored successfully');
+      console.log(`User's Role: ${response.role}`);
+      console.log(`User token: ${token}`);
+      navigation.navigate('ShiftScreen', { userRole: response.role });
+    } catch (error) {
+      console.error('Login Failed: ', error.message);
+      Alert.alert('Login Failed', error.message);
+    }
   };
+  
+
+  
 
   return (
     <KeyboardAwareScrollView

@@ -10,83 +10,84 @@ const UploadImgScreen = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const navigation = useNavigation();
 
-    function fetchWithTimeout(url, options, timeout = 7000) {
-        return Promise.race([
-          fetch(url, options),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), timeout)
-          ),
-        ]);
+
+
+    const handleUpload = async () => {
+      if (!selectedImage || !selectedImage.localUri) {
+          Alert.alert('No image selected!');
+          return;
       }
-
-    const pickAndUploadImage = async () => {
-        try {
-            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (permissionResult.granted === false) {
-                Alert.alert("Permission to access camera roll is required!");
-                return;
-            }
-
-            const pickerResult = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 1,
-            });
-
-            if (pickerResult.cancelled === true) {
-                return;
-            }
-
-            setSelectedImage({ localUri: pickerResult.uri });
-            await uploadImage(pickerResult.uri);
-        } catch (error) {
-            console.error(error);
-            Alert.alert("An error occurred while picking the image.");
-        }
-    };
-
-    const uploadImage = async (uri) => {
-        const token = await getToken();
-        let formData = new FormData();
-        formData.append('image', {
-          uri: uri,
-          type: 'image/jpeg',
-          name: 'image.jpg'
-        });
-      
-        try {
-          const response = await fetchWithTimeout(SERVER_BASE_URL+IMGUPLOAD,  {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + token
-            },
-            body: formData
-          }, 7000);
-      
-          if (!response.ok) {
-            throw new Error('Upload failed');
+  
+      const uri = selectedImage.localUri;
+      const token = await getToken(); 
+      const formData = new FormData();
+  
+      const uriParts = uri.split('.');
+      const fileType = uriParts[uriParts.length - 1];
+      const fileName = uri.split('/').pop();
+  
+      formData.append('image', {
+          uri,
+          name: fileName,
+          type: `image/${fileType}`,
+      });
+  
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', SERVER_BASE_URL + IMGUPLOAD, true);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+      xhr.onload = () => {
+          if (xhr.status === 200) {
+              Alert.alert('Image uploaded successfully!');
+              // + navigation
+          } else {
+              Alert.alert('Something went wrong!');
           }
-      
-          const json = await response.json();
-          Alert.alert("Image uploaded successfully!");
-          navigation.navigate('ShiftScreen');
-        } catch (error) {
-          console.error(error);
-          Alert.alert("Upload failed", error.toString());
-        }
       };
-      
+      xhr.onerror = (e) => {
+          console.error('XHR Error', e);
+          console.log(xhr.responseText);
+          Alert.alert('Upload failed');
+      };
+  
+      xhr.send(formData);
+  }
+  
 
+
+  const pickImage = async () => {
+    let permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+        alert('Permission to access camera roll is required!');
+        return;
+    }
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+    });
+    if (pickerResult.cancelled) {
+        return;
+    }
+    if (pickerResult.assets && pickerResult.assets.length > 0) {
+        // Assuming only one image is selected
+        const selectedUri = pickerResult.assets[0].uri;
+        setSelectedImage({ localUri: selectedUri });
+    } else {
+        alert('No image was selected.');
+    }
+};
 
 
 
     return (
         <View style={styles.container}>
-            {selectedImage?.localUri && <Image source={{ uri: selectedImage.localUri }} style={styles.image} />}
-            <TouchableOpacity style={styles.buttonContainer} onPress={pickAndUploadImage}>
-                <Text style={styles.buttonText}>Select and Upload Image</Text>
+            
+            <TouchableOpacity style={styles.buttonContainer} onPress={pickImage}>
+                <Text style={styles.buttonText}>Select Image</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonContainer} onPress={handleUpload}>
+                <Text style={styles.buttonText}>Upload Image</Text>
+            </TouchableOpacity>
+
+
         </View>
     );
 };

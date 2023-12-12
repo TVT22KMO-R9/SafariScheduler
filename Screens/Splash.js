@@ -29,13 +29,18 @@ const Splash = ({ navigation }) => {
 
   useEffect(() => {
     startSpinning();
+    let timer;
         const checkTokenAndNavigate = async () => // useeffect ei voi olla async, joten tehdään async funktio sen sisällä jota kutsutaan
     {
-        await RefreshTokenCheck();  // tarkistaa loppuun ennenkuin antaa timerin alkaa
+        let hasRefreshtoken = await RefreshTokenCheck();  // tarkistaa loppuun ennenkuin antaa timerin alkaa
         // After 3 seconds, redirect to the Welcome screen
-        const timer = setTimeout(() => 
-      {
+        timer = setTimeout(() => 
+        {
+        if (hasRefreshtoken) {
+          navigation.navigate("ShiftScreen");
+        } else {
         navigation.navigate("Welcome");
+        }
       }, 3000);
     }
 
