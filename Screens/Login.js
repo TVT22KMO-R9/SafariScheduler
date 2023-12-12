@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
-import {LOGIN_ENDPOINT, LOGIN_SHORT, SERVER_BASE_URL} from '@env'
+import {LOGIN_ENDPOINT, LOGIN_SHORT, SERVER_BASE_URL, REFRESH_ENDPOINT} from '@env'
 import { encode as base64Encode } from 'base-64';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -19,12 +19,53 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { saveRefreshToken } from "../utility/RefreshTokenCheck";
 import { saveToken } from "../utility/Token";
 
-const Login = () => {
+
+const Login = ({refreshToken}) => {   // vapaaehtoinen prop refresh tokenille - tero
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
   const navigation = useNavigation();
+
+  useEffect(() => {   // - tero
+    if(refreshToken) { // jos refresh token propseissa, tehdään post kutsu ja tallennetaan vastaus kuin loginissa
+                        // post kutsu tarvitsee vain auth headeriin refresh tokenin
+      apiRefresh(refreshToken);
+    }
+  }, [refreshToken]);
+
+  const apiRefresh = async (refreshToken) => { // post kutsu refresh tokenille, noudattaa apiLogin mallia tiedonsiirtoon ja logaukseen - tero
+    try {
+      const response = await fetch(`${SERVER_BASE_URL}${REFRESH_ENDPOINT}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${refreshToken}`,
+          'Content-Type': 'application/json'
+        },
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Refresh failed: ${response.statusText} - ${errorText}`);
+      }
+  
+      const json = await response.json();
+      const token = json.token;
+      const refreshToken = json.refreshToken;
+  
+      if(refreshToken && refreshToken.length > 1) { // ei tule refresh tokenia mutta tarkistetaan kuitenkin jos logiikka muuttuu
+        saveRefreshToken(refreshToken);
+      }
+  
+      await AsyncStorage.setItem('userToken', token);
+      console.log('Token stored successfully');
+      console.log(`User's Role: ${json.role}`);
+      console.log(`User token: ${token}`);
+      navigation.navigate('ShiftScreen', { userRole: json.role });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 
   const apiLogin = async (email, password) => {
     try {

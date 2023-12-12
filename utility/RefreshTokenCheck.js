@@ -4,41 +4,15 @@ import { saveToken } from './Token';
 
 
 
-// katsoo löytyykö localstoragesta refresh tokenia
+// katsoo löytyykö localstoragesta refresh tokenia palauta boolean
 export const RefreshTokenCheck = async () => {
-    try { 
-        const refreshToken = await getRefreshToken(); 
-        if (refreshToken !== null) {
-            console.log("Refresh token löytyi, haetaan tuore accesstoken");
-                const response = await fetch(SERVER_BASE_URL + REFRESH_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + refreshToken
-                    },   
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    const accessToken = data.accessToken;
-                    console.log("Tuore access token haettu");       
-                    await saveToken(accessToken);
-                    return true;
-                }
-                if (response.status === 401) {
-                    console.log("Unauthorized, poistetaan refresh token");
-                    await AsyncStorage.removeItem(REFRESH_TOKEN);
-                    return false;
-                }
-        } else {
-            // ei refresh tokenia, poistetaan nykyinen accesstoken jotta tuore sessio
-            console.log("Ei refresh tokenia, poistetaan accesstoken");
-            await AsyncStorage.removeItem(ACCESS_TOKEN);
-            return false;
-        }
+    const refreshToken = await getRefreshToken();
+    if (refreshToken === null) {
+        console.log("Refresh tokenia ei löytynyt")
+        return false;
     }
-    catch (error) {
-        console.log(error);
-    }
+    console.log("Refresh token löytyi")
+    return true;
 }
 
 export const saveRefreshToken = async (refreshToken) => {
@@ -57,5 +31,10 @@ export const getRefreshToken = async () => {
     // hae token local storagesta
     const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN);
     return refreshToken;
+}
+
+export const removeRefreshToken = async () => {
+    // poista token local storagesta
+    await AsyncStorage.removeItem(REFRESH_TOKEN);
 }
 

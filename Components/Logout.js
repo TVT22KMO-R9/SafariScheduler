@@ -3,6 +3,8 @@ import { TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { removeToken, checkToken, getToken} from '../utility/Token';
+import { RefreshTokenCheck, removeRefreshToken } from '../utility/RefreshTokenCheck';
 
 const Logout = () => {
   const navigation = useNavigation();
@@ -10,9 +12,19 @@ const Logout = () => {
   const handleLogout = async () => {
     try {
       // Remove the token from storage
-      await AsyncStorage.removeItem('userToken');
+      await removeToken();
       // Check if the token is removed successfully
-      const tokenAfterLogout = await AsyncStorage.getItem('userToken');
+      const tokenAfterLogout = await getToken();
+      if (tokenAfterLogout) {
+        throw new Error('Token was not removed from storage');
+      }
+
+      // jos löytyy refresh token, poista sekin
+      const hasRefreshToken = await checkToken();
+      if(hasRefreshToken) {
+        await removeRefreshToken();
+      }
+      
       console.log('Token after logout:', tokenAfterLogout);
 
       // Navigate to the login screen

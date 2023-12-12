@@ -19,3 +19,17 @@ export const getToken = async () => {
     const token = await AsyncStorage.getItem(ACCESS_TOKEN);
     return token;
 }
+
+export const removeToken = async () => {
+    // poista token local storagesta
+    await AsyncStorage.removeItem(ACCESS_TOKEN);
+}
+
+// boolean palauttaa true jos token löytyy, false jos ei löydy
+export const checkToken = async () => {
+    const token = await AsyncStorage.getItem(ACCESS_TOKEN);
+    if (token === null) {
+        return false;
+    }
+    return true;
+}
