@@ -7,6 +7,7 @@ import Menu from '../Components/Menu';
 import Description from "../Components/Description";
 import Logout from '../Components/Logout';
 import Home from "../Components/Home";
+import { Alert } from "react-native";
 
 import {
   StyleSheet,

@@ -16,23 +16,42 @@ import {
   Platform,
 } from "react-native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { saveRefreshToken } from "../utility/RefreshTokenCheck";
+import { saveRefreshToken, hasRefreshToken, removeRefreshToken } from "../utility/RefreshTokenCheck";
 import { saveToken } from "../utility/Token";
 
 
-const Login = ({refreshToken}) => {   // vapaaehtoinen prop refresh tokenille - tero
+
+const Login = () => {   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [hasRefreshToken, setRefreshToken] = useState(false); // - tero
 
   const navigation = useNavigation();
 
-  useEffect(() => {   // - tero
-    if(refreshToken) { // jos refresh token propseissa, tehdään post kutsu ja tallennetaan vastaus kuin loginissa
-                        // post kutsu tarvitsee vain auth headeriin refresh tokenin
-      apiRefresh(refreshToken);
+  useEffect (() => {   // - tero
+    // tarkista refreshTokenin tila
+    const checkRefreshToken = async () => {
+      const hasToken = await hasRefreshToken();
+      setHasRefreshToken(hasToken);
     }
-  }, [refreshToken]);
+  }, []);
+
+
+  useEffect(() => {   // - tero
+    if(hasRefreshToken) { // jos refresh token true, tehdään post kutsu ja tallennetaan vastaus kuin loginissa
+    // post kutsu tarvitsee vain auth headeriin refresh tokenin
+    const callApiRefresh = async () => {
+      try {
+        const token = await getRefreshToken();
+        await apiRefresh(token);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    callApiRefresh();
+  }
+  }, [hasRefreshToken]);
 
   const apiRefresh = async (refreshToken) => { // post kutsu refresh tokenille, noudattaa apiLogin mallia tiedonsiirtoon ja logaukseen - tero
     try {
@@ -45,7 +64,11 @@ const Login = ({refreshToken}) => {   // vapaaehtoinen prop refresh tokenille - 
       });
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Refresh failed: ${response.statusText} - ${errorText}`);
+        console.log(`Refresh failed: ${response.statusText} - ${errorText}`)
+        // throw new Error(`Refresh failed: ${response.statusText} - ${errorText}`);
+        console.log('Refresh failed, removing refresh token and navigating to welcome screen');
+        await removeRefreshToken();
+        navigation.navigate('Welcome');
       }
   
       const json = await response.json();
