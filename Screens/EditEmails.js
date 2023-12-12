@@ -3,7 +3,7 @@ import {
     View, Text, StyleSheet, TouchableOpacity,
     Modal, TouchableWithoutFeedback, Image,
     TextInput, Alert, ScrollView,
-    KeyboardAvoidingView,
+    KeyboardAvoidingView, FlatList
 } from 'react-native';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,17 +17,23 @@ const EditEmails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
     const [isDeleteEmailVisible, setIsDeleteEmailVisible] = useState(false);
-    const [roleWithEmail, setRoleWithEmail] = useState('');
+    //const [roleWithEmail, setRoleWithEmail] = useState('');
     const [newEmail, setNewEmail] = useState('');
     const [deleteEmail, setDeleteEmail] = useState('');
     const route = useRoute();
     const userRole = route.params?.userRole;
     const [userData, setUserData] = useState([]);
+    const [isPickerVisible, setPickerVisible] = useState(false);
+    const [selectedRole, setSelectedRole] = useState(null);
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
     };
 
+    const handleRoleSelection = (role) => {
+        setSelectedRole(role);
+        setPickerVisible(false);
+    };
     //Muuttaa add email-napin TextInsertiksi
     const handleNewEmailButton = () => {
         setIsNewEmailVisible(true);
@@ -42,9 +48,37 @@ const EditEmails = () => {
         const emailRegex = /\S+@\S+\.\S+/;
         return emailRegex.test(email); //palauttaa false jos ei täsmää
     }
-    const isValidRole = (role) => {
-        return role === "WORKER" || role === "MASTER" || role === "SUPERVISOR";
+
+    const CustomPicker = ({ visible, data, selectedItem, onSelect, onClose }) => {
+        return (
+            <Modal visible={visible} transparent animationType="fade">
+                <TouchableOpacity
+                    style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                    onPress={onClose}
+                >
+                    <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 20, maxHeight: 200 }}>
+                        <FlatList
+                            data={data}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity onPress={() => onSelect(item)} style={{ paddingVertical: 10 }}>
+                                    <Text style={{ fontFamily: "Saira-Regular", fontSize: 18 }}>{item.label}</Text>
+                                </TouchableOpacity>
+                            )}
+                            keyExtractor={(item) => item.value.toString()}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+        );
     };
+
+    const roles = [
+        { label: 'WORKER', value: 'WORKER' },
+        { label: 'SUPERVISOR', value: 'SUPERVISOR' },
+        { label: 'MASTER', value: 'MASTER' },
+    ];
+
+    
 
     //Esimies voi lisätä sähköpostin (ja roolin) hyväksytylle listalle, jotta käyttäjän voi luoda
     const AddNewEmail = async () => {
@@ -54,18 +88,21 @@ const EditEmails = () => {
                 Alert.alert("Error", "Authentication token not found");
                 return;
             }
+
+            if (!selectedRole) {
+                Alert.alert("Error", "Please select a role");
+                return;
+            }
+
             const emailData = {
                 email: newEmail.toLowerCase(),
-                role: roleWithEmail.toUpperCase()
+                role: selectedRole.value.toUpperCase()
             };
             if (!validateEmailFormat(emailData.email)) {
                 Alert.alert("Error", "Invalid email format");
                 return;
             }
-            if (!isValidRole(emailData.role)) {
-                Alert.alert("Role has to be worker, supervisor, or admin");
-                return;
-            }
+            
             try {
                 const response = await fetch(`${SERVER_BASE_URL}${WORKERS}/add`, {
                     method: 'POST',
@@ -75,7 +112,7 @@ const EditEmails = () => {
                     },
                     body: JSON.stringify(emailData),
                 });
-
+                console.log(emailData)
                 if (response.ok) {
                     Alert.alert("Email added succesfully")
                 } else {
@@ -87,7 +124,7 @@ const EditEmails = () => {
             }
             setIsNewEmailVisible(false);
             setNewEmail('') //nollaa tekstikentät napin painalluksen jälkeen
-            setRoleWithEmail('')
+            setSelectedRole(null)
         } catch (error) {
             console.error('Async function error:', error.message || "Unknown error");
         }
@@ -171,7 +208,6 @@ const EditEmails = () => {
             setNewEmail('')
             setDeleteEmail('')
             setUserData([])
-            setRoleWithEmail('')
         }, [])
     );
 
@@ -205,12 +241,26 @@ const EditEmails = () => {
                             value={newEmail}
                             onChangeText={setNewEmail}
                         />
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Enter user role"
-                            value={roleWithEmail}
-                            onChangeText={setRoleWithEmail}
+                        <View style={styles.centeredContainer}>
+                            {/* Button to open the picker */}
+                            <TouchableOpacity onPress={() => setPickerVisible(true)}>
+                                <Text style={styles.pickerButton}>
+                                <Ionicons name="chevron-down-circle-outline" size={24} color="black" />
+                                    {selectedRole ? selectedRole.label : 'Select Role'}</Text>
+                                    
+                            </TouchableOpacity>
+
+                        </View>
+
+                        {/* Custom picker */}
+                        <CustomPicker
+                            visible={isPickerVisible}
+                            data={roles}
+                            selectedItem={selectedRole}
+                            onSelect={handleRoleSelection}
+                            onClose={() => setPickerVisible(false)}
                         />
+
                         <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={AddNewEmail}>
                             <Text style={styles.buttonText}>CONFIRM</Text>
                         </TouchableOpacity>
@@ -329,14 +379,31 @@ const styles = StyleSheet.create({
     },
     emailInput: {
         height: screenHeight * 0.07,
-        width: "90%",
+        width: screenWidth * 0.9,
         borderRadius: 5,
         borderColor: "black",
+        textAlign: 'center',
         backgroundColor: "rgba(255, 255, 255, 0.9)",
         borderWidth: 2,
         marginBottom: "1%",
         paddingHorizontal: 10,
         fontSize: screenWidth * 0.06,
+        fontFamily: "Saira-Regular",
+
+    },
+    pickerButton: { //tässä samat asetukset kuin yllä, mutta tekstin keskittämiseen viimeinen rivi
+        height: screenHeight * 0.07,
+        width: screenWidth * 0.9,
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        borderRadius: 5,
+        borderColor: "black",
+        borderWidth: 2,
+        marginBottom: "1%",
+        paddingHorizontal: 10,
+        fontSize: screenWidth * 0.06,
+        fontFamily: "Saira-Regular",
+        textAlign: 'center',
+        paddingVertical: (screenHeight * 0.05 - screenWidth * 0.06) / 2,
     },
     scrollView: { //User Data
         maxHeight: 300, // Set a maximum height for the scrollable box
@@ -352,7 +419,18 @@ const styles = StyleSheet.create({
     userDataText: {
         color: 'white',
         fontFamily: "Saira-Regular"
-
+    },
+    pickerStyle: {
+        backgroundColor: "white",
+        borderWidth: 1,
+        borderColor: "black",
+        borderRadius: 5,
+        width: screenWidth * 0.9,
+        height: screenHeight * 0.07,
+        marginBottom: "1%",
+        fontSize: screenWidth * 0.06,
+        fontFamily: "Saira-Regular",
+        color: "black",
     },
 });
 
