@@ -21,6 +21,15 @@ import Settings from './Screens/Settings';
 const Stack = createStackNavigator();
 
 export default function App() {
+  const[hasLoggedIn , setHasLoggedIn] = React.useState(false);
+
+  const handleLogin = () => {
+    setHasLoggedIn(true);
+  };
+
+  const handleLogOut = () => {
+    setHasLoggedIn(false);
+  };
 
   const [fontsLoaded] = useFonts({
     'Saira-Regular': require('./assets/fonts/Saira-Regular.ttf'),

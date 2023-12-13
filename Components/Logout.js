@@ -7,7 +7,7 @@ import { removeToken, checkToken, getToken} from '../utility/Token';
 import { RefreshTokenCheck, removeRefreshToken } from '../utility/RefreshToken';
 import { LOGOUT_ENDPOINT, SERVER_BASE_URL } from '@env';
 
-const Logout = () => {
+const Logout = ({logOut}) => {
   const navigation = useNavigation();
 
   const handleLogout = async () => {

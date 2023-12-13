@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {LOGIN_ENDPOINT, LOGIN_SHORT, SERVER_BASE_URL, REFRESH_ENDPOINT} from '@env'
 import { encode as base64Encode } from 'base-64';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,6 +31,9 @@ const Login = () => {
   const [hasRefreshToken, setHasRefreshToken] = useState(false); // - tero
 
   const navigation = useNavigation();
+
+  const route = useRoute();
+  const { login, setUserData } = route.params;
 
   useEffect (() => {   // - tero
     // tarkista refreshTokenin tila
@@ -148,7 +151,9 @@ const Login = () => {
         console.log('Token stored successfully');
         console.log(`User's Role: ${response.role}`);
         console.log(`User token: ${token}`);
-        navigation.navigate('ShiftScreen', { userRole: response.role });
+        // navigation.navigate('ShiftScreen', { userRole: response.role });
+        login();
+        setUserData(response); // tallennetaan koko vastaus userDataan niin sieltä saa settingsit ja roolit ja muut
     } catch (error) {
         console.error('Login Failed: ', error.message);
         Alert.alert('Login Failed', error.message);
