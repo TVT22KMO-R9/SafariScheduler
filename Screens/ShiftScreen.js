@@ -6,6 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu from '../Components/Menu';
 import Description from "../Components/Description";
 import Logout from '../Components/Logout';
+import Home from "../Components/Home";
+import { Alert } from "react-native";
+import BackgroundImage from "../utility/BackGroundImage";
 
 import {
   StyleSheet,
@@ -26,6 +29,7 @@ export default function ShiftScreen() {
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
   const [selectedBoxData, setSelectedBoxData] = useState("");
   const [isMenuVisible, setMenuVisible] = useState(false);
+  const [shifts, setShifts] = useState([]);
   const route = useRoute();
   const userRole = route.params?.userRole;
   const navigation = useNavigation();
@@ -37,7 +41,9 @@ export default function ShiftScreen() {
   };
 
   const toggleMenu = () => {
-    setMenuVisible(!isMenuVisible);
+    if( route.name !== 'UploadImgScreen' ) {
+      setMenuVisible(!isMenuVisible);
+    }
     console.log("onko menu näkyvissä:" + isMenuVisible)
   };
 
@@ -86,10 +92,55 @@ export default function ShiftScreen() {
     fetchBoxData();
   }, []);
 
+  const groupShiftsByMonth = (shifts) => {
+    const grouped = {};
+    shifts.forEach(shift => {
+      const month = new Date(shift.date).getMonth();
+      const year = new Date(shift.date).getFullYear();
+      const monthYear = `${month}-${year}`;
+      if (!grouped[monthYear]) {
+        grouped[monthYear] = [];
+      }
+      grouped[monthYear].push(shift);
+    });
+    return grouped;
+  };
+  
+  const fetchShifts = async () => {
+    try {
+      const authToken = await AsyncStorage.getItem("userToken");
+      if (!authToken) {
+        Alert.alert("Error", "Authentication token not found");
+        return;
+      }
+
+      const response = await fetch(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const groupedShifts = groupShiftsByMonth(data);
+        setShifts(groupedShifts);
+      } else {
+        Alert.alert("Error", "Failed to fetch shifts");
+      }
+    } catch (error) {
+      console.error("Error fetching shifts:", error);
+      Alert.alert("Error", "An error occurred while fetching shifts");
+    }
+    console.log(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`);
+  };
+
+  useEffect(() => {
+    fetchShifts();
+  }, []);
+
   //triggers an effect when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       setMenuVisible(false);
+      fetchShifts();
     }, [])
   );
 
@@ -97,10 +148,7 @@ export default function ShiftScreen() {
     <KeyboardAvoidingView
       style={styles.container}
     >
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
+      <BackgroundImage style={styles.backgroundImage}/>
       <TouchableOpacity style={styles.button} onPress={toggleMenu}>
         <Ionicons name="menu" size={45} color="white" />
       </TouchableOpacity>
@@ -121,6 +169,7 @@ export default function ShiftScreen() {
           <Menu userRole={userRole} />
         </View>
       </Modal>
+      <Home />
       <Logout />
       <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>NEXT SHIFTS</Text>
@@ -172,9 +221,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 200,
-    height: 500,
+    height: 250,
     position: "absolute",
-    top: screenHeight * -0.1,
+    top: screenHeight * +0.08,
     resizeMode: "contain",
   },
   backgroundImage: {

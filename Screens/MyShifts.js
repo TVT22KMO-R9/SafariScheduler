@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UPCOMING_SHIFTS, SERVER_BASE_URL } from "@env";
+import Home from "../Components/Home";
 
 const MyShifts = () => {
   const [shifts, setShifts] = useState([]);
@@ -119,6 +120,7 @@ const MyShifts = () => {
   useFocusEffect(
     React.useCallback(() => {
       setMenuVisible(false);
+      fetchShifts();
     }, [])
   );
 
@@ -148,6 +150,7 @@ const MyShifts = () => {
         </View>
       </Modal>
       <Logout />
+      <Home/>
       <ScrollView style={styles.scrollView}>
       <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, }}>Upcoming shifts</Text> 
         {renderShiftsByMonth()}
@@ -261,7 +264,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   scrollView: {
-    marginTop: 70,
+    marginTop: 90,
   },
 });
 

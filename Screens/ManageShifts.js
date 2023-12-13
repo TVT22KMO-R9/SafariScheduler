@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -10,12 +11,17 @@ import {
   Alert,
   Image,
   Dimensions,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import { WORKERS, ADD_SHIFT, SERVER_BASE_URL, DELETE_SHIFT } from "@env";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect, useRoute } from "@react-navigation/native";
 import DeleteShifts from './DeleteShifts';
+import Home from "../Components/Home";
+import Logout from "../Components/Logout";
+import Menu from '../Components/Menu';
 
 screenWidth = Dimensions.get("window").width;
 screenHeight = Dimensions.get("window").height;
@@ -32,9 +38,26 @@ const ManageShifts = () => {
   const [description, setDescription] = useState("");
   const [breaksTotal, setBreaksTotal] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-  const [date, setDate] = useState({ year: "2023", month: "1", day: "1" });
+  const [date, setDate] = useState({
+    year: new Date().getFullYear().toString(),
+    month: (new Date().getMonth() + 1).toString(),
+    day: new Date().getDate().toString(),
+  });
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
   const navigation = useNavigation();
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const route = useRoute();
+  const userRole = route.params?.userRole;
+
+  const toggleMenu = () => {
+    setMenuVisible(!isMenuVisible);
+};
+
+useFocusEffect(
+  React.useCallback(() => {
+      setMenuVisible(false);
+  }, [])
+);
 
   const generateNumberArray = (start, end) => {
     let numbers = [];
@@ -44,7 +67,12 @@ const ManageShifts = () => {
     return numbers;
   };
 
-  const days = generateNumberArray(1, 31);
+  const generateDaysArray = (year, month) => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, index) => (index + 1).toString());
+  };
+
+  const days = generateDaysArray(date.year, date.month);
   const months = generateNumberArray(1, 12);
   const years = generateNumberArray(2020, 2050);
 
@@ -207,15 +235,36 @@ const ManageShifts = () => {
   const endMinutesInputRef = useRef(null);
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0, }}>
       <Image
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
       />
-      <Text style={{ textAlign: 'center', color: 'white' }}>Manage shifts</Text>
+      <TouchableOpacity onPress={toggleMenu} style={styles.menubutton}>
+                <Ionicons name="menu" size={45} color="white" />
+            </TouchableOpacity>
+      <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isMenuVisible}
+                onRequestClose={() => {
+                    setMenuVisible(false);
+                }}
+            >
+                <TouchableWithoutFeedback onPress={toggleMenu}>
+                    <View style={styles.overlay} />
+                </TouchableWithoutFeedback>
+                <View style={styles.menuContainer}>
+                    <Menu userRole={userRole} />
+                </View>
+            </Modal>
+      <Home/>
+      <Logout/>
+
+      <Text style={{ textAlign: 'center',marginTop: "20%", fontSize: 25, color: 'white' }}>Manage shifts</Text>
       {/* Button to Open Worker Selection Modal */}
       <TouchableOpacity onPress={openModal} style={styles.button}>
-        <Text style={styles.buttonText}>
+        <Text style={styles.workerText}>
           {selectedWorker
             ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
             : "SELECT WORKER"}
@@ -225,9 +274,7 @@ const ManageShifts = () => {
       {/* Button to Show Date Picker Modal */}
       <TouchableOpacity onPress={toggleDatePicker} style={styles.dateButton}>
         <Text style={styles.buttonText}>
-          {date.year !== "2023" || date.month !== "1" || date.day !== "1"
-            ? formatDate(date) // Correct usage of formatDate
-            : "SELECT DATE"}
+          {"SELECT DATE"}
         </Text>
       </TouchableOpacity>
       {/* Date Picker Modal */}
@@ -427,7 +474,7 @@ const ManageShifts = () => {
       <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteShift}>
         <Text style={styles.buttonText}>REMOVE SHIFTS</Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -551,7 +598,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   buttonText: {
-    fontSize: screenWidth * 0.1,
+    fontSize: screenWidth * 0.09,
     color: "white",
     fontFamily: "Saira-Regular",
     textShadowColor: "rgba(0, 0, 0, 1)",
@@ -655,6 +702,38 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "90%",
   },
+  menubutton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    padding: 10,
+},
+overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+menuContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '75%',
+    height: '100%',
+    backgroundColor: 'white',
+},
+workerText: {
+  
+  fontSize: screenWidth * 0.09,
+  color: "white",
+  fontFamily: "Saira-Regular",
+  textShadowColor: "rgba(0, 0, 0, 1)",
+  textShadowOffset: { width: -1, height: 1 },
+  textShadowRadius: 10,
+  paddingLeft: 20,
+},
+keyboardAvoidingContainer: {
+  flex: 1,
+  justifyContent: 'center',
+},
 });
 
 export default ManageShifts;

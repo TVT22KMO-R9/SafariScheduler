@@ -14,6 +14,11 @@ import ManageShifts from './Screens/ManageShifts';
 import DeleteShifts from './Screens/DeleteShifts';
 import MyShifts from './Screens/MyShifts';
 import History from './Screens/History';
+import EditEmails from './Screens/EditEmails';
+import UploadImgScreen from './Screens/UploadImgScreen';
+import Settings from './Screens/Settings';
+import OtherShifts from './Screens/OtherShifts';
+import OtherHistory from './Screens/OthersHistory';
 
 const Stack = createStackNavigator();
 
@@ -71,10 +76,31 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="OtherShifts"
+          component={OtherShifts}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="OthersHistory"
+          component={OtherHistory}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="History"
           component={History}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="EditEmails"
+          component={EditEmails}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="UploadImgScreen"
+          component={UploadImgScreen}
+          options={{ headerShown: false }}
+        />
+    
           
       </Stack.Navigator>
       <StatusBar style="auto" />

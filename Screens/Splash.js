@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, Image, StyleSheet, StatusBar, Animated } from "react-native";
-import { RefreshTokenCheck } from "../utility/RefreshTokenCheck";
+import { RefreshTokenCheck } from "../utility/RefreshToken";
 
 const Splash = ({ navigation }) => {
   const spinValue = new Animated.Value(0);
 
   // Function to start the spin animation
-  const startSpinning =  () => {
-    
-    
+  const startSpinning = () => {
     spinValue.setValue(0);
-    Animated.loop(
+    spinAnimation = Animated.loop(
       Animated.sequence([
         Animated.delay(300),
         Animated.timing(spinValue, {
@@ -24,18 +22,26 @@ const Splash = ({ navigation }) => {
           useNativeDriver: true,
         }),
       ])
-    ).start();
+    );
+    spinAnimation.start();
   };
+  
 
   useEffect(() => {
     startSpinning();
+    let timer;
         const checkTokenAndNavigate = async () => // useeffect ei voi olla async, joten tehdään async funktio sen sisällä jota kutsutaan
     {
-        await RefreshTokenCheck();  // tarkistaa loppuun ennenkuin antaa timerin alkaa
+        let hasRefreshtoken = await RefreshTokenCheck();  // tarkistaa loppuun ennenkuin antaa timerin alkaa
         // After 3 seconds, redirect to the Welcome screen
-        const timer = setTimeout(() => 
-      {
+        timer = setTimeout(() => 
+        {
+        if (hasRefreshtoken) {
+          navigation.navigate("Login");
+        } else {
+          console.log("Ei refresh tokenia");
         navigation.navigate("Welcome");
+        }
       }, 3000);
     }
 
@@ -44,8 +50,9 @@ const Splash = ({ navigation }) => {
     // Clear the timer when the component is unmounted
     return () => {
       clearTimeout(timer);
-      // Stop the animation when the component is unmounted
-      Animated.loop().stop(); // This will stop the looped animation
+      if (spinAnimation) {
+        spinAnimation.stop();
+      }
     };
   }, [navigation]);
 
@@ -94,9 +101,10 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   logo: {
-    width: 300,
-    height: 300,
+    width: 250,
+    height: 250,
     resizeMode: "contain",
+    marginTop: -370,
   },
 });
 

@@ -40,10 +40,10 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   logo: {
-    width: 300,
-    height: 300,
+    width: 250,
+    height: 250,
     position: "absolute",
-    top: 0,
+    top: 70,
     resizeMode: "contain",
   },
   buttonContainer: {

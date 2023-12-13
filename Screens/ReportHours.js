@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -9,25 +10,42 @@ import {
   Alert,
   ScrollView,
   TextInput,
-  Button,
+  KeyboardAvoidingView,
   Image,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { SERVER_BASE_URL, ADD_AND_UPDATE_SHIFT_ENDPOINT } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Home from "../Components/Home";
+import Logout from "../Components/Logout";
+import Menu from '../Components/Menu';
 
 const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
 
 const ReportHours = () => {
   const navigation = useNavigation();
-  const [date, setDate] = useState({ year: "2023", month: "1", day: "1" });
+  const currentDate = new Date();
+  const [date, setDate] = useState({
+    year: currentDate.getFullYear().toString(),
+    month: (currentDate.getMonth() + 1).toString(),
+    day: currentDate.getDate().toString(),
+  });
   const [startTime, setStartTime] = useState({ hour: "", minute: "" });
   const [endTime, setEndTime] = useState({ hour: "", minute: "" });
   const [breakMinutes, setBreakMinutes] = useState(0);
   const [isPickerVisible, setPickerVisible] = useState(false);
   const [details, setDetails] = useState("");
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const route = useRoute();
+  const userRole = route.params?.userRole;
+
+  const toggleMenu = () => {
+    setMenuVisible(!isMenuVisible);
+};
+
 
   // Generate number arrays for Picker
   const generateNumberArray = (start, end) => {
@@ -38,8 +56,12 @@ const ReportHours = () => {
     return numbers;
   };
 
-  // Arrays for days, months, years, hours, and minutes
-  const days = generateNumberArray(1, 31);
+  const generateDaysArray = (year, month) => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, index) => (index + 1).toString());
+  };
+
+  const days = generateDaysArray(date.year, date.month);
   const months = generateNumberArray(1, 12);
   const years = generateNumberArray(2020, 2050); // Adjust the range as needed
 
@@ -100,7 +122,7 @@ const ReportHours = () => {
           Alert.alert("Shift reported successfully", "", [
             {
               text: "OK",
-              onPress: () => navigation.navigate("History"), // Navigate to History screen
+              onPress: () => navigation.navigate("History",  { userRole }), // Navigate to History screen
             },
           ]);
         } else {
@@ -126,18 +148,37 @@ const ReportHours = () => {
   const endMinutesInputRef = useRef(null);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0, }}>
       <Image
         source={require("../assets/background.png")}
         style={styles.backgroundImage}
       />
+      <TouchableOpacity onPress={toggleMenu} style={styles.menubutton}>
+                <Ionicons name="menu" size={45} color="white" />
+            </TouchableOpacity>
+      <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isMenuVisible}
+                onRequestClose={() => {
+                    setMenuVisible(false);
+                }}
+            >
+                <TouchableWithoutFeedback onPress={toggleMenu}>
+                    <View style={styles.overlay} />
+                </TouchableWithoutFeedback>
+                <View style={styles.menuContainer}>
+                    <Menu userRole={userRole} />
+                </View>
+            </Modal>
+      <Home />
+      <Logout/>
+      <Text style={{ textAlign: 'center',marginTop: "20%", fontSize: 25, color: 'white' }}>Report hours</Text>
 
       {/* Button to Show Date Picker Modal */}
       <TouchableOpacity onPress={togglePicker} style={styles.dateButton}>
         <Text style={styles.buttonText}>
-          {date.year !== "2023" || date.month !== "1" || date.day !== "1"
-            ? formatDate(date)
-            : "SELECT DATE"}
+          {"SELECT DATE"}
         </Text>
       </TouchableOpacity>
 
@@ -296,7 +337,11 @@ const ReportHours = () => {
                   style={styles.picker}
                 >
                   {days.map((day) => (
-                    <Picker.Item key={day} label={day.toString()} value={day} />
+                    <Picker.Item
+                      key={day}
+                      label={day.toString()}
+                      value={day}
+                    />
                   ))}
                 </Picker>
               </View>
@@ -312,7 +357,7 @@ const ReportHours = () => {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 const styles = StyleSheet.create({
@@ -324,11 +369,13 @@ const styles = StyleSheet.create({
     height: screenHeight * 0.05,
     justifyContent: "center",
     marginBottom: "10%",
+    
   },
   label: {
     fontSize: screenWidth * 0.1,
     color: "black",
     fontFamily: "Saira-Regular",
+    
   },
   backgroundImage: {
     position: "absolute",
@@ -341,6 +388,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingTop: 0,
+  
   },
   dateButton: {
     marginVertical: 10,
@@ -445,7 +493,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     fontFamily: "Saira-Regular",
     backgroundColor: "rgba(255, 255, 255, 1)",
-    marginBottom: screenHeight * 0.2,
+    marginBottom: screenHeight * 0.15,
     fontSize: screenWidth * 0.05,
   },
   confirmButton: {
@@ -533,6 +581,30 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: screenWidth * 0.08,
   },
+  button: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    padding: 10,
+},
+overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+menubutton: {
+  position: 'absolute',
+  top: 20,
+  left: 20,
+  padding: 10,
+},
+menuContainer: {
+  position: 'absolute',
+  left: 0,
+  top: 0,
+  width: '75%',
+  height: '100%',
+  backgroundColor: 'white',
+},
 });
 
 export default ReportHours;
