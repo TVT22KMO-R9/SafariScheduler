@@ -1,20 +1,22 @@
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import ShiftScreen from './Screens/ShiftScreen';
-import ReportHours from './Screens/ReportHours';
-import ManageShifts from './Screens/ManageShifts';
-import DeleteShifts from './Screens/DeleteShifts';
-import MyShifts from './Screens/MyShifts';
-import History from './Screens/History';
-import EditEmails from './Screens/EditEmails';
-import UploadImgScreen from './Screens/UploadImgScreen';
-import Settings from './Screens/Settings';
+import ShiftScreen from '../Screens/ShiftScreen';
+import ReportHours from '../Screens/ReportHours';
+import ManageShifts from '../Screens/ManageShifts';
+import DeleteShifts from '../Screens/DeleteShifts';
+import MyShifts from '../Screens/MyShifts';
+import History from '../Screens/History';
+import EditEmails from '../Screens/EditEmails';
+import UploadImgScreen from '../Screens/UploadImgScreen';
+//import Settings from '../Screens/Settings';
+
+
 
 const Stack = createStackNavigator();
 
-export default function MainAppNavigator({handleLogin, handleLogout}) {
-
+export default function MainAppNavigator() {
+    
 
 
     // TODO: pass handleLogin and handleLogout to the screens that need them
@@ -61,11 +63,13 @@ export default function MainAppNavigator({handleLogin, handleLogout}) {
                 component={UploadImgScreen}
                 options={{ headerShown: false }}
             />
-            <Stack.Screen
-                name="Settings"
-                component={Settings}
-                options={{ headerShown: false }}
-            />
+          
         </Stack.Navigator>
     )
 }
+
+ /* <Stack.Screen
+                name="Settings"
+                component={Settings}
+                options={{ headerShown: false }}
+            />*/

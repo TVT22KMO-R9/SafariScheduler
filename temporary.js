@@ -1,4 +1,4 @@
-import * as React from 'react';
+/*import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
@@ -17,46 +17,95 @@ import History from './Screens/History';
 import EditEmails from './Screens/EditEmails';
 import UploadImgScreen from './Screens/UploadImgScreen';
 import Settings from './Screens/Settings';
-import { useEffect } from 'react/cjs/react.production.min';
 
 const Stack = createStackNavigator();
 
 export default function App() {
-    const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
-    const [userData, setUserData] = React.useState(null); // käyttäjän tiedontallennukseen ja välittämiseen
+  const[hasLoggedIn , setHasLoggedIn] = React.useState(false);
 
-    const navigation = useNavigation();
+  const handleLogin = () => {
+    setHasLoggedIn(true);
+  };
 
-    const handleLogin = (loginResponse) => { 
-        setHasLoggedIn(true);
-        setUserData(loginResponse);
-    }
+  const handleLogOut = () => {
+    setHasLoggedIn(false);
+  };
 
-    const handleLogOut = () => {
-        setHasLoggedIn(false);
-        setUserData(null);
-    }
-
-    useEffect(() => {   // ekstra vahti jotta tiedot ei varmasti jää muistiin
-        if(!hasLoggedIn) {
-            setUserData(null);
-        }
-    }, [hasLoggedIn]);
-
-    const [fontsLoaded] = useFonts({
-        'Saira-Regular': require('./assets/fonts/Saira-Regular.ttf'),
-    });
-
-    return ( 
-        <NavigationContainer>
-            {hasLoggedIn ? (
-                <>
-                <TopBarComponent handleLogOut={handleLogOut} userRole={userData?.role} navigation={navigation} /> 
-                <MainAppNavigator />
-                </>) : (
-                    <AppEntryNavigator handleLogin={handleLogin} handleLogOut={handleLogOut} setUserData={setUserData} />
-                )}
-            <StatusBar style="auto" />
-        </NavigationContainer>
-    )
+  const [fontsLoaded] = useFonts({
+    'Saira-Regular': require('./assets/fonts/Saira-Regular.ttf'),
+  });
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Splash">
+        <Stack.Screen
+          name="Splash"
+          component={Splash}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Welcome"
+          component={Welcome}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CreateUser"
+          component={CreateUser}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ShiftScreen"
+          component={ShiftScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ReportHours"
+          component={ReportHours}
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen
+          name="ManageShifts"
+          component={ManageShifts}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="DeleteShifts"
+          component={DeleteShifts}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MyShifts"
+          component={MyShifts}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="History"
+          component={History}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="EditEmails"
+          component={EditEmails}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="UploadImgScreen"
+          component={UploadImgScreen}
+          options={{ headerShown: false }}
+        />
+    
+          
+      </Stack.Navigator>
+      <StatusBar style="auto" />
+    </NavigationContainer>
+  );
 }
+
+
+
+
+*/

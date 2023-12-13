@@ -22,16 +22,15 @@ import {
   Modal,
 } from "react-native";
 
-export default function ShiftScreen() {
+export default function ShiftScreen({screenProps}) {
   const [box1Data, setBox1Data] = useState([]);
   const [box2Data, setBox2Data] = useState([]);
   const [box3Data, setBox3Data] = useState([]);
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
   const [selectedBoxData, setSelectedBoxData] = useState("");
-  const [isMenuVisible, setMenuVisible] = useState(false);
   const [shifts, setShifts] = useState([]);
-  const route = useRoute();
-  const userRole = route.params?.userRole;
+  
+  //const userRole = screenProps.userData?.role;
   const navigation = useNavigation();
 
 
@@ -40,12 +39,7 @@ export default function ShiftScreen() {
     setDescriptionVisible(!isDescriptionVisible);
   };
 
-  const toggleMenu = () => {
-    if( route.name !== 'UploadImgScreen' ) {
-      setMenuVisible(!isMenuVisible);
-    }
-    console.log("onko menu näkyvissä:" + isMenuVisible)
-  };
+
 
   const navigateToReportHours = () => {
     navigation.navigate('ReportHours');
@@ -139,7 +133,6 @@ export default function ShiftScreen() {
   //triggers an effect when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      setMenuVisible(false);
       fetchShifts();
     }, [])
   );
@@ -149,28 +142,6 @@ export default function ShiftScreen() {
       style={styles.container}
     >
       <BackgroundImage style={styles.backgroundImage}/>
-      <TouchableOpacity style={styles.button} onPress={toggleMenu}>
-        <Ionicons name="menu" size={45} color="white" />
-      </TouchableOpacity>
-      <Modal
-        transparent={true}
-        visible={isMenuVisible}
-        onRequestClose={() => {
-          setMenuVisible(false);
-        }}
-      >
-        <TouchableWithoutFeedback onPress={() => {
-          console.log('TouchableWithoutFeedback klikattu');
-          toggleMenu();
-        }}>
-          <View style={styles.overlay} />
-        </TouchableWithoutFeedback>
-        <View style={styles.menuContainer}>
-          <Menu userRole={userRole} />
-        </View>
-      </Modal>
-      <Home />
-      <Logout />
       <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>NEXT SHIFTS</Text>
       <TouchableOpacity
@@ -218,6 +189,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: 'transparent'
   },
   logo: {
     width: 200,
@@ -225,12 +197,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: screenHeight * +0.08,
     resizeMode: "contain",
-  },
-  backgroundImage: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
   },
   label: {
     fontSize: screenHeight * 0.05,
@@ -302,5 +268,11 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
     padding: 10,
-  }
+  },  
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+}
 });

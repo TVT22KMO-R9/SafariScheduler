@@ -91,7 +91,9 @@ const Login = () => {
       console.log('Token stored successfully');
       console.log(`User's Role: ${json.role}`);
       console.log(`User token: ${token}`);
-      navigation.navigate('ShiftScreen', { userRole: json.role });
+      // navigation.navigate('ShiftScreen', { userRole: json.role });
+      login();
+      setUserData(json); // tallennetaan koko vastaus userDataan niin sieltä saa settingsit ja roolit ja muut
     } catch (error) {
       console.error(error);
       throw error;

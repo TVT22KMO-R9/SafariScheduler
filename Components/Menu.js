@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+
 import {
   StyleSheet,
   View,
@@ -10,9 +11,10 @@ import {
   Dimensions,
 } from "react-native";
 
-export default function Menu({ userRole }) {
-  const navigation = useNavigation();
+export default function Menu({ userRole}) {
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigation = useNavigation();
 
   // useEffect to handle re-rendering when the Menu becomes visible
   useEffect(() => {

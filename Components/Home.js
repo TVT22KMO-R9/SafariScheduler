@@ -1,16 +1,16 @@
 import React from 'react';
-import { TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { TouchableOpacity, Alert, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRoute, } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
-const Home = () => {
 
-    const route = useRoute();
-    const navigation = useNavigation();
-    const userRole = route.params?.userRole;
+const Home = (userRole) => {
+
+
+ const navigation = useNavigation();   
 
     const navigateToHome = () => {
-      navigation.navigate('ShiftScreen', { userRole });
+       navigation.navigate('ShiftScreen', { userRole });
     }
 
   return (
@@ -18,13 +18,16 @@ const Home = () => {
       <Ionicons name="home-outline" size={40} color="white" />
     </TouchableOpacity>
   );
-};
+};  
+
+const ScreenWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
     logoutbutton: {
         position: 'absolute',
-        top: 20,
-        padding: 10,
+        left: ScreenWidth/2,
+        marginLeft: -20,
+        paddingTop: 10,
       }
     });
 
