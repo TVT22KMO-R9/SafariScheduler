@@ -7,6 +7,8 @@ import Menu from '../Components/Menu';
 import Description from "../Components/Description";
 import Logout from '../Components/Logout';
 import Home from "../Components/Home";
+import { Alert } from "react-native";
+import BackgroundImage from "../utility/BackGroundImage";
 
 import {
   StyleSheet,
@@ -39,7 +41,9 @@ export default function ShiftScreen() {
   };
 
   const toggleMenu = () => {
-    setMenuVisible(!isMenuVisible);
+    if( route.name !== 'UploadImgScreen' ) {
+      setMenuVisible(!isMenuVisible);
+    }
     console.log("onko menu näkyvissä:" + isMenuVisible)
   };
 
@@ -144,10 +148,7 @@ export default function ShiftScreen() {
     <KeyboardAvoidingView
       style={styles.container}
     >
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
+      <BackgroundImage style={styles.backgroundImage}/>
       <TouchableOpacity style={styles.button} onPress={toggleMenu}>
         <Ionicons name="menu" size={45} color="white" />
       </TouchableOpacity>
