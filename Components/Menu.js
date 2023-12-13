@@ -31,11 +31,11 @@ export default function Menu({ userRole, toggleMenu}) {
     const screens = {
       "REPORT HOURS": "ReportHours",
       "MY SHIFTS": "MyShifts",
-      "HISTORY": "History",
+      "MY HISTORY": "History",
       "SETTINGS": "Settings",
-      "OTHERS SHIFTS": "OthersShifts",
+      "EMPLOYEE SHIFTS": "OtherShifts",
       "MANAGE SHIFTS": "ManageShifts",
-      "OTHERS HISTORY": "OthersHistory",
+      "EMPLOYEE HISTORY": "OthersHistory",
       "EDIT EMAILS": "EditEmails",
       "APPEARANCE": "UploadImgScreen"
     };
@@ -57,7 +57,7 @@ export default function Menu({ userRole, toggleMenu}) {
       { label: "CLOSE", icon: "close"},
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
-      { label: "HISTORY", icon: "refresh" },
+      { label: "MY HISTORY", icon: "refresh" },
       { label: "SETTINGS", icon: "settings" },
     ];
   } else if (userRole === "SUPERVISOR") {
@@ -65,9 +65,9 @@ export default function Menu({ userRole, toggleMenu}) {
       { label: "CLOSE", icon: "close"},
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
-      { label: "HISTORY", icon: "refresh" },
-      { label: "OTHERS SHIFTS", icon: "clipboard" },
-      { label: "OTHERS HISTORY", icon: "folder" },
+      { label: "MY HISTORY", icon: "refresh" },
+      { label: "EMPLOYEE SHIFTS", icon: "clipboard" },
+      { label: "EMPLOYEE HISTORY", icon: "folder" },
       { label: "MANAGE SHIFTS", icon: "build" },
       { label: "SETTINGS", icon: "settings" },
     ];
@@ -76,10 +76,10 @@ export default function Menu({ userRole, toggleMenu}) {
       { label: "CLOSE", icon: "close"},
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
-      { label: "HISTORY", icon: "refresh" },
-      { label: "OTHERS SHIFTS", icon: "clipboard" },
+      { label: "MY HISTORY", icon: "refresh" },
+      { label: "EMPLOYEE SHIFTS", icon: "clipboard" },
       { label: "MANAGE SHIFTS", icon: "build" },
-      { label: "OTHERS HISTORY", icon: "folder" },
+      { label: "EMPLOYEE HISTORY", icon: "folder" },
       { label: "EDIT EMAILS", icon: "mail" },
       { label: "APPEARANCE", icon: "image" },
       { label: "SETTINGS", icon: "settings" },
