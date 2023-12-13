@@ -119,7 +119,7 @@ const UploadImgScreen = () => {
 
     return (
         <KeyboardAvoidingView style={styles.container}>
-          <BackgroundImage style={styles.backgroundImage}/>
+          <BackgroundImage style={styles.backgroundImage} />
           {selectedImage && (
             <>
               <Image source={{ uri: selectedImage.localUri }} style={styles.image} />
@@ -149,26 +149,26 @@ const styles = StyleSheet.create({
         width: window.width * 0.6,
         height: window.width * 0.6,
         marginBottom: 20,
-        borderRadius: 15,
+        borderRadius: 5,
         resizeMode: "cover",
-        borderColor: "black",
+        borderColor: "white",
         borderWidth: 2,
     },
     buttonContainer: {
-        width: window.width * 0.6,
+        width: window.width * 0.9,
         paddingVertical: 10,
         paddingHorizontal: 15,
-        backgroundColor: 'rgba(0, 205, 0, 0.7)',
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        borderColor: "white",
         borderRadius: 5,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 20,
-        borderColor: "black",
+        marginVertical: 6,
         borderWidth: 2,
     },
     buttonText: {
         color: "white",
-        fontSize: window.width * 0.05,
+        fontSize: window.width * 0.07,
         fontFamily: "Saira-Regular",
         textShadowColor: "rgba(0, 0, 0, 1)",
         textShadowOffset: { width: -1, height: 1 },

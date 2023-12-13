@@ -16,6 +16,10 @@ export default function TopBarComponent({handleLogout, userRole}){
         console.log("onko menu näkyvissä:" + isMenuVisible)
       };
 
+    const outSideMenuPress = () => {
+        setMenuVisible(false);
+    }
+
       const navigation = useNavigation();
  // Nappien paikat säädetty nappien omassa stylessä
     return (
@@ -23,21 +27,21 @@ export default function TopBarComponent({handleLogout, userRole}){
            <TouchableOpacity onPress={toggleMenu} style={styles.menu}>
             <Ionicons name="menu" size={45} color="white" />
             </TouchableOpacity>
-            <Modal
-            animationType="slide"
-            transparent={true}
-            visible={isMenuVisible}
-            onRequestClose={() => {
-            setMenuVisible(false);
-             }}
-            >
-            <TouchableWithoutFeedback onPress={toggleMenu}>
-                <View style={styles.overlay} />
-            </TouchableWithoutFeedback>
-            <View style={styles.menuContainer}>
-                <Menu userRole={userRole}/>
-            </View>
-            </Modal>
+                <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isMenuVisible}
+                onRequestClose={toggleMenu}
+                >
+                <View style={styles.modalContainer}>
+                    <View style={styles.menuContainer}>
+                    <Menu userRole={userRole} toggleMenu={toggleMenu}/>
+                    </View>
+                    <TouchableWithoutFeedback onPress={toggleMenu}>
+                    <View style={styles.overlay} />
+                    </TouchableWithoutFeedback>
+                </View>
+                </Modal>
             <Home />
             <Logout logOut={handleLogout}/>
         </View>
@@ -58,21 +62,26 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         zIndex: 1,
-        backgroundColor: 'black',
+        backgroundColor: 'transparent',
     },
     overlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
       
     },
-    menuContainer: {
-        position: 'absolute',
-        left: 0,
-        top: 0,
+    modalContainer: {
+        flexDirection: 'row',
+        flex: 1,
+      },
+      menuContainer: {
         width: Dimensions.get('window').width * 0.75,
         height: screenHeight,
         backgroundColor: 'white',
       },
+      overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        },
       menu:{
         position: 'absolute',
         top: 20,

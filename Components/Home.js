@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
         left: ScreenWidth/2,
         marginLeft: -20,
         paddingTop: 10,
+        backgroundColor: 'transparent',
       }
     });
 

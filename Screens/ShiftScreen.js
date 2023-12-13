@@ -30,7 +30,7 @@ export default function ShiftScreen({screenProps}) {
   const [selectedBoxData, setSelectedBoxData] = useState("");
   const [shifts, setShifts] = useState([]);
   
-  //const userRole = screenProps.userData?.role;
+  // const userRole = screenProps.userData.role;
   const navigation = useNavigation();
 
 
@@ -139,9 +139,10 @@ export default function ShiftScreen({screenProps}) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+    style={[styles.container, {backgroundColor: 'transparent'}]}
     >
-      <BackgroundImage style={styles.backgroundImage}/>
+      <BackgroundImage style={styles.backgroundImage} />
+
       <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>NEXT SHIFTS</Text>
       <TouchableOpacity
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: 'transparent'
+    zIndex: 1,
   },
   logo: {
     width: 200,
@@ -203,7 +204,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingTop: 100,
     fontFamily: "Saira-Regular",
-    color: "white",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 10,

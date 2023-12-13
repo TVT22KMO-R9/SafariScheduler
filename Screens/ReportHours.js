@@ -21,6 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Home from "../Components/Home";
 import Logout from "../Components/Logout";
 import Menu from '../Components/Menu';
+import BackgroundImage from "../utility/BackGroundImage";
 
 const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
@@ -149,30 +150,7 @@ const ReportHours = () => {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0, }}>
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
-      <TouchableOpacity onPress={toggleMenu} style={styles.menubutton}>
-                <Ionicons name="menu" size={45} color="white" />
-            </TouchableOpacity>
-      <Modal
-                animationType="slide"
-                transparent={true}
-                visible={isMenuVisible}
-                onRequestClose={() => {
-                    setMenuVisible(false);
-                }}
-            >
-                <TouchableWithoutFeedback onPress={toggleMenu}>
-                    <View style={styles.overlay} />
-                </TouchableWithoutFeedback>
-                <View style={styles.menuContainer}>
-                    <Menu userRole={userRole} />
-                </View>
-            </Modal>
-      <Home />
-      <Logout/>
+        <BackgroundImage style={styles.backgroundImage}/>
       <Text style={{ textAlign: 'center',marginTop: "20%", fontSize: 25, color: 'white' }}>Report hours</Text>
 
       {/* Button to Show Date Picker Modal */}
@@ -493,7 +471,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     fontFamily: "Saira-Regular",
     backgroundColor: "rgba(255, 255, 255, 1)",
-    marginBottom: screenHeight * 0.15,
+    marginBottom: screenHeight * 0.10,
     fontSize: screenWidth * 0.05,
   },
   confirmButton: {

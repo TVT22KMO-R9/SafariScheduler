@@ -60,11 +60,11 @@ const Logout = ({logOut}) => {
       });
 
       if (!response.ok) {
-        throw new Error('Logout failed serverside');
+        throw new Error(response.statusText);
       }
     } catch (error) {
       console.error('Error during server logout:', error);
-      Alert.alert('Logout Failed', ' Error: ' + error);
+     // Alert.alert('Logout Failed', ' Error: ' + error);
     }
   }
 
@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
         top: 20,
         right: 20,
         padding: 10,
+        backgroundColor: 'transparent',
       }
     });
 

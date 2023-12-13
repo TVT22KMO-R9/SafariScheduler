@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DELETE_SHIFT, WORKERS, SERVER_BASE_URL, SHIFTS_EVERYONE } from "@env";
+import BackgroundImage from "../utility/BackGroundImage";
 
 const DeleteShifts = () => {
   const [workers, setWorkers] = useState([]);
@@ -121,10 +122,7 @@ const DeleteShifts = () => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
+      <BackgroundImage style={styles.backgroundImage}/>
       <TouchableOpacity
         onPress={() => setModalVisible(true)}
         style={styles.button}
