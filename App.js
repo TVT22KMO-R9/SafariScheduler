@@ -17,6 +17,11 @@ const Stack = createStackNavigator();
 export default function App() {
     const [hasLoggedIn, setHasLoggedIn] = React.useState(false); // triggeröi kumpi navigaattori käytössä returnissa
     const [userData, setUserData] = React.useState(null); // käyttäjän tiedontallennukseen ja välittämiseen
+    const [firstLoad, setFirstLoad] = React.useState(true); // blokkaamaan splash.js jos on jo käynnistetty
+
+    const handleFirstLoad = () => {
+        setFirstLoad(false);
+    }
 
 
 
@@ -61,7 +66,7 @@ export default function App() {
                 </View>
               </>
           ) : (
-              <AppEntryNavigator handleLogin={handleLogin} handleLogOut={handleLogOut} setUserData={setUserData} />
+              <AppEntryNavigator handleLogin={handleLogin} handleLogOut={handleLogOut} setUserData={setUserData} handleFirstLoad={handleFirstLoad} firstLoad={firstLoad} />
           )}
           
         </View>

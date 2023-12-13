@@ -13,7 +13,6 @@ export default function TopBarComponent({handleLogout, userRole}){
 
     const toggleMenu = () => {
           setMenuVisible(!isMenuVisible);
-        console.log("onko menu näkyvissä:" + isMenuVisible)
       };
 
     const outSideMenuPress = () => {

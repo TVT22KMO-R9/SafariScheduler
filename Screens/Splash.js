@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { View, Image, StyleSheet, StatusBar, Animated } from "react-native";
 import { RefreshTokenCheck } from "../utility/RefreshToken";
 
-const Splash = ({ navigation }) => {
+const Splash = ({ navigation, route}) => {
   const spinValue = new Animated.Value(0);
+
+  const { handleFirstLoad } = route.params;
 
   // Function to start the spin animation
   const startSpinning = () => {
@@ -38,9 +40,11 @@ const Splash = ({ navigation }) => {
         {
         if (hasRefreshtoken) {
           navigation.navigate("Login");
+          handleFirstLoad();
         } else {
           console.log("Ei refresh tokenia");
         navigation.navigate("Welcome");
+        handleFirstLoad();
         }
       }, 3000);
     }

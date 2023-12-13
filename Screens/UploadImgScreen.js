@@ -96,7 +96,7 @@ const UploadImgScreen = () => {
     }
 
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
       });
     if (pickerResult.canceled) {
