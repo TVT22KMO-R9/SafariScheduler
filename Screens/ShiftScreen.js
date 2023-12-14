@@ -7,7 +7,7 @@ import Menu from '../Components/Menu';
 import Description from "../Components/Description";
 import Logout from '../Components/Logout';
 import Home from "../Components/Home";
-import { Alert } from "react-native";
+import { Alert, DeviceEventEmitter } from "react-native";
 import BackgroundImage from "../utility/BackGroundImage";
 
 import {
@@ -85,6 +85,43 @@ export default function ShiftScreen({screenProps}) {
 
     fetchBoxData();
   }, []);
+
+  useEffect(() => { // kuuntelee vuoron lisäystä ja päivittää näkymän
+    fetchShifts();
+    refreshBoxData();
+
+    const handleNewShiftAdded = () => {
+      fetchShifts();
+      refreshBoxData();
+    };
+
+    const subscription = DeviceEventEmitter.addListener('newShiftAdded', handleNewShiftAdded);
+
+    return () => {
+      subscription.remove();
+    }
+  }, []);
+
+  const refreshBoxData = async () => {
+    try {
+      const authToken = await AsyncStorage.getItem('userToken');
+      console.log('Fetching shifts with token:', authToken);
+      const response = await fetch(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      const shifts = await response.json();
+      console.log('Fetched shifts:', shifts);
+
+      if (shifts.length > 0) setBox1Data(formatShiftData(shifts[0]));
+      if (shifts.length > 1) setBox2Data(formatShiftData(shifts[1]));
+      if (shifts.length > 2) setBox3Data(formatShiftData(shifts[2]));
+    }
+    catch (error) {
+      console.error('Error fetching shifts:', error);
+    }
+  };
 
   const groupShiftsByMonth = (shifts) => {
     const grouped = {};

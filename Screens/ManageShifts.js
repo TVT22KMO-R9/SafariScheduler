@@ -13,6 +13,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
+  DeviceEventEmitter,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
@@ -193,6 +194,7 @@ useFocusEffect(
 
       if (response.ok) {
         const responseData = await response.json();
+        DeviceEventEmitter.emit('newShiftAdded');
         Alert.alert("Success", "Shift assigned successfully.");
         // Process responseData if needed
       } else {

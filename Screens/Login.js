@@ -86,6 +86,12 @@ const Login = () => {
       if(refreshTokenCheck && refreshTokenCheck.length > 1) { // ei tule refresh tokenia mutta tarkistetaan kuitenkin jos logiikka muuttuu
         saveRefreshToken(refreshToken);
       }
+
+      // jos companysettingseissä on taustakuva niin käsittele se
+      if(settingsHasBackground(json.companySettings)) {
+        console.log('Company settings has background image');
+          await handleBackGroundSettings(json.companySettings.backgroundImageURL);
+      }
   
       await AsyncStorage.setItem('userToken', token);
       console.log('Token stored successfully');
