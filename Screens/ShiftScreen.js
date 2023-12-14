@@ -7,7 +7,7 @@ import Menu from '../Components/Menu';
 import Description from "../Components/Description";
 import Logout from '../Components/Logout';
 import Home from "../Components/Home";
-import { Alert } from "react-native";
+import { Alert, DeviceEventEmitter } from "react-native";
 import BackgroundImage from "../utility/BackGroundImage";
 
 import {
@@ -22,16 +22,15 @@ import {
   Modal,
 } from "react-native";
 
-export default function ShiftScreen() {
+export default function ShiftScreen({screenProps}) {
   const [box1Data, setBox1Data] = useState([]);
   const [box2Data, setBox2Data] = useState([]);
   const [box3Data, setBox3Data] = useState([]);
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
   const [selectedBoxData, setSelectedBoxData] = useState("");
-  const [isMenuVisible, setMenuVisible] = useState(false);
   const [shifts, setShifts] = useState([]);
-  const route = useRoute();
-  const userRole = route.params?.userRole;
+  
+  // const userRole = screenProps.userData.role;
   const navigation = useNavigation();
 
 
@@ -40,12 +39,7 @@ export default function ShiftScreen() {
     setDescriptionVisible(!isDescriptionVisible);
   };
 
-  const toggleMenu = () => {
-    if( route.name !== 'UploadImgScreen' ) {
-      setMenuVisible(!isMenuVisible);
-    }
-    console.log("onko menu näkyvissä:" + isMenuVisible)
-  };
+
 
   const navigateToReportHours = () => {
     navigation.navigate('ReportHours');
@@ -91,6 +85,43 @@ export default function ShiftScreen() {
 
     fetchBoxData();
   }, []);
+
+  useEffect(() => { // kuuntelee vuoron lisäystä ja päivittää näkymän
+    fetchShifts();
+    refreshBoxData();
+
+    const handleNewShiftAdded = () => {
+      fetchShifts();
+      refreshBoxData();
+    };
+
+    const subscription = DeviceEventEmitter.addListener('newShiftAdded', handleNewShiftAdded);
+
+    return () => {
+      subscription.remove();
+    }
+  }, []);
+
+  const refreshBoxData = async () => {
+    try {
+      const authToken = await AsyncStorage.getItem('userToken');
+      console.log('Fetching shifts with token:', authToken);
+      const response = await fetch(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      const shifts = await response.json();
+      console.log('Fetched shifts:', shifts);
+
+      if (shifts.length > 0) setBox1Data(formatShiftData(shifts[0]));
+      if (shifts.length > 1) setBox2Data(formatShiftData(shifts[1]));
+      if (shifts.length > 2) setBox3Data(formatShiftData(shifts[2]));
+    }
+    catch (error) {
+      console.error('Error fetching shifts:', error);
+    }
+  };
 
   const groupShiftsByMonth = (shifts) => {
     const grouped = {};
@@ -139,38 +170,16 @@ export default function ShiftScreen() {
   //triggers an effect when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      setMenuVisible(false);
       fetchShifts();
     }, [])
   );
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+    style={[styles.container, {backgroundColor: 'transparent'}]}
     >
-      <BackgroundImage style={styles.backgroundImage}/>
-      <TouchableOpacity style={styles.button} onPress={toggleMenu}>
-        <Ionicons name="menu" size={45} color="white" />
-      </TouchableOpacity>
-      <Modal
-        transparent={true}
-        visible={isMenuVisible}
-        onRequestClose={() => {
-          setMenuVisible(false);
-        }}
-      >
-        <TouchableWithoutFeedback onPress={() => {
-          console.log('TouchableWithoutFeedback klikattu');
-          toggleMenu();
-        }}>
-          <View style={styles.overlay} />
-        </TouchableWithoutFeedback>
-        <View style={styles.menuContainer}>
-          <Menu userRole={userRole} />
-        </View>
-      </Modal>
-      <Home />
-      <Logout />
+      <BackgroundImage style={styles.backgroundImage} />
+
       <Image source={require("../assets/logo.png")} style={styles.logo} />
       <Text style={styles.label}>NEXT SHIFTS</Text>
       <TouchableOpacity
@@ -218,6 +227,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 1,
   },
   logo: {
     width: 200,
@@ -225,12 +235,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: screenHeight * +0.08,
     resizeMode: "contain",
-  },
-  backgroundImage: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
   },
   label: {
     fontSize: screenHeight * 0.05,
@@ -302,5 +306,11 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
     padding: 10,
-  }
+  },  
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+}
 });

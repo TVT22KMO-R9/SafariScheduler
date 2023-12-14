@@ -12,6 +12,7 @@ import Menu from '../Components/Menu';
 import Logout from '../Components/Logout';
 import Home from '../Components/Home';
 import { WORKERS, SERVER_BASE_URL } from '@env'
+import BackgroundImage from '../utility/BackGroundImage';
 
 const EditEmails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
@@ -213,14 +214,7 @@ const EditEmails = () => {
 
     return (
         <View style={styles.container}>
-            <Image
-                source={require("../assets/background.png")}
-                style={styles.backgroundImage}
-            />
-            <TouchableOpacity onPress={toggleMenu} style={styles.button}>
-                <Ionicons name="menu" size={45} color="white" />
-            </TouchableOpacity>
-            <Home />
+              <BackgroundImage style={styles.backgroundImage}/>
             <View style={{ paddingTop: 100 }}>
                 {/* Add new email-toiminta */}
                 {!isNewEmailVisible && (
@@ -305,27 +299,7 @@ const EditEmails = () => {
                         </View>
                     ))}
                 </ScrollView>
-            </View>
-            {/* Menuvalikko */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={isMenuVisible}
-                onRequestClose={() => {
-                    setMenuVisible(false);
-                }}
-            >
-                <TouchableWithoutFeedback onPress={toggleMenu}>
-                    <View style={styles.overlay} />
-                </TouchableWithoutFeedback>
-                <View style={styles.menuContainer}>
-                    <Menu userRole={userRole} />
-                </View>
-            </Modal>
-            <TouchableOpacity onPress={toggleMenu} style={styles.button}>
-                <Ionicons name="menu" size={45} color="white" />
-            </TouchableOpacity>
-            <Logout />
+            </View>   
         </View>
     );
 };
