@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Ionicons } from "@expo/vector-icons";
+
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { UPCOMING_SHIFTS, SERVER_BASE_URL } from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Menu from '../Components/Menu';
+
 import Description from "../Components/Description";
-import Logout from '../Components/Logout';
-import Home from "../Components/Home";
+
 import { Alert, DeviceEventEmitter } from "react-native";
 import BackgroundImage from "../utility/BackGroundImage";
 

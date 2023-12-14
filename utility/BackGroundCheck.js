@@ -21,6 +21,18 @@ export const getBackgroundURL = async () => {
     }
 }
 
+export const hasCustomBackground = async () => {
+    try {
+        const url = await AsyncStorage.getItem(BACKGROUND_URL);
+        if (url) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error getting background URL:", error);
+    }
+}
+
 // poista background kuvan url
 export const removeBackgroundURL = async () => {
     try {
