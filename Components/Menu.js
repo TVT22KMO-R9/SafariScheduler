@@ -37,7 +37,6 @@ export default function Menu({ userRole, toggleMenu}) {
       "MANAGE SHIFTS": "ManageShifts",
       "EMPLOYEE HISTORY": "OthersHistory",
       "EDIT EMAILS": "EditEmails",
-      "APPEARANCE": "UploadImgScreen"
     };
     const screenName = screens[label];
     if (screenName) {
@@ -81,7 +80,6 @@ export default function Menu({ userRole, toggleMenu}) {
       { label: "MANAGE SHIFTS", icon: "build" },
       { label: "EMPLOYEE HISTORY", icon: "folder" },
       { label: "EDIT EMAILS", icon: "mail" },
-      { label: "APPEARANCE", icon: "image" },
       { label: "SETTINGS", icon: "settings" },
      
     ];

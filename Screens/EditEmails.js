@@ -8,9 +8,6 @@ import {
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import Menu from '../Components/Menu';
-import Logout from '../Components/Logout';
-import Home from '../Components/Home';
 import { WORKERS, SERVER_BASE_URL } from '@env'
 import BackgroundImage from '../utility/BackGroundImage';
 
