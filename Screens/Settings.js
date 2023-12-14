@@ -24,7 +24,7 @@ const Settings = () => {
     };
 
     const handleResetOwnPassword = () => {
-        //  navigation.navigate('ResetPassword');
+         navigation.navigate('UpdatePassword');
         };
 
     const handleEditRoles = () => {
@@ -32,7 +32,7 @@ const Settings = () => {
         };
     
     const handleResetOthersPassword = () => {
-        // navigation.navigate('ResetOthersPassword');
+        navigation.navigate('ResetOthersPassword');
         };
 
     const handleEditAppearance = () => {
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginVertical: 6,
         alignItems: "center",
-        width: screenWidth * 0.9,
+        width: screenWidth * 0.8,
         borderColor: "white",
         borderWidth: 2,
     }, buttonText: {

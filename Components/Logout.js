@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import React, {useEffect} from 'react';
+import { TouchableOpacity, Alert, StyleSheet, DeviceEventEmitter } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -8,8 +8,16 @@ import { RefreshTokenCheck, removeRefreshToken } from '../utility/RefreshToken';
 import { LOGOUT_ENDPOINT, SERVER_BASE_URL } from '@env';
 import { removeBackground, removeBackgroundURL } from '../utility/BackGroundCheck';
 
+
 const Logout = ({logOut}) => {
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const logOutListener = DeviceEventEmitter.addListener('logout', handleLogout);
+    return () => {
+      logOutListener.remove();
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
