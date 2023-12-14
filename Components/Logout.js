@@ -7,12 +7,12 @@ import { removeToken, checkToken, getToken} from '../utility/Token';
 import { RefreshTokenCheck, removeRefreshToken } from '../utility/RefreshToken';
 import { LOGOUT_ENDPOINT, SERVER_BASE_URL } from '@env';
 
-const Logout = () => {
+const Logout = ({logOut}) => {
   const navigation = useNavigation();
 
   const handleLogout = async () => {
     try {
-      let temporaryTokenSave = await getToken();
+      let temporaryTokenSave = await getToken(); // kopioidaan hetkeksi jotta saadaan myöhemmin servulle logout tehtyä kanssa -tero
       // Remove the token from storage
       await removeToken();
       // Check if the token is removed successfully
@@ -42,8 +42,8 @@ const Logout = () => {
 
       temporaryTokenSave = null; // tyhjennys varmuuden vuoksi -tero
 
-      // Navigate to the home screen
-      navigation.navigate('Welcome');
+      // Navigate to the home screen - triggeröi navigationcontainerin vaihdon -tero
+     logOut();
     } catch (error) {
       console.error('Error during logout:', error);
       Alert.alert('Logout Failed', 'An error occurred during logout.');
@@ -60,11 +60,11 @@ const Logout = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Logout failed serverside');
+        throw new Error(response.statusText);
       }
     } catch (error) {
       console.error('Error during server logout:', error);
-      Alert.alert('Logout Failed', ' Error: ' + error);
+     // Alert.alert('Logout Failed', ' Error: ' + error);
     }
   }
 
@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
         top: 20,
         right: 20,
         padding: 10,
+        backgroundColor: 'transparent',
       }
     });
 

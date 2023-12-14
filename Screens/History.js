@@ -19,8 +19,9 @@ import {
   Modal,
   ScrollView,
 } from "react-native";
+import BackgroundImage from "../utility/BackGroundImage";
 
-export default function ShiftScreen() {
+export default function History() {
   const [shifts, setShifts] = useState([]);
   const [isMenuVisible, setMenuVisible] = useState(false);
   const route = useRoute();
@@ -127,30 +128,7 @@ export default function ShiftScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container}>
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
-      <TouchableOpacity onPress={toggleMenu} style={styles.button}>
-        <Ionicons name="menu" size={45} color="white" />
-      </TouchableOpacity>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isMenuVisible}
-        onRequestClose={() => {
-          setMenuVisible(false);
-        }}
-      >
-        <TouchableWithoutFeedback onPress={toggleMenu}>
-          <View style={styles.overlay} />
-        </TouchableWithoutFeedback>
-        <View style={styles.menuContainer}>
-          <Menu userRole={userRole} />
-        </View>
-      </Modal>
-      <Home/>
-      <Logout />
+        <BackgroundImage style={styles.backgroundImage}/>
       <ScrollView style={styles.scrollView}>
         <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, paddingTop: 20 }}>My shift history</Text>
         {renderShiftsByMonth()}

@@ -13,6 +13,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
+  DeviceEventEmitter,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
@@ -22,6 +23,7 @@ import DeleteShifts from './DeleteShifts';
 import Home from "../Components/Home";
 import Logout from "../Components/Logout";
 import Menu from '../Components/Menu';
+import BackgroundImage from "../utility/BackGroundImage";
 
 screenWidth = Dimensions.get("window").width;
 screenHeight = Dimensions.get("window").height;
@@ -192,6 +194,7 @@ useFocusEffect(
 
       if (response.ok) {
         const responseData = await response.json();
+        DeviceEventEmitter.emit('newShiftAdded');
         Alert.alert("Success", "Shift assigned successfully.");
         // Process responseData if needed
       } else {
@@ -235,31 +238,8 @@ useFocusEffect(
   const endMinutesInputRef = useRef(null);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0, }}>
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
-      <TouchableOpacity onPress={toggleMenu} style={styles.menubutton}>
-                <Ionicons name="menu" size={45} color="white" />
-            </TouchableOpacity>
-      <Modal
-                animationType="slide"
-                transparent={true}
-                visible={isMenuVisible}
-                onRequestClose={() => {
-                    setMenuVisible(false);
-                }}
-            >
-                <TouchableWithoutFeedback onPress={toggleMenu}>
-                    <View style={styles.overlay} />
-                </TouchableWithoutFeedback>
-                <View style={styles.menuContainer}>
-                    <Menu userRole={userRole} />
-                </View>
-            </Modal>
-      <Home/>
-      <Logout/>
+    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0}}>
+        <BackgroundImage style={styles.backgroundImage}/>
 
       <Text style={{ textAlign: 'center',marginTop: "20%", fontSize: 25, color: 'white' }}>Manage shifts</Text>
       {/* Button to Open Worker Selection Modal */}
@@ -488,7 +468,7 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.9,
     borderColor: "black",
     borderWidth: 2,
-    marginTop: "30%",
+    marginTop: "20%",
   },
   addButton: {
     backgroundColor: "rgba(0, 0, 0, 0.7)",
