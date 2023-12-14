@@ -9,7 +9,7 @@ import MyShifts from '../Screens/MyShifts';
 import History from '../Screens/History';
 import EditEmails from '../Screens/EditEmails';
 import UploadImgScreen from '../Screens/UploadImgScreen';
-//import Settings from '../Screens/Settings';
+import Settings from '../Screens/Settings';
 
 
 
@@ -63,13 +63,14 @@ export default function MainAppNavigator() {
                 component={UploadImgScreen}
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="Settings"
+                component={Settings}
+                options={{ headerShown: false }}
+            />
           
         </Stack.Navigator>
     )
 }
 
- /* <Stack.Screen
-                name="Settings"
-                component={Settings}
-                options={{ headerShown: false }}
-            />*/
+ /* */

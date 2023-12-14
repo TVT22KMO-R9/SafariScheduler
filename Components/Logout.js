@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { removeToken, checkToken, getToken} from '../utility/Token';
 import { RefreshTokenCheck, removeRefreshToken } from '../utility/RefreshToken';
 import { LOGOUT_ENDPOINT, SERVER_BASE_URL } from '@env';
+import { removeBackground, removeBackgroundURL } from '../utility/BackGroundCheck';
 
 const Logout = ({logOut}) => {
   const navigation = useNavigation();
@@ -36,6 +37,10 @@ const Logout = ({logOut}) => {
       console.log('Token after logout:', tokenAfterLogout);
       console.log('Refresh token after logout:', refreshTokenAfterLogout);
       console.log('Kutsutaan serverin logoutia');
+
+      // poista mahdollinen taustakuva 
+      await removeBackground();
+      await removeBackgroundURL();
       // Kutsu serverin logouttia -tero
       await handleServerLogout(temporaryTokenSave);
       console.log('Server logout onnistui');

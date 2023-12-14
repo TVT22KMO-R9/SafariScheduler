@@ -39,7 +39,7 @@ const UploadImgScreen = () => {
       xhr.setRequestHeader('Content-Type', 'multipart/form-data');
       xhr.onload = () => {
           if (xhr.status === 200) {
-                try { Alert.alert('Success! Log out and back in to see the changes!');}
+                try { Alert.alert('Success!');}
                 finally {
                   DeviceEventEmitter.emit('newImageUploaded');
                 }
