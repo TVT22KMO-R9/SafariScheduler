@@ -9,7 +9,7 @@ import MainAppNavigator from './Components/MainAppNavigator';
 import AppEntryNavigator from './Components/AppEntryNavigator';
 import { useEffect } from 'react/cjs/react.development';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BackgroundImage from './utility/BackGroundImage';
+import { hasCustomBackground } from './utility/BackGroundCheck';
 
 
 const Stack = createStackNavigator();
@@ -22,8 +22,6 @@ export default function App() {
     const handleFirstLoad = () => {
         setFirstLoad(false);
     }
-
-
 
     const handleLogin = (loginResponse) => { 
         setHasLoggedIn(true);
@@ -45,13 +43,15 @@ export default function App() {
         'Saira-Regular': require('./assets/fonts/Saira-Regular.ttf'),
     });
 
+    
+
     return (    // IMAGE on default taustakuva, yläpalkki pysyy vihreänä navigaattorin taustakuva vaihtuu jos on, jos ei niin default
      
       <NavigationContainer style={styles.maincontainer}>
        
        
         <View style={{flex:1}}>
-        <Image source={require('./assets/background.png')} style={styles.backgroundImage} />
+        <Image source={require('./assets/background.png')} style={styles.backgroundImage}/>
           {hasLoggedIn ? (
               <>
               <View style={{flex: 1}}>
