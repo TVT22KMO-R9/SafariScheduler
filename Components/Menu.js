@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+
 import {
   StyleSheet,
   View,
@@ -10,9 +11,10 @@ import {
   Dimensions,
 } from "react-native";
 
-export default function Menu({ userRole }) {
-  const navigation = useNavigation();
+export default function Menu({ userRole, toggleMenu}) {
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigation = useNavigation();
 
   // useEffect to handle re-rendering when the Menu becomes visible
   useEffect(() => {
@@ -21,6 +23,10 @@ export default function Menu({ userRole }) {
 
   // Function to handle navigation
   const handlePress = (label) => {
+    if(label === "CLOSE"){
+      toggleMenu();
+      return;
+    }
     // Convert label to screen component name
     const screens = {
       "REPORT HOURS": "ReportHours",
@@ -31,7 +37,6 @@ export default function Menu({ userRole }) {
       "MANAGE SHIFTS": "ManageShifts",
       "EMPLOYEE HISTORY": "OthersHistory",
       "EDIT EMAILS": "EditEmails",
-      "APPEARANCE": "UploadImgScreen"
     };
     const screenName = screens[label];
     if (screenName) {
@@ -48,6 +53,7 @@ export default function Menu({ userRole }) {
   let menuItems = [];
   if (userRole === "WORKER") {
     menuItems = [
+      { label: "CLOSE", icon: "close"},
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
       { label: "MY HISTORY", icon: "refresh" },
@@ -55,6 +61,7 @@ export default function Menu({ userRole }) {
     ];
   } else if (userRole === "SUPERVISOR") {
     menuItems = [
+      { label: "CLOSE", icon: "close"},
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
       { label: "MY HISTORY", icon: "refresh" },
@@ -65,6 +72,7 @@ export default function Menu({ userRole }) {
     ];
   } else if (userRole === "MASTER") {
     menuItems = [
+      { label: "CLOSE", icon: "close"},
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
       { label: "MY HISTORY", icon: "refresh" },
@@ -72,7 +80,6 @@ export default function Menu({ userRole }) {
       { label: "MANAGE SHIFTS", icon: "build" },
       { label: "EMPLOYEE HISTORY", icon: "folder" },
       { label: "EDIT EMAILS", icon: "mail" },
-      { label: "APPEARANCE", icon: "image" },
       { label: "SETTINGS", icon: "settings" },
      
     ];
@@ -82,22 +89,25 @@ export default function Menu({ userRole }) {
     <KeyboardAvoidingView style={styles.container}>
       <View style={styles.labelsContainer}>
         {menuItems.map((menuItem, index) => (
-          <TouchableOpacity
-            style={styles.menuItem}
-            key={index}
-            onPress={() => handlePress(menuItem.label)}
-          >
-            <Ionicons
-              name={menuItem.icon}
-              color="white"
-              style={[
-                styles.icon,
-                menuItem.icon === "refresh" ? styles.flipIcon : null,
-              ]}
-            />
-            <Text style={styles.label}>{menuItem.label}</Text>
-          </TouchableOpacity>
-        ))}
+      <TouchableOpacity
+        style={styles.menuItem}
+        key={index}
+        onPress={() => {
+          handlePress(menuItem.label);
+          toggleMenu();
+        }}
+        >
+        <Ionicons
+      name={menuItem.icon}
+      color={menuItem.label === "CLOSE" ? "red" : "white"}
+      style={[
+        styles.icon,
+        menuItem.icon === "refresh" ? styles.flipIcon : null,
+      ]}
+    />
+    <Text style={styles.label}>{menuItem.label}</Text>
+  </TouchableOpacity>
+))}
       </View>
     </KeyboardAvoidingView>
   );
@@ -115,10 +125,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#002233",
   },
   labelsContainer: {
-    paddingTop: 90,
+    paddingTop: 0,
     flex: 1,
     justifyContent: "center",
     alignItems: "flex-start",
+    width: "90%",
+    height: screenHeight,
   },
   menuItem: {
     flexDirection: "row",
@@ -127,7 +139,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: screenWidth * 0.09,
-    color: "white",
+    //color: "white",
     marginRight: 2,
     position: "relative",
     top: "2.3%",

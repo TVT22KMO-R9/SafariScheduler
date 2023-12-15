@@ -19,6 +19,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UPCOMING_SHIFTS, SERVER_BASE_URL } from "@env";
 import Home from "../Components/Home";
+import BackgroundImage from "../utility/BackGroundImage";
 
 const MyShifts = () => {
   const [shifts, setShifts] = useState([]);
@@ -126,31 +127,8 @@ const MyShifts = () => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
-      <TouchableOpacity onPress={toggleMenu} style={styles.button}>
-        <Ionicons name="menu" size={45} color="white" />
-      </TouchableOpacity>
+      <BackgroundImage style={styles.backgroundImage}/>
       
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isMenuVisible}
-        onRequestClose={() => {
-          setMenuVisible(false);
-        }}
-      >
-        <TouchableWithoutFeedback onPress={toggleMenu}>
-          <View style={styles.overlay} />
-        </TouchableWithoutFeedback>
-        <View style={styles.menuContainer}>
-          <Menu userRole={userRole} />
-        </View>
-      </Modal>
-      <Logout />
-      <Home/>
       <ScrollView style={styles.scrollView}>
       <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, }}>Upcoming shifts</Text> 
         {renderShiftsByMonth()}

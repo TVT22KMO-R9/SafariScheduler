@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DELETE_SHIFT, WORKERS, SERVER_BASE_URL, SHIFTS_EVERYONE } from "@env";
+import BackgroundImage from "../utility/BackGroundImage";
 
 const formatDate = (dateString) => {
   // Create a new Date object from the provided date string.
