@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { EMPLOYEE_COMING_SHIFTS, SERVER_BASE_URL } from "@env";
+import BackgroundImage from "../utility/BackGroundImage";
 
 const OtherShifts = () => {
   const [shifts, setShifts] = useState([]);
@@ -163,30 +164,7 @@ const OtherShifts = () => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
-      <TouchableOpacity onPress={toggleMenu} style={styles.button}>
-        <Ionicons name="menu" size={45} color="white" />
-      </TouchableOpacity>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isMenuVisible}
-        onRequestClose={() => {
-          setMenuVisible(false);
-        }}
-      >
-        <TouchableWithoutFeedback onPress={toggleMenu}>
-          <View style={styles.overlay} />
-        </TouchableWithoutFeedback>
-        <View style={styles.menuContainer}>
-          <Menu userRole={userRole} />
-        </View>
-      </Modal>
-      <Logout />
-      <Home/>
+      <BackgroundImage style={styles.backgroundImage} />
       <ScrollView style={styles.scrollView}>
         <Text style={styles.pageHeader}>Upcoming shifts</Text>
         {selectedWorker ? renderShiftsByMonth() : renderShiftsByLastName(shifts)}
