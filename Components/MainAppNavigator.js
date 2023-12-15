@@ -86,8 +86,6 @@ export default function MainAppNavigator() {
                 component={EditOwnDetails}
                 options={{ headerShown: false }}
             />
-            
-          
         </Stack.Navigator>
     )
 }
