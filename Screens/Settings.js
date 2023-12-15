@@ -16,7 +16,7 @@ const Settings = () => {
     const navigation = useNavigation();
 
     const handleEditOwnDetails = () => {
-      //  navigation.navigate('EditOwnDetails');
+      navigation.navigate('EditOwnDetails');
     };
 
     const handleEditOthersDetails = () => {
