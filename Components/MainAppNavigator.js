@@ -12,7 +12,12 @@ import UploadImgScreen from '../Screens/UploadImgScreen';
 import Settings from '../Screens/Settings';
 import UpdatePasswordScreen from '../Screens/UpdatePassword';
 import ResetOthersPassword from '../Screens/ResetOthersPassword';
+
+import OtherHistory from '../Screens/OthersHistory';
+import OtherShifts from '../Screens/OtherShifts';
+
 import EditOwnDetails from '../allsettings/EditOwnDetails';
+
 
 
 
@@ -81,6 +86,18 @@ export default function MainAppNavigator() {
                 component={ResetOthersPassword}
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+
+                name="OthersHistory"
+                component={OtherHistory}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="OtherShifts"
+                component={OtherShifts}
+                options={{ headerShown: false }}
+            />
+
             <Stack.Screen
                 name="EditOwnDetails"
                 component={EditOwnDetails}

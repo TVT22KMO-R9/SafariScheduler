@@ -48,7 +48,7 @@ const Settings = () => {
     return (
     <View style={styles.container}>
         <BackgroundImage style={styles.backgroundImage} />
-        <Text style={styles.buttonText}>Settings</Text>
+        <Text style={styles.buttonText}>SETTINGS</Text>
         {userRole === 'WORKER' ? ( 
             // WORKER ohjataan suoraan edit own details
             navigation.navigate('ShiftScreen') // <---- TÄMÄN PITÄISI OLLA EditOwnDetails (vai mikä nimeksi tuleekaan)
