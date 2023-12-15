@@ -9,260 +9,398 @@ import {
   StyleSheet,
   Dimensions,
   Image,
+  ScrollView,
+  TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DELETE_SHIFT, WORKERS, SERVER_BASE_URL, SHIFTS_EVERYONE } from "@env";
 
 const formatDate = (dateString) => {
+  // Create a new Date object from the provided date string.
   const date = new Date(dateString);
+
+  // Define the formatting options for the date.
   const options = {
-    weekday: "long",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+    weekday: "short", // Short name of the day.
+    month: "2-digit", // Numeric month.
+    day: "2-digit",   // Numeric day of the month.
   };
-  return date.toLocaleString("default", options);
+
+  // Format the date using a localized string.
+  let formattedDate = date.toLocaleString("default", options);
+
+  // Split the formatted date string at spaces.
+  const parts = formattedDate.split(' ');
+  if (parts.length > 1) {
+    // Change the letters of the weekday abbreviation to uppercase.
+    parts[0] = parts[0].toUpperCase();
+    // Reassemble the parts back into a single string.
+    formattedDate = parts.join(' ');
+  }
+
+  // Remove the last dot from the string, if present.
+  formattedDate = formattedDate.replace(/\.$/, '');
+  
+  // Return the formatted date.
+  return formattedDate;
 };
 
-const DeleteShifts = () => {
-  const [workers, setWorkers] = useState([]);
-  const [allShifts, setAllShifts] = useState([]);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedWorkerIds, setSelectedWorkerIds] = useState([]);
-  const [isShiftDetailsVisible, setShiftDetailsVisible] = useState(false);
-const [selectedShift, setSelectedShift] = useState(null);
 
+const DeleteShifts = () => {
+  // Initialize state variables for storing workers, shifts, modal visibility,
+  // selected worker IDs, and the selected shift.
+  const [workers, setWorkers] = useState([]); // State for workers.
+  const [allShifts, setAllShifts] = useState([]); // State for all shifts.
+  const [isModalVisible, setModalVisible] = useState(false); // Visibility state for the worker selection modal.
+  const [selectedWorkerIds, setSelectedWorkerIds] = useState([]); // State for IDs of selected workers.
+  const [isShiftDetailsVisible, setShiftDetailsVisible] = useState(false); // Visibility state for the shift details modal.
+  const [selectedShift, setSelectedShift] = useState(null); // State for the selected shift.
+  const [searchTerm, setSearchTerm] = useState(""); // State for the search term.
+
+  // Use useEffect hook to fetch shifts and workers on the first render of the component.
   useEffect(() => {
-    fetchAllShifts();
-    fetchWorkers();
+    fetchAllShifts(); // Fetch all shifts.
+    fetchWorkers(); // Fetch workers.
   }, []);
 
   const fetchAuthToken = async () => {
     try {
+      // Attempt to retrieve the user's token from AsyncStorage.
       const token = await AsyncStorage.getItem("userToken");
+      
+      // Check if the token exists.
       if (!token) {
+        // If no token is found, show an error message.
         Alert.alert("Error", "Authentication token not found");
         return null;
       }
+
+      // Return the token if it is found.
       return token;
     } catch (error) {
+      // If an error occurs while retrieving the token, show an error message.
       Alert.alert("Error", "Failed to retrieve authentication token");
       return null;
     }
-  };
+};
 
-  const handleWorkerSelect = (workerId) => {
-    setSelectedWorkerIds((prevIds) => {
-      const newIds = prevIds.includes(workerId)
-        ? prevIds.filter((id) => id !== workerId)
-        : [...prevIds, workerId];
-      console.log("Updated Selected Worker IDs:", newIds);
-      return newIds;
+  // Handles the selection of a worker.
+const handleWorkerSelect = (workerId) => {
+  setSelectedWorkerIds((prevIds) => {
+    // Check if the worker is already selected. If so, remove them from the list; otherwise, add them.
+    const newIds = prevIds.includes(workerId)
+      ? prevIds.filter((id) => id !== workerId)
+      : [...prevIds, workerId];
+    console.log("Updated Selected Worker IDs:", newIds);
+    return newIds;
+  });
+};
+
+// Computes filtered shifts, either all or just those of selected workers.
+const filteredShifts = useMemo(() => {
+  return allShifts.filter(
+    (shift) =>
+      selectedWorkerIds.length === 0 ||
+      selectedWorkerIds.includes(shift.userId)
+  );
+}, [allShifts, selectedWorkerIds]);
+
+// Filters workers based on the search term.
+const filteredWorkers = useMemo(() => {
+  return workers.filter((worker) =>
+    `${worker.firstName} ${worker.lastName}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+}, [workers, searchTerm]);
+
+// Sorts the filtered shifts by date.
+const sortedShifts = useMemo(() => {
+  if (!filteredShifts) {
+    return [];
+  }
+
+  return filteredShifts.sort((a, b) => new Date(a.date) - new Date(b.date));
+}, [filteredShifts]);
+
+// Fetches workers from the server.
+const fetchWorkers = async () => {
+  const token = await fetchAuthToken();
+  if (!token) return;
+
+  try {
+    const response = await fetch(`${SERVER_BASE_URL}${WORKERS}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  };
-  const filteredShifts = useMemo(() => {
-    return allShifts.filter(
-      (shift) =>
-        selectedWorkerIds.length === 0 ||
-        selectedWorkerIds.includes(shift.userId)
-    );
-  }, [allShifts, selectedWorkerIds]);
 
-  const sortedShifts = useMemo(() => {
-    if (!filteredShifts) {
-      return [];
+    // If the request is successful, save the workers in the state.
+    if (response.ok) {
+      const data = await response.json();
+      setWorkers(data);
+      console.log("Fetched Workers:", data);
+    } else {
+      Alert.alert("Error", "Failed to fetch workers.");
     }
-    // Sort the shifts by date in ascending order
-    return filteredShifts.sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [filteredShifts]);
+  } catch (error) {
+    Alert.alert("Error", "An error occurred while fetching workers.");
+  }
+};
 
-  const fetchWorkers = async () => {
-    const token = await fetchAuthToken();
-    if (!token) return;
+  // Fetches all shifts from the server.
+const fetchAllShifts = async () => {
+  // Retrieve the authentication token.
+  const token = await fetchAuthToken();
+  // If no token is retrieved, exit the function.
+  if (!token) return;
 
-    try {
-      const response = await fetch(`${SERVER_BASE_URL}${WORKERS}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  try {
+    // Make a request to the server to get all shifts.
+    const response = await fetch(`${SERVER_BASE_URL}${SHIFTS_EVERYONE}`, {
+      headers: { Authorization: `Bearer ${token}` }, // Set the authorization header.
+    });
 
-      if (response.ok) {
-        const data = await response.json();
-        setWorkers(data);
-        console.log("Fetched Workers:", data);
-      } else {
-        Alert.alert("Error", "Failed to fetch workers.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred while fetching workers.");
+    // If the response is successful, process the data.
+    if (response.ok) {
+      const data = await response.json();
+      setAllShifts(data); // Update the state with the fetched shifts.
+      console.log("Fetched Shifts:", data);
+    } else {
+      // If the response is not successful, show an error alert.
+      Alert.alert("Error", "Failed to fetch shifts.");
     }
-  };
+  } catch (error) {
+    // If there is an error during the fetch, show an error alert.
+    Alert.alert("Error", "An error occurred while fetching shifts.");
+  }
+};
 
-  const fetchAllShifts = async () => {
-    const token = await fetchAuthToken();
-    if (!token) return;
-
-    try {
-      const response = await fetch(`${SERVER_BASE_URL}${SHIFTS_EVERYONE}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAllShifts(data);
-        console.log("Fetched Shifts:", data);
-      } else {
-        Alert.alert("Error", "Failed to fetch shifts.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred while fetching shifts.");
+// Groups shifts by their date.
+const groupShiftsByDate = (shifts) => {
+  // Reduce the array of shifts into a grouped object.
+  return shifts.reduce((groups, shift) => {
+    const date = shift.date; // Get the date of the shift.
+    if (!groups[date]) {
+      groups[date] = []; // If this date hasn't been added to groups, add it.
     }
-  };
+    groups[date].push(shift); // Add the shift to the appropriate date group.
+    return groups; // Return the accumulating groups object.
+  }, {}); // Start with an empty object.
+};
 
-  const groupShiftsByDate = (shifts) => {
-    return shifts.reduce((groups, shift) => {
-      const date = shift.date;
-      if (!groups[date]) {
-        groups[date] = [];
-      }
-      groups[date].push(shift);
-      return groups;
-    }, {});
-  };
+  // useMemo to create a memoized array of shifts grouped by date.
+const groupedShifts = useMemo(() => {
+  // Return an empty array if filteredShifts is not available.
+  if (!filteredShifts) {
+    return [];
+  }
 
-  const groupedShifts = useMemo(() => {
-    if (!filteredShifts) {
-      return [];
+  // Group shifts by date using the groupShiftsByDate function.
+  const grouped = groupShiftsByDate(filteredShifts);
+
+  // Map over the keys of the grouped object to create an array of date and shifts.
+  return Object.keys(grouped).map((date) => ({
+    date,
+    shifts: grouped[date],
+  }));
+}, [filteredShifts]);
+
+// Function to handle the action when a shift is selected for more details.
+const openShiftDetails = (shift) => {
+  setSelectedShift(shift); // Set the selected shift in the state.
+  setShiftDetailsVisible(true); // Make the shift details modal visible.
+};
+
+// Function to close the shift details modal.
+const closeShiftDetails = () => {
+  setSelectedShift(null); // Clear the selected shift.
+  setShiftDetailsVisible(false); // Hide the shift details modal.
+};
+
+// Function to handle the deletion of a shift.
+const handleDeleteShift = async (shiftId) => {
+  // Retrieve the authentication token.
+  const token = await fetchAuthToken();
+  if (!token) return;
+
+  try {
+    // Construct the endpoint URL for deleting a shift.
+    const deleteEndpoint = `${SERVER_BASE_URL}${DELETE_SHIFT.replace(
+      "{shiftId}",
+      shiftId
+    )}`;
+
+    // Make a DELETE request to the server.
+    const response = await fetch(deleteEndpoint, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // If the delete request is successful, show a success message.
+    if (response.ok) {
+      Alert.alert("Success", "Shift deleted successfully.");
+      // Update the state to remove the deleted shift.
+      setWorkerShifts(workerShifts.filter((shift) => shift.id !== shiftId));
+    } else {
+      // If the delete request is not successful, show an error message.
+      Alert.alert("Error", "Failed to delete the shift.");
+      console.log(response);
     }
+  } catch (error) {
+    // If an error occurs during the delete request, show an error message.
+    Alert.alert("Error", "An error occurred.");
+  }
+};
+
+
+return (
+  <View style={styles.container}>
+    {/* Background Image */}
+    <Image
+      source={require("../assets/background.png")}
+      style={styles.backgroundImage}
+    />
+
+    {/* Button to open the modal for selecting workers */}
+    <TouchableOpacity
+      onPress={() => setModalVisible(true)}
+      style={styles.button}
+    >
+      <Text style={styles.buttonText}>SELECT WORKERS</Text>
+    </TouchableOpacity>
+
+    {/* FlatList to display grouped shifts */}
+    <FlatList
+      data={groupedShifts}
+      keyExtractor={(item) => item.date}
+      renderItem={({ item }) => (
+        <View>
+          {/* Header for each group of shifts (date) */}
+          <Text style={styles.dateHeader}>{formatDate(item.date)}</Text>
+          {/* List each shift under the respective date */}
+          {item.shifts.map((shift) => (
+            <TouchableOpacity
+              key={shift.id}
+              style={styles.shiftItem}
+              onPress={() => openShiftDetails(shift)}
+            >
+              <Text style={styles.shiftText}>
+                {/* Display shift details */}
+                {`${shift.firstName} ${
+                  shift.lastName
+                } ${shift.startTime.slice(0, -3)} - ${
+                  shift.endTime ? shift.endTime.slice(0, -3) : ""
+                }`}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+    />
   
-    const grouped = groupShiftsByDate(filteredShifts);
-    return Object.keys(grouped).map((date) => ({
-      date,
-      shifts: grouped[date],
-    }));
-  }, [filteredShifts]);
-
-  const openShiftDetails = (shift) => {
-    setSelectedShift(shift);
-    setShiftDetailsVisible(true);
-  };
-
-  const closeShiftDetails = () => {
-    setSelectedShift(null);
-    setShiftDetailsVisible(false);
-  };
-
-  const handleDeleteShift = async (shiftId) => {
-    const token = await fetchAuthToken();
-    if (!token) return;
-
-    try {
-      const deleteEndpoint = `${SERVER_BASE_URL}${DELETE_SHIFT.replace(
-        "{shiftId}",
-        shiftId
-      )}`;
-      const response = await fetch(deleteEndpoint, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        Alert.alert("Success", "Shift deleted successfully.");
-        setWorkerShifts(workerShifts.filter((shift) => shift.id !== shiftId));
-      } else {
-        Alert.alert("Error", "Failed to delete the shift.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred.");
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <Image
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-      />
-      <TouchableOpacity
-        onPress={() => setModalVisible(true)}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>SELECT WORKERS</Text>
-      </TouchableOpacity>
-
-      <FlatList
-  data={groupedShifts}
-  keyExtractor={(item) => item.date}
-  renderItem={({ item }) => (
-    <View>
-      <Text style={styles.dateHeader}>{formatDate(item.date)}</Text>
-      {item.shifts.map((shift) => (
-        <TouchableOpacity
-          key={shift.id}
-          style={styles.shiftItem}
-          onPress={() => openShiftDetails(shift)}
-        >
-          <Text style={styles.shiftText}>
-            {`${shift.firstName} ${shift.lastName} ${shift.startTime.slice(
-              0,
-              -3
-            )} - ${shift.endTime ? shift.endTime.slice(0, -3) : ''}`}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  )}
-/>
-
-<Modal
+  <Modal
   animationType="slide"
   transparent={true}
-  visible={isShiftDetailsVisible}
-  onRequestClose={closeShiftDetails}
+  visible={isModalVisible}
+  onRequestClose={() => setModalVisible(false)}
 >
   <View style={styles.centeredView}>
     <View style={styles.modalView}>
-      {selectedShift ? (
-        <>
-          <Text style={styles.dateHeader}>
-            {formatDate(selectedShift.date)}
-          </Text>
-          <Text style={styles.shiftText}>
-            {`${selectedShift.firstName} ${selectedShift.lastName} ${selectedShift.startTime.slice(
-              0,
-              -3
-            )} - ${selectedShift.endTime ? selectedShift.endTime.slice(0, -3) : ''}`}
-          </Text>
-          {selectedShift.description ? (
-            <Text style={styles.descriptionText}>
-              Description: {selectedShift.description}
-            </Text>
-          ) : null}
-          {selectedShift.breaksTotal ? (
-            <Text style={styles.breaksText}>
-              Breaks: {selectedShift.breaksTotal}
-            </Text>
-          ) : null}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={handleDeleteShift}
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search by name"
+        value={searchTerm}
+        onChangeText={setSearchTerm}
+      />
+      <FlatList
+        data={filteredWorkers}
+        keyExtractor={(worker) => worker.id.toString()}
+        renderItem={({ item: worker }) => (
+          <TouchableOpacity
+            style={
+              selectedWorkerIds.includes(worker.id)
+                ? styles.selectedWorkerItem
+                : styles.workerItem
+            }
+            onPress={() => handleWorkerSelect(worker.id)}
+          >
+            <Text
+              style={
+                selectedWorkerIds.includes(worker.id)
+                  ? styles.selectedWorkerText
+                  : styles.workerText
+              }
             >
-              <Text style={styles.deleteButtonText}>Delete Shift</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={closeShiftDetails}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : null}
+              {`${worker.firstName || "First"} ${worker.lastName || "Last"}`}
+            </Text>
+          </TouchableOpacity>
+        )}
+      />
+      <TouchableOpacity
+        style={styles.buttonClose}
+        onPress={() => setModalVisible(false)}
+      >
+        <Text style={styles.closeButtonText}>Close</Text>
+      </TouchableOpacity>
     </View>
   </View>
 </Modal>
+
+  
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isShiftDetailsVisible}
+        onRequestClose={closeShiftDetails}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            {selectedShift ? (
+              <>
+                <Text style={styles.dateHeader2}>
+                  {formatDate(selectedShift.date)}
+                </Text>
+                <Text style={styles.shiftText}>
+                  {`${selectedShift.firstName} ${
+                    selectedShift.lastName
+                  } ${selectedShift.startTime.slice(0, -3)} - ${
+                    selectedShift.endTime
+                      ? selectedShift.endTime.slice(0, -3)
+                      : ""
+                  }`}
+                </Text>
+                {selectedShift.description ? (
+                  <View style={styles.descriptionBox}>
+                    <ScrollView>
+                      <Text style={styles.descriptionText}>
+                        {selectedShift.description}
+                      </Text>
+                    </ScrollView>
+                  </View>
+                ) : null}
+                {selectedShift.breaksTotal ? (
+                  <Text style={styles.breaksText}>
+                    Breaks: {selectedShift.breaksTotal}
+                  </Text>
+                ) : null}
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={handleDeleteShift}
+                  >
+                    <Text style={styles.deleteButtonText}>Delete Shift</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={closeShiftDetails}
+                  >
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : null}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -324,33 +462,15 @@ const styles = StyleSheet.create({
     elevation: 5,
     width: screenWidth * 0.9,
   },
-  item: {
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 2,
-    borderColor: "black",
-    borderWidth: 1,
-    width: screenWidth * 0.75,
-    alignItems: "center",
-  },
-  selectedItem: {
-    backgroundColor: "rgba(56, 251, 38, 0.8)",
-    borderRadius: 5,
-  },
-  itemText: {
-    fontSize: screenWidth * 0.08,
-    fontFamily: "Saira-Regular",
-  },
   buttonClose: {
-    backgroundColor: "rgba(0, 205, 0, 1)",
+    backgroundColor: "rgba(255, 0, 0, 0.9)",
     borderRadius: 5,
     padding: 10,
-    elevation: 2,
+    marginVertical: 10,
+    alignItems: "center",
+    width: screenWidth * 0.75,
     borderColor: "black",
     borderWidth: 2,
-    marginTop: 20,
-    width: "80%",
-    alignItems: "center",
   },
   textStyle: {
     color: "white",
@@ -375,64 +495,121 @@ const styles = StyleSheet.create({
     fontSize: screenWidth * 0.07,
     fontFamily: "Saira-Regular",
     marginTop: 10,
-    color : "white",
+    color: "white",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 10,
+    textShadowRadius: 6,
+  },
+  dateHeader2: {
+    fontSize: screenWidth * 0.1,
+    fontFamily: "Saira-Regular",
+    marginTop: 0,
+    color: "black",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 10,
   },
   deleteButton: {
-    backgroundColor: 'red',
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
-    alignItems: 'center',
-    borderColor: 'black',
+    alignItems: "center",
+    borderColor: "black",
     borderWidth: 2,
     flex: 1,
     marginRight: 10,
-    alignItems: 'center',
-
+    alignItems: "center",
   },
   deleteButtonText: {
-    color: 'white',
-    fontFamily: 'Saira-Regular',
+    color: "white",
+    fontFamily: "Saira-Regular",
     fontSize: screenWidth * 0.06,
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 10,
+    textShadowRadius: 4,
   },
   closeButton: {
-    backgroundColor: 'darkred',
+    backgroundColor: "darkred",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
-    alignItems: 'center',
-    borderColor: 'black',
+    alignItems: "center",
+    borderColor: "black",
     borderWidth: 2,
-    flex: 1,
     marginLeft: 10,
-    alignItems: 'center',
+    alignItems: "center",
+    flex: 1,
   },
   closeButtonText: {
-    color: 'white',
+    color: "white",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 10,
-    fontFamily: 'Saira-Regular',
+    textShadowRadius: 4,
+    fontFamily: "Saira-Regular",
     fontSize: screenWidth * 0.06,
   },
   descriptionText: {
     fontSize: 16,
     marginVertical: 5,
   },
+  descriptionBox: {
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "black",
+    width: screenWidth * 0.8,
+    maxHeight: screenHeight * 0.3,
+  },
   breaksText: {
     fontSize: 16,
     marginVertical: 5,
+  },
+  workerItem: {
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 2,
+    borderColor: "black",
+    borderWidth: 1,
+    width: screenWidth * 0.75,
+    alignItems: "center",
+  },
+  selectedWorkerItem: {
+    backgroundColor: "rgba(56, 251, 38, 0.8)",
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 2,
+    borderColor: "black",
+    borderWidth: 1,
+    width: screenWidth * 0.75,
+    alignItems: "center",
+  },
+  workerText: {
+    fontSize: screenWidth * 0.08,
+    fontFamily: "Saira-Regular",
+  },
+  selectedWorkerText: {
+    fontSize: screenWidth * 0.08,
+    fontFamily: "Saira-Regular",
+    color: "rgba(0,0,0,1)",
+  },
+  searchInput: {
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "black",
+    width: screenWidth * 0.8,
+    fontSize: screenWidth * 0.06,
+    fontFamily: "Saira-Regular",
   },
 });
 
