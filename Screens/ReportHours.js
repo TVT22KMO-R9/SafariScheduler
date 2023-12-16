@@ -350,9 +350,6 @@ const commonStyles = { //Useasti käytetyt tänne
   text: {
     fontFamily: "Saira-Regular"
   },
-  itemHeight: {
-    height: screenHeight * 0.07,
-  },
 }
 
 const styles = StyleSheet.create({
@@ -418,12 +415,12 @@ const styles = StyleSheet.create({
   breakButtonMinus: {
     fontSize: screenWidth * 0.1,
     color: "black",
-    ...commonStyles.height,
+    height: screenHeight * 0.07,
   },
   breakButtonPlus: {
     fontSize: screenWidth * 0.1,
     color: "black",
-    ...commonStyles.height,
+    height: screenHeight * 0.07,
   },
   breakButton: {
     padding: 0,
@@ -503,7 +500,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 10,
   }, 
   textInputBox: {
-    ...commonStyles.height,
+    height: screenHeight * 0.07,
     width: screenWidth * 0.8,
     borderRadius: 5,
     borderColor: "black",
