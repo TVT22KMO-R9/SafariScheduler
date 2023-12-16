@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import Menu from '../Components/Menu';
-import Logout from '../Components/Logout';
+import ShiftCard from "../Components/ShiftCard";
 import {
   View,
   Text,
@@ -35,7 +34,7 @@ const MyShifts = () => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate().toString();
-    const weekday = date.toLocaleString('default', { weekday: 'short' }).substring(0, 2);
+    const weekday = date.toLocaleString('en-US', { weekday: 'short' }).substring(0, 3);
     return { day, weekday };
   };
 
@@ -89,27 +88,33 @@ const MyShifts = () => {
   }, []);
 
   const renderShiftsByMonth = () => {
+    const screenWidth = Dimensions.get('window').width;
+    const offset = screenWidth * 0.025;
+
     return Object.keys(shifts).map(monthYear => {
       const [month, year] = monthYear.split('-');
-      const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
+      const monthName = new Date(year, month).toLocaleString('en-US', { month: 'long' });
       return (
         <View key={monthYear}>
           <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
-          {shifts[monthYear].map(shift => {
+          {shifts[monthYear].map((shift, index) => {
+            const shiftStyle = shifts[monthYear].length === 1
+            ? styles.shiftCard : index % 2 === 0
+            ? [styles.shiftCard, { marginRight: offset }]
+            : [styles.shiftCard, { marginLeft: offset }];
             const { day, weekday } = formatDate(shift.date);
+            const monthName = new Date(year, month).toLocaleString('en-US', { month: 'long' });
+            const formattedShift = {
+              ...shift,
+              day,
+              weekday,
+              month: monthName,
+              year,
+              startTime: formatTime(shift.startTime),
+              endTime: shift.endTime && formatTime(shift.endTime),
+            };
             return (
-              <View key={shift.id} style={styles.shiftContainer}>
-                <View style={styles.weekdayContainer}>
-                  <Text style={styles.dayText}>{day}</Text>
-                  <Text style={styles.weekdayText}>{weekday.toUpperCase()}</Text>
-                </View>
-                <View style={styles.timeContainer}>
-                  <Text style={styles.shiftText}>
-                    {formatTime(shift.startTime)} - {shift.endTime && formatTime(shift.endTime)}
-                  </Text>
-                  <Text style={styles.shiftDescription}>{shift.description}</Text>
-                </View>
-              </View>
+              <ShiftCard key={shift.id} shift={formattedShift} style={shiftStyle}/>
             );
           })}
         </View>
@@ -130,7 +135,7 @@ const MyShifts = () => {
       <BackgroundImage style={styles.backgroundImage}/>
       
       <ScrollView style={styles.scrollView}>
-      <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, }}>Upcoming shifts</Text> 
+      <Text style={styles.headerText}>UPCOMING SHIFTS</Text> 
         {renderShiftsByMonth()}
       </ScrollView>
     </View>
@@ -143,6 +148,12 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  headerText: {
+    textAlign: "center",
+    color: "white",
+    fontSize: 25,
+    paddingBottom: 20,
   },
   container: {
     flex: 1,

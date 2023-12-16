@@ -62,7 +62,7 @@ export default function App() {
               </View>
               </GestureHandlerRootView>
               
-                <MainAppNavigator screenProps={{ userData: userData, handleLogout: handleLogOut}}/>
+                <MainAppNavigator handleLogin={handleLogin} handleLogout={handleLogOut} setUserData={setUserData} userData={userData}/>
                 </View>
               </>
           ) : (
