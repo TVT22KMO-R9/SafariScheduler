@@ -352,20 +352,19 @@ const commonStyles = { //Useasti käytetyt tänne
   },
   itemHeight: {
     height: screenHeight * 0.07,
-  }
+  },
 }
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    //justifyContent: "top",
     alignItems: "center",
     paddingTop: 0,
   },
   headlineText: {
     marginVertical: 8,
     fontSize: screenWidth * 0.07,
-    fontFamily: "Saira-Regular",
+    ...commonStyles.text,
     color: "white",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
@@ -373,13 +372,10 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderWidth: 2,
-    // borderColor: "black",
     borderRadius: 5,
     width: screenWidth * 0.8,
     height: screenHeight * 0.06,
     justifyContent: "center",
-    //marginBottom: "10%",
-    //marginTop: "3%",
     marginVertical: 8,
   },
   label: {
@@ -422,12 +418,12 @@ const styles = StyleSheet.create({
   breakButtonMinus: {
     fontSize: screenWidth * 0.1,
     color: "black",
-    height: screenHeight * 0.07,
+    ...commonStyles.height,
   },
   breakButtonPlus: {
     fontSize: screenWidth * 0.1,
     color: "black",
-    height: screenHeight * 0.07,
+    ...commonStyles.height,
   },
   breakButton: {
     padding: 0,
@@ -440,51 +436,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: screenWidth * 0.03,
   },
-  breakButtonText: {
-    fontSize: screenWidth * 0.1,
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-    alignItems: "center",
-    ...commonStyles.text,
-  },
-  breakText: {
-    marginHorizontal: 10,
-    fontSize: screenWidth * 0.08,
-    color: "white",
-    borderColor: "black",
-    borderWidth: 2,
-    flex: 1,
-    alignItems: "center",
-    textAlign: "center",
-    backgroundColor: "rgba(15, 15, 15, 0.8)",
-    borderRadius: 5,
-    ...commonStyles.text,
-  },
-  centeredView: { //Päivämäärän valinta View
+  centeredView: { //Päivämäärän valinta pop up View
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 0,
     backgroundColor: "rgba(0, 0, 0, 0.2)",
   },
-  modalView: { //päivämäärän valinta modal
+  modalView: { //päivämäärän valinta pop up modal
     backgroundColor: "white",
     borderRadius: 5,
     padding: 20,
-    //alignItems: "center",
     elevation: 5,
     height: screenHeight * 0.7,
   },
-  timeContainer: {
+  timeContainer: {//kellonajan valinta 
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     height: 70,
   },
-  timeInputContainer: {
-    height: screenHeight * 0.07,
+  timeInputContainer: { //kellonajan valinta syöttöboksi
     width: screenWidth * 0.36,
     justifyContent: "center",
     flexDirection: "row",
@@ -494,7 +466,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "rgba(255, 255, 255, 1)",
   },
-  timeInput: {
+  timeInput: { //kellonajan text Input
     width: screenWidth * 0.16,
     marginHorizontal: 2,
     textAlign: "center",
@@ -521,17 +493,17 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 2,
     backgroundColor: "black"
-  }, //uusi, tsekkaa mitä jää alle
+  }, 
   buttonText: {
     fontSize: screenWidth * 0.07,
     color: "white",
-    fontFamily: "Saira-Regular",
+    ...commonStyles.text,
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
-  }, //uusi, tsekkaa mitä jää alle
+  }, 
   textInputBox: {
-    height: screenHeight * 0.07,
+    ...commonStyles.height,
     width: screenWidth * 0.8,
     borderRadius: 5,
     borderColor: "black",
@@ -541,9 +513,9 @@ const styles = StyleSheet.create({
     marginBottom: "1%",
     paddingHorizontal: 10,
     fontSize: screenWidth * 0.06,
-    fontFamily: "Saira-Regular",
+    ...commonStyles.text,
     marginVertical: 8,
-  },//uusi, tsekkaa mitä jää alle
+  },
 });
 
 export default ReportHours;
