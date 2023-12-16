@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import Menu from '../Components/Menu';
-import Logout from '../Components/Logout';
+import ShiftCard from "../Components/ShiftCard";
 import {
   View,
   Text,
@@ -35,7 +34,7 @@ const MyShifts = () => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate().toString();
-    const weekday = date.toLocaleString('default', { weekday: 'short' }).substring(0, 2);
+    const weekday = date.toLocaleString('en-US', { weekday: 'short' }).substring(0, 3);
     return { day, weekday };
   };
 
@@ -89,27 +88,36 @@ const MyShifts = () => {
   }, []);
 
   const renderShiftsByMonth = () => {
+    let currentMonth = '';
+    let currentYear = '';
+  
     return Object.keys(shifts).map(monthYear => {
       const [month, year] = monthYear.split('-');
-      const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
+      const monthName = new Date(year, month).toLocaleString('en-US', { month: 'long' });
+  
+      const monthHeader = month !== currentMonth || year !== currentYear
+        ? <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
+        : null;
+  
+      currentMonth = month;
+      currentYear = year;
+  
       return (
         <View key={monthYear}>
-          <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
-          {shifts[monthYear].map(shift => {
+          {monthHeader}
+          {shifts[monthYear].map((shift, index) => {
             const { day, weekday } = formatDate(shift.date);
+            const formattedShift = {
+              ...shift,
+              day,
+              weekday,
+              month: monthName,
+              year,
+              startTime: formatTime(shift.startTime),
+              endTime: shift.endTime && formatTime(shift.endTime),
+            };
             return (
-              <View key={shift.id} style={styles.shiftContainer}>
-                <View style={styles.weekdayContainer}>
-                  <Text style={styles.dayText}>{day}</Text>
-                  <Text style={styles.weekdayText}>{weekday.toUpperCase()}</Text>
-                </View>
-                <View style={styles.timeContainer}>
-                  <Text style={styles.shiftText}>
-                    {formatTime(shift.startTime)} - {shift.endTime && formatTime(shift.endTime)}
-                  </Text>
-                  <Text style={styles.shiftDescription}>{shift.description}</Text>
-                </View>
-              </View>
+              <ShiftCard key={shift.id} shift={formattedShift} />
             );
           })}
         </View>
@@ -128,9 +136,9 @@ const MyShifts = () => {
   return (
     <View style={styles.container}>
       <BackgroundImage style={styles.backgroundImage}/>
-      
       <ScrollView style={styles.scrollView}>
-      <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, }}>Upcoming shifts</Text> 
+      
+      <Text style={styles.headerText}>MY SHIFTS</Text> 
         {renderShiftsByMonth()}
       </ScrollView>
     </View>
@@ -144,9 +152,22 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
+  headerText: {
+    textAlign: "center",
+    color: "white",
+    fontSize: 25,
+    paddingBottom: 20,
+    borderBottomColor: "white",
+    borderBottomWidth: 2,
+    fontFamily: "Saira-Regular",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+    marginTop: 90,
+  },
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   shiftContainer: {
@@ -242,7 +263,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   scrollView: {
-    marginTop: 90,
+   
   },
 });
 

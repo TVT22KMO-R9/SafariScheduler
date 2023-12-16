@@ -15,20 +15,15 @@ import ResetOthersPassword from '../Screens/ResetOthersPassword';
 
 import OtherHistory from '../Screens/OthersHistory';
 import OtherShifts from '../Screens/OtherShifts';
-
+import EditOthersDetails from '../allsettings/EditOthersDetails';
 import EditOwnDetails from '../allsettings/EditOwnDetails';
-
-
-
 
 const Stack = createStackNavigator();
 
-export default function MainAppNavigator() {
+export default function MainAppNavigator({handleLogin, handeLogout, setUserData, userData}) {
+
+    console.log('userData in MainAppNavigator:', userData);
     
-
-
-    // TODO: pass handleLogin and handleLogout to the screens that need them
-
     return (
         <Stack.Navigator initialRouteName="ShiftScreen">
             <Stack.Screen
@@ -102,9 +97,13 @@ export default function MainAppNavigator() {
                 name="EditOwnDetails"
                 component={EditOwnDetails}
                 options={{ headerShown: false }}
+                initialParams={{ userData: userData, setUserData: setUserData }}
             />
-            
-          
+            <Stack.Screen
+                name="EditOthersDetails"
+                component={EditOthersDetails}
+                options={{ headerShown: false }}
+            />
         </Stack.Navigator>
     )
 }

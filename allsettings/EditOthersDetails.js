@@ -15,13 +15,17 @@ import { WORKERS, SERVER_BASE_URL, EDIT_OWN } from '@env'
 import BackgroundImage from '../utility/BackGroundImage';
 
 
-const EditOwnDetails = ({route}) => {
+const EditOthersDetails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
     const [newEmail, setNewEmail] = useState('');
+    const route = useRoute();
+    const userRole = route.params?.userRole;
+    const [userData, setUserData] = useState([]);
+    const [isPickerVisible, setPickerVisible] = useState(false);
+    const [selectedRole, setSelectedRole] = useState(null);
     const [isNewFirstNameVisible, setIsNewFirstNameVisible] = useState(false);
     const [newFirstName, setNewFirstName] = useState('');
-    const { userData, setUserData } = route.params;
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -35,8 +39,7 @@ const EditOwnDetails = ({route}) => {
     const validateEmailFormat = (email) => {
         const emailRegex = /\S+@\S+\.\S+/;
         return emailRegex.test(email); //palauttaa false jos ei täsmää
-    }
- 
+    } 
 
     //Edit email
     const EditEmail = async () => {
@@ -124,8 +127,40 @@ const EditOwnDetails = ({route}) => {
         }
     };
 
+
+    //Näkyville tulevat tiedot
+    const handleSeeUsersInfo = async () => {
+        try {
+            const authToken = await AsyncStorage.getItem("userToken");
+            if (!authToken) {
+                Alert.alert("Error", "Authentication token not found");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SERVER_BASE_URL}${WORKERS}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserData(data); // Set fetched data to state
+                } else {
+                    throw new Error('Failed to get users data');
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        } catch (error) {
+            console.error('Async function error:', error);
+        }
+    };
+
     useEffect(() => {
-        console.log(userData);
+        handleSeeUsersInfo();
     }, []);
 
     //Aktivoituu kun screen tulee näkyviin. Muuten tekstikentät jää auki, ja data näkyviin yms.
@@ -134,6 +169,7 @@ const EditOwnDetails = ({route}) => {
             setMenuVisible(false)
             setIsNewEmailVisible(false)
             setNewEmail('')
+            setUserData([])
         }, [])
     );
 
@@ -141,14 +177,14 @@ const EditOwnDetails = ({route}) => {
         <View style={styles.container}>
               <BackgroundImage style={styles.backgroundImage}/>
               <ScrollView style={styles.scrollView}>
-              {userData && (
-                    <View style={styles.userDataContainer}>
-                        <Text style={styles.userDataText}>Role: {userData.role}</Text>
-                        <Text style={styles.userDataText}>Email: {userData.email}</Text>
-                        <Text style={styles.userDataText}>First name: {userData.firstName}</Text>
-                        <Text style={styles.userDataText}>Last name: {userData.lastName}</Text> 
-                        <Text style={styles.userDataText}>Number: {userData.phoneNumber}</Text>
-                    </View>
+            {userData.length > 0 && ( // Check if userData array is not empty
+                <View style={styles.userDataContainer}>
+                    <Text style={styles.userDataText}>Role: {userData[0].role}</Text>
+                    <Text style={styles.userDataText}>Email: {userData[0].email}</Text>
+                    <Text style={styles.userDataText}>First name: {userData[0].firstName}</Text>
+                    <Text style={styles.userDataText}>Last name: {userData[0].lastName}</Text> 
+                    <Text style={styles.userDataText}>Number: {userData[0].phoneNumber}</Text>
+                </View>
             )}
         </ScrollView>
             <View style={{ paddingTop: 10 }}>
@@ -369,4 +405,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default EditOwnDetails;
+export default EditOthersDetails;

@@ -20,7 +20,7 @@ const Settings = () => {
     };
 
     const handleEditOthersDetails = () => {
-      //  navigation.navigate('EditOthersDetails');
+      navigation.navigate('EditOthersDetails');
     };
 
     const handleResetOwnPassword = () => {
