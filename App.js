@@ -16,7 +16,7 @@ const Stack = createStackNavigator();
 
 export default function App() {
     const [hasLoggedIn, setHasLoggedIn] = React.useState(false); // triggeröi kumpi navigaattori käytössä returnissa
-    const [userData, setUserData] = React.useState(null); // käyttäjän tiedontallennukseen ja välittämiseen
+    const [userData, setUserData] = React.useState({}); // käyttäjän tiedontallennukseen ja välittämiseen
     const [firstLoad, setFirstLoad] = React.useState(true); // blokkaamaan splash.js jos on jo käynnistetty
 
     const handleFirstLoad = () => {
@@ -26,6 +26,10 @@ export default function App() {
     const handleLogin = (loginResponse) => { 
         setHasLoggedIn(true);
         setUserData(loginResponse);
+    }
+
+    const getUserData = () => {
+        return userData;
     }
 
     const handleLogOut = () => {
@@ -43,7 +47,6 @@ export default function App() {
         'Saira-Regular': require('./assets/fonts/Saira-Regular.ttf'),
     });
 
-    
 
     return (    // IMAGE on default taustakuva, yläpalkki pysyy vihreänä navigaattorin taustakuva vaihtuu jos on, jos ei niin default
      
@@ -61,8 +64,8 @@ export default function App() {
                 <TopBarComponent handleLogout={handleLogOut} userRole={userData?.role} /> 
               </View>
               </GestureHandlerRootView>
-              
-                <MainAppNavigator handleLogin={handleLogin} handleLogout={handleLogOut} setUserData={setUserData} userData={userData}/>
+                
+                <MainAppNavigator handleLogin={handleLogin} handleLogout={handleLogOut} setUserData={setUserData} userData={userData} getUserData={getUserData}/>
                 </View>
               </>
           ) : (
