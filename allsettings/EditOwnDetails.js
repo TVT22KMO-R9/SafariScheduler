@@ -42,7 +42,7 @@ const EditOwnDetails = ({route}) => {
  
 
     //Edit email
-    const EditEmail = async () => {
+    const EditInfo = async () => {
         try {
             const authToken = await AsyncStorage.getItem("userToken");
             if (!authToken) {
@@ -51,7 +51,6 @@ const EditOwnDetails = ({route}) => {
             }
             const emailData = {
                 email: newEmail.toLowerCase(),
-                role: selectedRole.value.toUpperCase()
             };
             if (!validateEmailFormat(emailData.email)) {
                 Alert.alert("Error", "Invalid email format");
@@ -84,50 +83,6 @@ const EditOwnDetails = ({route}) => {
         }
     };
 
-    const EditFirstName = async () => {
-        try {
-            const authToken = await AsyncStorage.getItem("userToken");
-            if (!authToken) {
-                Alert.alert("Error", "Authentication token not found");
-                return;
-            }
-            const firstNameData = {
-                firstName: newName.toLowerCase(),
-                role: selectedRole.value.toUpperCase()
-            };
-            if (!validateEmailFormat(firstNameData
-                .firstName)) {
-                Alert.alert("Error", "Invalid name format");
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${SERVER_BASE_URL}${EDIT_OWN}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(firstNameData),
-                });
-                console.log(firstNameData)
-                if (response.ok) {
-                    Alert.alert("Name edited succesfully")
-                } else {
-                    const errorText = await response.text();
-                    Alert.alert("Error", errorText || "Failed to edit name");
-                }
-            } catch (error) {
-                Alert.alert("Error adding name", error.message || "Unknown error");
-            }
-            setIsNewFirstNameVisible(false);
-            setNewFirstName('') //nollaa tekstikentät napin painalluksen jälkeen
-        } catch (error) {
-            console.error('Async function error:', error.message || "Unknown error");
-        }
-    };
-
-
     //Aktivoituu kun screen tulee näkyviin. Muuten tekstikentät jää auki, ja data näkyviin yms.
     useFocusEffect(
         React.useCallback(() => {
@@ -140,6 +95,7 @@ const EditOwnDetails = ({route}) => {
     return (
         <View style={styles.container}>
               <BackgroundImage style={styles.backgroundImage}/>
+              <Text style={styles.confirmText}>YOUR INFO</Text>
               <ScrollView style={styles.scrollView}>
               {userData && (
                     <View style={styles.userDataContainer}>
@@ -147,34 +103,30 @@ const EditOwnDetails = ({route}) => {
                         <Text style={styles.userDataText}>Email: {userData.email}</Text>
                         <Text style={styles.userDataText}>First name: {userData.firstName}</Text>
                         <Text style={styles.userDataText}>Last name: {userData.lastName}</Text> 
-                        <Text style={styles.userDataText}>Number: {userData.phoneNumber}</Text>
+                        <Text style={styles.userDataText}>Phone number: {userData.phoneNumber}</Text>
                     </View>
             )}
         </ScrollView>
-            <View style={{ paddingTop: 10 }}>
+            <View>
                 {/* Add new email-toiminta */}
                 {!isNewEmailVisible && (
                     <TouchableOpacity
                         onPress={handleNewEmailButton}
                         style={styles.actionButton}
                     >
-                        <Text style={styles.buttonText}>EDIT EMAIL</Text>
+                        <Text style={styles.buttonText}>Click to edit email</Text>
                     </TouchableOpacity>
                 )}
                 {isNewEmailVisible && (
                     <>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder="Modify email"
+                            placeholder={userData.email}
                             keyboardType="email-address"
                             autoCapitalize="none"
                             value={newEmail}
                             onChangeText={setNewEmail}
                         />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
                     </>
                 )}  
             </View>
@@ -185,23 +137,19 @@ const EditOwnDetails = ({route}) => {
                         onPress={handleNewEmailButton}
                         style={styles.actionButton}
                     >
-                        <Text style={styles.buttonText}>EDIT FIRST NAME</Text>
+                        <Text style={styles.buttonText}>Click to edit first name</Text>
                     </TouchableOpacity>
                 )}
                 {isNewEmailVisible && (
                     <>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder="Modify first name"
+                            placeholder={userData.firstName}
                             keyboardType="email-address"
                             autoCapitalize="none"
                             value={newEmail}
                             onChangeText={setNewEmail}
                         />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditFirstName}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
                     </>
                 )}  
             </View> 
@@ -212,23 +160,19 @@ const EditOwnDetails = ({route}) => {
                         onPress={handleNewEmailButton}
                         style={styles.actionButton}
                     >
-                        <Text style={styles.buttonText}>EDIT LAST NAME</Text>
+                        <Text style={styles.buttonText}>Click to edit last name</Text>
                     </TouchableOpacity>
                 )}
                 {isNewEmailVisible && (
                     <>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder="Modify email"
+                            placeholder={userData.lastName}
                             keyboardType="email-address"
                             autoCapitalize="none"
                             value={newEmail}
                             onChangeText={setNewEmail}
                         />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
                     </>
                 )}  
             </View> 
@@ -239,26 +183,25 @@ const EditOwnDetails = ({route}) => {
                         onPress={handleNewEmailButton}
                         style={styles.actionButton}
                     >
-                        <Text style={styles.buttonText}>EDIT NUMBER</Text>
+                        <Text style={styles.buttonText}>Click to edit phone number</Text>
                     </TouchableOpacity>
                 )}
                 {isNewEmailVisible && (
                     <>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder="Modify email"
+                            placeholder={userData.phoneNumber}
                             keyboardType="email-address"
                             autoCapitalize="none"
                             value={newEmail}
                             onChangeText={setNewEmail}
                         />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
                     </>
                 )}  
             </View>
+            <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green',  }} onPress={EditInfo}>
+                <Text style={styles.confirmText}>CONFIRM</Text>
+            </TouchableOpacity>
              
         </View>
     );
@@ -299,17 +242,19 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginVertical: 6,
         alignItems: "center",
-        width: screenWidth * 0.9,
+        width: screenWidth * 0.8,
         borderColor: "white",
         borderWidth: 2,
     },
     buttonText: {
-        fontSize: screenWidth * 0.07,
+        fontSize: screenWidth * 0.04,
         color: "white",
         fontFamily: "Saira-Regular",
         textShadowColor: "rgba(0, 0, 0, 1)",
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 10,
+        paddingTop:12,
+        paddingBottom:12,
     },
     emailInput: {
         height: screenHeight * 0.07,
@@ -323,28 +268,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         fontSize: screenWidth * 0.06,
         fontFamily: "Saira-Regular",
-
-    },
-    pickerButton: { //tässä samat asetukset kuin yllä, mutta tekstin keskittämiseen viimeinen rivi
-        height: screenHeight * 0.07,
-        width: screenWidth * 0.9,
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
-        borderRadius: 5,
-        borderColor: "black",
-        borderWidth: 2,
-        marginBottom: "1%",
-        paddingHorizontal: 10,
-        fontSize: screenWidth * 0.06,
-        fontFamily: "Saira-Regular",
-        textAlign: 'center',
-        paddingVertical: (screenHeight * 0.05 - screenWidth * 0.06) / 2,
     },
     scrollView: { //User Data
-        maxHeight: 300, // Set a maximum height for the scrollable box
+        maxHeight: 220, // Set a maximum height for the scrollable box
         marginVertical: 10,
         paddingHorizontal: 20,
     },
     userDataContainer: {
+        paddingTop: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#CCCCCC',
         paddingBottom: 10,
@@ -353,19 +284,17 @@ const styles = StyleSheet.create({
     userDataText: {
         color: 'white',
         fontFamily: "Saira-Regular",
-        fontSize: screenWidth * 0.05,
-    },
-    pickerStyle: {
-        backgroundColor: "white",
-        borderWidth: 1,
-        borderColor: "black",
-        borderRadius: 5,
-        width: screenWidth * 0.9,
-        height: screenHeight * 0.07,
-        marginBottom: "1%",
         fontSize: screenWidth * 0.06,
+    },
+    confirmText: {
+        fontSize: screenWidth * 0.07,
+        color: "white",
         fontFamily: "Saira-Regular",
-        color: "black",
+        textShadowColor: "rgba(0, 0, 0, 1)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10,
+        paddingTop:12,
+        paddingBottom:12,
     },
 });
 
