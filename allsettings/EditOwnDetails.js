@@ -5,7 +5,7 @@ import {
     TextInput, Alert, ScrollView,
     KeyboardAvoidingView, FlatList,
 } from 'react-native';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect,} from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import Menu from '../Components/Menu';
@@ -15,13 +15,16 @@ import { WORKERS, SERVER_BASE_URL, EDIT_OWN } from '@env'
 import BackgroundImage from '../utility/BackGroundImage';
 
 
+
 const EditOwnDetails = ({route}) => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
     const [newEmail, setNewEmail] = useState('');
     const [isNewFirstNameVisible, setIsNewFirstNameVisible] = useState(false);
     const [newFirstName, setNewFirstName] = useState('');
+
     const { userData, setUserData } = route.params;
+
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -123,6 +126,7 @@ const EditOwnDetails = ({route}) => {
             console.error('Async function error:', error.message || "Unknown error");
         }
     };
+
 
     //Aktivoituu kun screen tulee näkyviin. Muuten tekstikentät jää auki, ja data näkyviin yms.
     useFocusEffect(

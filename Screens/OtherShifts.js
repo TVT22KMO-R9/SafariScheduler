@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import Menu from '../Components/Menu';
-import Logout from '../Components/Logout';
-import Home from "../Components/Home";
+import ShiftCard from "../Components/ShiftCard";
 import {
   View,
   Text,
@@ -117,37 +115,36 @@ const OtherShifts = () => {
     if (!selectedWorker) {
       return null;
     }
-
+  
     const workerShifts = groupShiftsByMonth(shifts[selectedWorker]);
-
+  
     return (
       <View>
         <TouchableOpacity onPress={() => setSelectedWorker(null)}>
-        <Text style={styles.lastNameHeader}>{`${selectedWorker}`}</Text>
-      </TouchableOpacity>
+          <Text style={styles.lastNameHeader}>{`${selectedWorker}`}</Text>
+        </TouchableOpacity>
         {Object.keys(workerShifts).map(monthYear => {
           const [month, year] = monthYear.split('-');
-          const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
+          const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' });
+  
           return (
             <View key={monthYear}>
-              <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
-              {workerShifts[monthYear].map(shift => {
-                const { day, weekday } = formatDate(shift.date);
-                return (
-                  <View key={shift.id} style={styles.shiftContainer}>
-                    <View style={styles.weekdayContainer}>
-                      <Text style={styles.dayText}>{day}</Text>
-                      <Text style={styles.weekdayText}>{weekday.toUpperCase()}</Text>
-                    </View>
-                    <View style={styles.timeContainer}>
-                      <Text style={styles.shiftText}>
-                        {formatTime(shift.startTime)} - {shift.endTime && formatTime(shift.endTime)}
-                      </Text>
-                      <Text style={styles.shiftDescription}>{shift.description}</Text>
-                    </View>
-                  </View>
-                );
-              })}
+              <Text style={styles.monthYearHeader}>{`${monthName} ${year}`}</Text>
+              {workerShifts[monthYear].map(shift => (
+                <ShiftCard
+                  key={`${shift.day}-${month}-${year}`}
+                  shift={{
+                    ...shift,
+                    day: shift.day,
+                    weekday: new Date(shift.date).toLocaleString('en-US', { weekday: 'short' }),
+                    startTime: shift.startTime, // Assume this is already in correct format
+                    endTime: shift.endTime,   // Assume this is already in correct format
+                    breaksTotal: shift.breaksTotal, // Or any other relevant shift data
+                    description: shift.description,
+                  }}
+                  style={styles.shiftCard}
+                />
+              ))}
             </View>
           );
         })}
