@@ -21,8 +21,6 @@ import EditOwnDetails from '../allsettings/EditOwnDetails';
 const Stack = createStackNavigator();
 
 export default function MainAppNavigator({handleLogin, handeLogout, setUserData, userData}) {
-
-    console.log('userData in MainAppNavigator:', userData);
     
     return (
         <Stack.Navigator initialRouteName="ShiftScreen">

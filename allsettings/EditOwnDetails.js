@@ -124,10 +124,6 @@ const EditOwnDetails = ({route}) => {
         }
     };
 
-    useEffect(() => {
-        console.log(userData);
-    }, []);
-
     //Aktivoituu kun screen tulee näkyviin. Muuten tekstikentät jää auki, ja data näkyviin yms.
     useFocusEffect(
         React.useCallback(() => {
