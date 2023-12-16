@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.8,
     borderColor: "black",
     borderWidth: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    backgroundColor: "rgba(244, 244, 244, 0.2)",
   },
   breakAdjustContainer: {
     flexDirection: "row",
