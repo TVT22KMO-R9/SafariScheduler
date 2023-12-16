@@ -101,6 +101,7 @@ export default function MainAppNavigator(handleLogin, handeLogout, setUserData, 
                 name="EditOwnDetails"
                 component={EditOwnDetails}
                 options={{ headerShown: false }}
+                initialParams={{ userData: userData, setUserData: setUserData }}
             />
             <Stack.Screen
                 name="EditOthersDetails"

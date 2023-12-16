@@ -19,13 +19,10 @@ const EditOwnDetails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
     const [newEmail, setNewEmail] = useState('');
-    const route = useRoute();
-    const userRole = route.params?.userRole;
-    const [userData, setUserData] = useState([]);
-    const [isPickerVisible, setPickerVisible] = useState(false);
-    const [selectedRole, setSelectedRole] = useState(null);
     const [isNewFirstNameVisible, setIsNewFirstNameVisible] = useState(false);
     const [newFirstName, setNewFirstName] = useState('');
+    const route= useRoute();
+    const { setUserData, userData } = route.params;
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -128,40 +125,8 @@ const EditOwnDetails = () => {
         }
     };
 
-
-    //Näkyville tulevat tiedot
-    const handleSeeUsersInfo = async () => {
-        try {
-            const authToken = await AsyncStorage.getItem("userToken");
-            if (!authToken) {
-                Alert.alert("Error", "Authentication token not found");
-                return;
-            }
-
-            try {
-                const response = await fetch(`${SERVER_BASE_URL}${WORKERS}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserData(data); // Set fetched data to state
-                } else {
-                    throw new Error('Failed to get users data');
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        } catch (error) {
-            console.error('Async function error:', error);
-        }
-    };
-
     useEffect(() => {
-        handleSeeUsersInfo();
+        console.log(userData);
     }, []);
 
     //Aktivoituu kun screen tulee näkyviin. Muuten tekstikentät jää auki, ja data näkyviin yms.
@@ -170,7 +135,6 @@ const EditOwnDetails = () => {
             setMenuVisible(false)
             setIsNewEmailVisible(false)
             setNewEmail('')
-            setUserData([])
         }, [])
     );
 
@@ -178,14 +142,14 @@ const EditOwnDetails = () => {
         <View style={styles.container}>
               <BackgroundImage style={styles.backgroundImage}/>
               <ScrollView style={styles.scrollView}>
-            {userData.length > 0 && ( // Check if userData array is not empty
-                <View style={styles.userDataContainer}>
-                    <Text style={styles.userDataText}>Role: {userData[0].role}</Text>
-                    <Text style={styles.userDataText}>Email: {userData[0].email}</Text>
-                    <Text style={styles.userDataText}>First name: {userData[0].firstName}</Text>
-                    <Text style={styles.userDataText}>Last name: {userData[0].lastName}</Text> 
-                    <Text style={styles.userDataText}>Number: {userData[0].phoneNumber}</Text>
-                </View>
+              {route.params?.userData && (
+                    <View style={styles.userDataContainer}>
+                        <Text style={styles.userDataText}>Role: {route.params.userData.role}</Text>
+                        <Text style={styles.userDataText}>Email: {route.params.userData.email}</Text>
+                        <Text style={styles.userDataText}>First name: {route.params.userData.firstName}</Text>
+                        <Text style={styles.userDataText}>Last name: {route.params.userData.lastName}</Text> 
+                        <Text style={styles.userDataText}>Number: {route.params.userData.phoneNumber}</Text>
+                    </View>
             )}
         </ScrollView>
             <View style={{ paddingTop: 10 }}>
