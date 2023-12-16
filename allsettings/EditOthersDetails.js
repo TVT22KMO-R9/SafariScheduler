@@ -15,7 +15,7 @@ import { WORKERS, SERVER_BASE_URL, EDIT_OWN } from '@env'
 import BackgroundImage from '../utility/BackGroundImage';
 
 
-const EditOwnDetails = () => {
+const EditOthersDetails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
     const [newEmail, setNewEmail] = useState('');
@@ -39,8 +39,7 @@ const EditOwnDetails = () => {
     const validateEmailFormat = (email) => {
         const emailRegex = /\S+@\S+\.\S+/;
         return emailRegex.test(email); //palauttaa false jos ei täsmää
-    }
- 
+    } 
 
     //Edit email
     const EditEmail = async () => {
@@ -406,4 +405,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default EditOwnDetails;
+export default EditOthersDetails;

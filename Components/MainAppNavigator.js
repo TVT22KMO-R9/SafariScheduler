@@ -15,7 +15,7 @@ import ResetOthersPassword from '../Screens/ResetOthersPassword';
 
 import OtherHistory from '../Screens/OthersHistory';
 import OtherShifts from '../Screens/OtherShifts';
-
+import EditOthersDetails from '../allsettings/EditOthersDetails';
 import EditOwnDetails from '../allsettings/EditOwnDetails';
 
 
@@ -101,6 +101,11 @@ export default function MainAppNavigator() {
             <Stack.Screen
                 name="EditOwnDetails"
                 component={EditOwnDetails}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="EditOthersDetails"
+                component={EditOthersDetails}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>
