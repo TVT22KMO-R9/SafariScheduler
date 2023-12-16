@@ -15,14 +15,13 @@ import { WORKERS, SERVER_BASE_URL, EDIT_OWN } from '@env'
 import BackgroundImage from '../utility/BackGroundImage';
 
 
-const EditOwnDetails = () => {
+const EditOwnDetails = ({route}) => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
     const [newEmail, setNewEmail] = useState('');
     const [isNewFirstNameVisible, setIsNewFirstNameVisible] = useState(false);
     const [newFirstName, setNewFirstName] = useState('');
-    const route = useRoute();
-    const { userData } = route.params;
+    const { userData, setUserData } = route.params;
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -142,13 +141,13 @@ const EditOwnDetails = () => {
         <View style={styles.container}>
               <BackgroundImage style={styles.backgroundImage}/>
               <ScrollView style={styles.scrollView}>
-              {route.params?.userData && (
+              {userData && (
                     <View style={styles.userDataContainer}>
-                        <Text style={styles.userDataText}>Role: {route.params.userData.role}</Text>
-                        <Text style={styles.userDataText}>Email: {route.params.userData.email}</Text>
-                        <Text style={styles.userDataText}>First name: {route.params.userData.firstName}</Text>
-                        <Text style={styles.userDataText}>Last name: {route.params.userData.lastName}</Text> 
-                        <Text style={styles.userDataText}>Number: {route.params.userData.phoneNumber}</Text>
+                        <Text style={styles.userDataText}>Role: {userData.role}</Text>
+                        <Text style={styles.userDataText}>Email: {userData.email}</Text>
+                        <Text style={styles.userDataText}>First name: {userData.firstName}</Text>
+                        <Text style={styles.userDataText}>Last name: {userData.lastName}</Text> 
+                        <Text style={styles.userDataText}>Number: {userData.phoneNumber}</Text>
                     </View>
             )}
         </ScrollView>
