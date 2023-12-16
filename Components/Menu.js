@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#002233",
+    backgroundColor: "#221e1a",
   },
   labelsContainer: {
     paddingTop: 0,
