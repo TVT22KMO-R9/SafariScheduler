@@ -88,22 +88,25 @@ const MyShifts = () => {
   }, []);
 
   const renderShiftsByMonth = () => {
-    const screenWidth = Dimensions.get('window').width;
-    const offset = screenWidth * 0.025;
-
+    let currentMonth = '';
+    let currentYear = '';
+  
     return Object.keys(shifts).map(monthYear => {
       const [month, year] = monthYear.split('-');
       const monthName = new Date(year, month).toLocaleString('en-US', { month: 'long' });
+  
+      const monthHeader = month !== currentMonth || year !== currentYear
+        ? <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
+        : null;
+  
+      currentMonth = month;
+      currentYear = year;
+  
       return (
         <View key={monthYear}>
-          <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
+          {monthHeader}
           {shifts[monthYear].map((shift, index) => {
-            const shiftStyle = shifts[monthYear].length === 1
-            ? styles.shiftCard : index % 2 === 0
-            ? [styles.shiftCard, { marginRight: offset }]
-            : [styles.shiftCard, { marginLeft: offset }];
             const { day, weekday } = formatDate(shift.date);
-            const monthName = new Date(year, month).toLocaleString('en-US', { month: 'long' });
             const formattedShift = {
               ...shift,
               day,
@@ -114,7 +117,7 @@ const MyShifts = () => {
               endTime: shift.endTime && formatTime(shift.endTime),
             };
             return (
-              <ShiftCard key={shift.id} shift={formattedShift} style={shiftStyle}/>
+              <ShiftCard key={shift.id} shift={formattedShift} />
             );
           })}
         </View>
@@ -133,9 +136,9 @@ const MyShifts = () => {
   return (
     <View style={styles.container}>
       <BackgroundImage style={styles.backgroundImage}/>
-      
       <ScrollView style={styles.scrollView}>
-      <Text style={styles.headerText}>UPCOMING SHIFTS</Text> 
+      
+      <Text style={styles.headerText}>MY SHIFTS</Text> 
         {renderShiftsByMonth()}
       </ScrollView>
     </View>
@@ -154,10 +157,17 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 25,
     paddingBottom: 20,
+    borderBottomColor: "white",
+    borderBottomWidth: 2,
+    fontFamily: "Saira-Regular",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+    marginTop: 90,
   },
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   shiftContainer: {
@@ -253,7 +263,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   scrollView: {
-    marginTop: 90,
+   
   },
 });
 
