@@ -22,9 +22,9 @@ const EditOwnDetails = ({route}) => {
     const [newEmail, setNewEmail] = useState('');
     const [isNewFirstNameVisible, setIsNewFirstNameVisible] = useState(false);
     const [newFirstName, setNewFirstName] = useState('');
- 
-    const userData = route.params?.userData;
-    const setUserData = route.setUserData;
+
+    const { userData, setUserData } = route.params;
+
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);

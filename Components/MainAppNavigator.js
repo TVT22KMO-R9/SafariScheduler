@@ -19,14 +19,10 @@ import EditOthersDetails from '../allsettings/EditOthersDetails';
 import EditOwnDetails from '../allsettings/EditOwnDetails';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
-
-
-
 const Stack = createStackNavigator();
 
 export default function MainAppNavigator({handleLogin, handeLogout, setUserData, userData, getUserData}) {
     
-
 
     return (
         <Stack.Navigator initialRouteName="ShiftScreen">
