@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
         backgroundColor: 'rgba(31,27,24,255)',
         borderBottomColor: 'rgba(143,138,134,255)',
-        borderBottomWidth: 2,
+        borderBottomWidth: 2.5,
         padding: 0,
         margin: 0,
     },

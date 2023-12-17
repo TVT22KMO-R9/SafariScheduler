@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
 
     backgroundColor: "rgba(31,27,24,255)",
     borderRightColor: "rgba(143,138,134,255)",
-    borderRightWidth: 2,
+    borderRightWidth: 2.5,
 
   }, companyName: {
     fontWeight: "bold",
