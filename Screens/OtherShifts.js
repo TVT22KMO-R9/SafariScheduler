@@ -293,7 +293,7 @@ const listWorkersFromResponse = (response) => {
                       <Text style={styles.itemText}>
                         {item.firstName || item.lastName 
                           ? `${item.firstName || ''} ${item.lastName || ''}`.trim() 
-                          : 'Anonymous'}
+                          : 'Anonymous: '+ item.id}
                         {item.role === 'WORKER' && ' (W)'}
                         {item.role === 'SUPERVISOR' && ' (S)'}
                         {item.role === 'MASTER' && ' (M)'}

@@ -54,7 +54,7 @@ export default function Menu({ userRole, toggleMenu, companyName}) {
   let menuItems = [];
   if (userRole === "WORKER") {
     menuItems = [
-      
+      { label: companyName, isCompanyName: true, icon: "business" },
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
       { label: "MY HISTORY", icon: "refresh" },
@@ -63,7 +63,7 @@ export default function Menu({ userRole, toggleMenu, companyName}) {
     ];
   } else if (userRole === "SUPERVISOR") {
     menuItems = [
-     
+      { label: companyName, isCompanyName: true, icon: "business" },
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
       { label: "MY HISTORY", icon: "refresh" },

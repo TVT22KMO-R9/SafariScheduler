@@ -26,6 +26,10 @@ export default function App() {
       }
     } ,[]);
 
+    useEffect (() => {
+      console.log('userData is now ', userData);
+    }, [userData]);
+
 
     const handleFirstLoad = () => {
         setFirstLoad(false);
