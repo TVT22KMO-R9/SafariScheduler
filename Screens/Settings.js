@@ -23,10 +23,6 @@ const Settings = () => {
       navigation.navigate('EditOthersDetails');
     };
 
-    const handleResetOwnPassword = () => {
-         navigation.navigate('UpdatePassword');
-        };
-
     const handleEditRoles = () => {
         //  navigation.navigate('EditRoles');
         };
@@ -59,9 +55,6 @@ const Settings = () => {
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleEditRoles} style={styles.actionButton}>
                     <Text style={styles.buttonText}>Edit Roles</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleResetOwnPassword} style={styles.actionButton}>
-                    <Text style={styles.buttonText}>Reset Own Password</Text>
                 </TouchableOpacity>
                 {userRole === 'MASTER' && (
                     <>

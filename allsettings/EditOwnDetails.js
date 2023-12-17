@@ -7,7 +7,7 @@ import { useFocusEffect,} from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { WORKERS, SERVER_BASE_URL, EDIT_OWN } from '@env'
 import BackgroundImage from '../utility/BackGroundImage';
-
+import { useNavigation } from '@react-navigation/native';
 
 
 const EditOwnDetails = ({route}) => {
@@ -18,7 +18,12 @@ const EditOwnDetails = ({route}) => {
     const [newLastName, setNewLastName] = useState('');
     const [newNumber, setNewNumber] = useState('');
     const { userData, handleLogout } = route.params;
+    const navigation = useNavigation();
 
+
+    const handleResetOwnPassword = () => {
+        navigation.navigate('UpdatePassword');
+       };
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -188,6 +193,9 @@ const EditOwnDetails = ({route}) => {
                 <Text style={styles.confirmText}>CONFIRM</Text>
                 </TouchableOpacity>
             )}
+            <TouchableOpacity onPress={handleResetOwnPassword} style={styles.actionButton}>
+                    <Text style={styles.buttonText}>Reset Own Password</Text>
+                </TouchableOpacity>
             </View>
   );
 };
