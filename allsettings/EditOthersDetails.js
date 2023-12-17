@@ -11,7 +11,8 @@ function EditOthersDetails() {
   const [filteredWorkers, setFilteredWorkers] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [selectedWorker, setSelectedWorker] = useState(null);
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalInfoVisible, setModalInfoVisible] = useState(false);
+  const [isModalPassVisible, setModalPassVisible] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -59,20 +60,53 @@ function EditOthersDetails() {
         }
       };
 
-      const openModal = () => {
-        setModalVisible(true);
-        };
+      const openModalInfo = () => {
+        setModalInfoVisible(true);
+      };
 
-        const closeModal = () => {
-        setSelectedWorker(null);
-        setModalVisible(false);
-        };
+        const openModalPass = () => {
+            setModalPassVisible(true);
+          };
+
+          const closeModalInfo = () => {
+            setSelectedWorker(null);
+            setModalInfoVisible(false);
+          };
+
+        const closeModalPass = () => {
+            setSelectedWorker(null);
+            setModalPassVisible(false);
+          };
 
         const selectWorker = (worker) => {
         setSelectedWorker(worker);
         closeModal();
         };
 
+
+        const resetPassword = async (userId) => {
+            try {
+                const response = await fetch(`${SERVER_BASE_URL}/api/user/update/password/${userId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        'Authorization': "Bearer " + await getToken(),
+                    },
+                    body: JSON.stringify({ newPassword: "testpassword" }),
+                });
+        
+                if(response.ok) {
+                    Alert.alert("Success! Password is now 'testpassword'");
+                }
+                else {
+                    throw new Error("Failed to reset password");
+                }
+            }
+            catch (error) {
+                console.error("Error resetting password:", error);
+                Alert.alert("Error", "An error occurred while resetting password");
+            }
+          };
  
   const handlePress = (worker) => {
     const workerName = worker.firstName || worker.lastName 
@@ -92,7 +126,31 @@ function EditOthersDetails() {
           onPress: async () => {
             // Pass the selected worker's data to the EditOwnDetails screen
             navigation.navigate('EditOwnDetails', { workerData: worker });
-            closeModal();
+            closeModalInfo();
+          } 
+        }
+      ]
+    );
+  };
+
+  const handlePressPass = (worker) => {
+    const workerName = worker.firstName || worker.lastName 
+      ? `${worker.firstName || ''} ${worker.lastName || ''}`.trim() 
+      : 'Anonymous';
+  
+    Alert.alert(
+      "Reset Password",
+      `Are you sure you want to reset the password for ${workerName}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "OK", 
+          onPress: async () => {
+            await resetPassword(worker.id);
+            closeModalPass();
           } 
         }
       ]
@@ -103,18 +161,18 @@ function EditOthersDetails() {
     <KeyboardAvoidingView style={styles.container}>
         <BackgroundImage style={styles.backgroundImage} />
         <Image source={require("../assets/logo.png")} style={styles.logo} />
-        <TouchableOpacity onPress={openModal} style={styles.button}>
+        <TouchableOpacity onPress={openModalInfo} style={styles.button}>
         <Text style={styles.buttonText}>
           {selectedWorker
             ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
-            : "Select worker"}
+            : "Edit employee info"}
         </Text>
       </TouchableOpacity>
       <Modal
           animationType="fade"
           transparent={true}
-          visible={isModalVisible}
-          onRequestClose={closeModal}
+          visible={isModalInfoVisible}
+          onRequestClose={closeModalInfo}
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
@@ -143,15 +201,58 @@ function EditOthersDetails() {
                     </TouchableOpacity>
                   )}
               />
-              <TouchableOpacity onPress={closeModal} style={styles.buttonClose}>
+              <TouchableOpacity onPress={closeModalInfo} style={styles.buttonClose}>
                 <Text style={styles.textStyle}>Close</Text>
               </TouchableOpacity>
             </View>
           </View>
         </Modal>
-        <TouchableOpacity onPress={handleResetOthersPassword} style={styles.button}>
-            <Text style={styles.buttonText}>Reset Others Password</Text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={openModalPass} style={styles.button}>
+        <Text style={styles.buttonText}>
+          {selectedWorker
+            ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
+            : "Reset employee password"}
+        </Text>
+      </TouchableOpacity>
+      <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isModalPassVisible}
+          onRequestClose={closeModalPass}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TextInput
+                style={styles.searchBox}
+                placeholder="Search by name"
+                value={searchText}
+                onChangeText={handleSearch}
+              />
+              <FlatList
+                data={filteredWorkers}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.item}
+                      onPress={() => handlePressPass(item)}
+                    >
+                      <Text style={styles.itemText}>
+                        {item.firstName || item.lastName 
+                          ? `${item.firstName || ''} ${item.lastName || ''}`.trim() 
+                          : 'Anonymous'}
+                        {item.role === 'WORKER' && ' (W)'}
+                        {item.role === 'SUPERVISOR' && ' (S)'}
+                        {item.role === 'MASTER' && ' (M)'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+              />
+              <TouchableOpacity onPress={closeModalPass} style={styles.buttonClose}>
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -187,7 +288,6 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 10,
         alignItems: 'center',
-    
         
       },
       button: {
