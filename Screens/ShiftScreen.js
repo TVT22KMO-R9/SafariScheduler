@@ -62,6 +62,14 @@ export default function ShiftScreen({screenProps}) {
   };
 
   useEffect(() => {
+    // Set default "No assigned shift" data for all boxes on component mount
+    const defaultShiftData = { description: "No assigned shift", frontPageDisplay: "No assigned shift" };
+    setBox1Data(defaultShiftData);
+    setBox2Data(defaultShiftData);
+    setBox3Data(defaultShiftData);
+  }, []);
+
+  useEffect(() => {
     const fetchBoxData = async () => {
       try {
         const authToken = await AsyncStorage.getItem('userToken');
@@ -252,19 +260,19 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   dataBox: {
-    backgroundColor: "white",
-    width: "70%",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    width: screenWidth * 0.8,
     padding: 10,
     margin: 10,
     borderRadius: 5,
     alignItems: "center",
-    borderColor: "black",
+    borderColor: "white",
     borderWidth: 2,
 
   },
   dataBoxText: {
     fontSize: 16,
-    color: "black",
+    color: "white",
     fontFamily: "Saira-Regular",
     fontWeight: "bold",
   },
@@ -282,14 +290,14 @@ const styles = StyleSheet.create({
   },
   reportHoursButton: {
     width: '80%',
-    backgroundColor: 'rgba(0, 150, 255, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: 13,
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
     bottom: screenHeight * 0.1,
-    borderColor: 'black',
+    borderColor: 'white',
     borderWidth: 2,
   },
   reportHoursButtonText: {
@@ -311,5 +319,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    backgroundColor: 'transparent',
 }
 });

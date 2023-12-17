@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Image,
   TouchableWithoutFeedback,
+  Button,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -45,7 +46,7 @@ const ReportHours = () => {
 
   const toggleMenu = () => {
     setMenuVisible(!isMenuVisible);
-};
+  };
 
 
   // Generate number arrays for Picker
@@ -123,7 +124,7 @@ const ReportHours = () => {
           Alert.alert("Shift reported successfully", "", [
             {
               text: "OK",
-              onPress: () => navigation.navigate("History",  { userRole }), // Navigate to History screen
+              onPress: () => navigation.navigate("History", { userRole }), // Navigate to History screen
             },
           ]);
         } else {
@@ -141,27 +142,28 @@ const ReportHours = () => {
     setPickerVisible(!isPickerVisible);
   };
   const formatDate = (date) => {
-    return `${date.day.padStart(2, "0")}.${date.month.padStart(2, "0")}.${
-      date.year
-    }`;
+    return `${date.day.padStart(2, "0")}.${date.month.padStart(2, "0")}.${date.year
+      }`;
   };
   const startMinutesInputRef = useRef(null);
   const endMinutesInputRef = useRef(null);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0, }}>
-        <BackgroundImage style={styles.backgroundImage}/>
-      <Text style={{ textAlign: 'center',marginTop: "20%", fontSize: 25, color: 'white' }}>Report hours</Text>
-
-      {/* Button to Show Date Picker Modal */}
-      <TouchableOpacity onPress={togglePicker} style={styles.dateButton}>
+    <View style={styles.container}>
+      <BackgroundImage style={styles.backgroundImage} />
+      {/* Piti laittaa padding tähän väliin, muuten en saanut toimimaan */}
+      <View style={{ paddingTop: 80 }}>
+      </View>
+      <Text style={styles.headlineText}>REPORT HOURS</Text>
+      {/* Nappi päivämäärän valinnalle */}
+      <TouchableOpacity onPress={togglePicker} style={styles.actionButton}>
         <Text style={styles.buttonText}>
-          {"SELECT DATE"}
+          {"Select date   "}
+          <Ionicons name="chevron-down-circle-outline" size={24} color="white" />
         </Text>
       </TouchableOpacity>
-
+      {/* Työvuoron kellonajan lisäys*/}
       <View style={styles.timeContainer}>
-        {/* Start Time Input*/}
         <View style={styles.timeInputContainer}>
           <TextInput
             style={styles.timeInput}
@@ -174,9 +176,8 @@ const ReportHours = () => {
             }}
             keyboardType="numeric"
             maxLength={2}
-            placeholder="HH :"
+            placeholder="HH"
           />
-
           <TextInput
             style={styles.timeInput}
             value={startTime.minute}
@@ -191,8 +192,6 @@ const ReportHours = () => {
         </View>
 
         <Text style={styles.dash}>-</Text>
-
-        {/* End Time Input */}
         <View style={styles.timeInputContainer}>
           <TextInput
             style={styles.timeInput}
@@ -205,9 +204,8 @@ const ReportHours = () => {
             }}
             keyboardType="numeric"
             maxLength={2}
-            placeholder="HH :"
+            placeholder="HH"
           />
-
           <TextInput
             style={styles.timeInput}
             value={endTime.minute}
@@ -220,9 +218,9 @@ const ReportHours = () => {
         </View>
       </View>
 
-      {/* Break Time Adjustment */}
+      {/* Tauon pituuden lisäys */}
       <View style={styles.breakContainer}>
-        <Text style={styles.breakButtonText}>BREAKS</Text>
+        <Text style={styles.buttonText}>BREAKS</Text>
         <View style={styles.breakAdjustContainer}>
           <TouchableOpacity
             onPress={() => handleBreakChange(-15)}
@@ -230,7 +228,7 @@ const ReportHours = () => {
           >
             <Text style={styles.breakButtonMinus}>-</Text>
           </TouchableOpacity>
-          <Text style={styles.breakText}>{`${breakMinutes} min`}</Text>
+          <Text style={styles.buttonText}>{`${breakMinutes} min`}</Text>
           <TouchableOpacity
             onPress={() => handleBreakChange(15)}
             style={styles.breakButton}
@@ -239,18 +237,19 @@ const ReportHours = () => {
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Details Input */}
+      {/* Työn kuvaus input */}
       <TextInput
-        style={styles.input}
+        style={styles.textInputBox}
         placeholder="Enter work description"
         value={details}
         onChangeText={setDetails}
       />
-
-      {/* Confirm Button */}
-      <TouchableOpacity style={styles.confirmButton} onPress={submitShift}>
-        <Text style={styles.confirmButtonText}>CONFIRM</Text>
+      {/* Työvuoron lisäyksen kuittaus-nappi */}
+      <TouchableOpacity style={styles.actionButton} onPress={submitShift}>
+        <Text style={styles.buttonText}>
+          {"Confirm   "}
+          <Ionicons name="checkmark" size={24} color="green" />
+        </Text>
       </TouchableOpacity>
       {/* Pickeri päivämäärälle */}
       <Modal
@@ -263,16 +262,21 @@ const ReportHours = () => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <View style={styles.container}>
-              {/* Label and Picker for Year */}
-              <Text style={styles.label}>Year</Text>
+            <View style={{ textAlign: 'center' }}>
+              {/* Otsikko ja picker vuodelle */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={styles.label}>YEAR</Text>
+                <TouchableOpacity onPress={togglePicker}>
+                  <Ionicons name="close" size={32} color="red" />
+                </TouchableOpacity>
+              </View>
+
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={date.year}
                   onValueChange={(itemValue) =>
                     setDate({ ...date, year: itemValue })
                   }
-                  style={styles.picker}
                 >
                   {years.map((year) => (
                     <Picker.Item
@@ -284,15 +288,14 @@ const ReportHours = () => {
                 </Picker>
               </View>
 
-              {/* Label and Picker for Month */}
-              <Text style={styles.label}>Month</Text>
+              {/* Otsikko ja picker kuukaudelle */}
+              <Text style={[styles.label, { color: 'black' }]}>MONTH</Text>
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={date.month}
                   onValueChange={(itemValue) =>
                     setDate({ ...date, month: itemValue })
                   }
-                  style={styles.picker}
                 >
                   {months.map((month) => (
                     <Picker.Item
@@ -304,15 +307,14 @@ const ReportHours = () => {
                 </Picker>
               </View>
 
-              {/* Label and Picker for Day */}
-              <Text style={styles.label}>Day</Text>
+              {/* Otsikko ja picker päivälle */}
+              <Text style={[styles.label, { color: 'black' }]}>DAY</Text>
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={date.day}
                   onValueChange={(itemValue) =>
                     setDate({ ...date, day: itemValue })
                   }
-                  style={styles.picker}
                 >
                   {days.map((day) => (
                     <Picker.Item
@@ -325,35 +327,56 @@ const ReportHours = () => {
               </View>
             </View>
 
-            {/* Sulje Modal (päivämäärä valikko) */}
-            <TouchableOpacity
-              style={styles.buttonClose}
-              onPress={() => setPickerVisible(!isPickerVisible)}
-            >
-              <Text style={styles.textStyle}>Confirm</Text>
-            </TouchableOpacity>
+            {/* Nappi päivämäärän kuittaamiseen: */}
+            <View style={{ marginTop: 40 }}>
+              <TouchableOpacity
+                style={{ ...styles.actionButton, borderColor: "grey" }}
+                onPress={() => setPickerVisible(!isPickerVisible)}
+              >
+                <Text style={styles.buttonText}><Ionicons name="checkmark" size={24} color="green" />
+                  {"Confirm"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
+
+const commonStyles = { //Useasti käytetyt tänne
+  text: {
+    fontFamily: "Saira-Regular"
+  },
+}
+
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    alignItems: "center",
+  },
+  headlineText: {
+    marginVertical: 8,
+    fontSize: screenWidth * 0.07,
+    ...commonStyles.text,
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+  },
   pickerContainer: {
     borderWidth: 2,
-    borderColor: "black",
     borderRadius: 5,
-    width: screenWidth * 0.7,
-    height: screenHeight * 0.05,
+    width: screenWidth * 0.8,
+    height: screenHeight * 0.06,
     justifyContent: "center",
-    marginBottom: "10%",
-    
+    marginVertical: 8,
   },
   label: {
-    fontSize: screenWidth * 0.1,
+    fontSize: screenWidth * 0.07,
     color: "black",
-    fontFamily: "Saira-Regular",
-    
+    ...commonStyles.text,
   },
   backgroundImage: {
     position: "absolute",
@@ -361,69 +384,39 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  container: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: 0,
-  
-  },
-  dateButton: {
-    marginVertical: 10,
-    padding: 2,
-    backgroundColor: "rgba(83, 237, 255, 0.8)",
-    borderRadius: 5,
-    width: screenWidth * 0.9,
-    alignItems: "center",
-    borderColor: "black",
-    borderWidth: 2,
-  },
   dash: {
     fontSize: screenWidth * 0.15,
     color: "white",
-    fontFamily: "Saira-Regular",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
     marginHorizontal: 5,
-  },
-  buttonText: {
-    fontSize: screenWidth * 0.1,
-    color: "white",
-    fontFamily: "Saira-Regular",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-    alignItems: "center",
-    textAlign: "center",
-  },
-  breakButtonMinus: {
-    fontSize: screenWidth * 0.2,
-    color: "black",
-  },
-  breakButtonPlus: {
-    fontSize: screenWidth * 0.2,
-    color: "black",
-  },
-  timeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: screenWidth * 0.9,
-    alignItems: "center",
+    lineHeight: 80,
+    ...commonStyles.text,
   },
   breakContainer: {
     alignItems: "center",
-    marginVertical: 5,
+    marginVertical: 8,
     borderRadius: 5,
-    width: screenWidth * 0.9,
+    width: screenWidth * 0.8,
     borderColor: "black",
     borderWidth: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    backgroundColor: "rgba(244, 244, 244, 0.2)",
   },
   breakAdjustContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    marginVertical: 8,
+  },
+  breakButtonMinus: {
+    fontSize: screenWidth * 0.1,
+    color: "black",
+    height: screenHeight * 0.07,
+  },
+  breakButtonPlus: {
+    fontSize: screenWidth * 0.1,
+    color: "black",
+    height: screenHeight * 0.07,
   },
   breakButton: {
     padding: 0,
@@ -436,116 +429,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: screenWidth * 0.03,
   },
-  breakButtonText: {
-    fontSize: screenWidth * 0.1,
-    color: "white",
-    fontFamily: "Saira-Regular",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-    alignItems: "center",
-  },
-  breakText: {
-    marginHorizontal: 10,
-    fontSize: screenWidth * 0.08,
-    color: "white",
-    fontFamily: "Saira-Regular",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-    borderColor: "black",
-    borderWidth: 2,
-    flex: 1,
-    alignItems: "center",
-    textAlign: "center",
-    backgroundColor: "rgba(15, 15, 15, 0.8)",
-    borderRadius: 5,
-  },
-  input: {
-    margin: 12,
-    borderWidth: 2,
-    padding: 10,
-    width: screenWidth * 0.9,
-    height: screenHeight * 0.1,
-    textAlignVertical: "top",
-    borderRadius: 5,
-    fontFamily: "Saira-Regular",
-    backgroundColor: "rgba(255, 255, 255, 1)",
-    marginBottom: screenHeight * 0.10,
-    fontSize: screenWidth * 0.05,
-  },
-  confirmButton: {
-    backgroundColor: "rgba(0, 205, 0, 0.8)", // Confirm button color
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginHorizontal: 10,
-    borderColor: "black",
-    borderWidth: 2,
-  },
-  confirmButtonText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: screenWidth * 0.07,
-    fontFamily: "Saira-Regular",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-  centeredView: {
+  centeredView: { //Päivämäärän valinta pop up View
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
   },
-  modalView: {
+  modalView: { //päivämäärän valinta pop up modal
     backgroundColor: "white",
     borderRadius: 5,
     padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
     elevation: 5,
     height: screenHeight * 0.7,
   },
-  buttonClose: {
-    backgroundColor: "rgba(0, 205, 0, 1)",
-    borderRadius: 5,
-    padding: 10,
-    elevation: 2,
-    borderColor: "black",
-    borderWidth: 2,
-    textAlign: "center",
+  timeContainer: {//kellonajan valinta 
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 70,
   },
-  textStyle: {
-    color: "white",
-    textAlign: "center",
-    fontFamily: "Saira-Regular",
-    fontSize: screenWidth * 0.08,
-  },
-  modalText: {
-    textAlign: "center",
-    fontFamily: "Saira-Regular",
-    fontSize: screenWidth * 0.1,
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 10,
-    color: "black",
-  },
-  picker: {
-    width: screenWidth * 0.7,
-    height: screenHeight * 0.2,
-    borderColor: "black",
-    borderWidth: 2,
-    borderRadius: 5,
-  },
-  timeInputContainer: {
+  timeInputContainer: { //kellonajan valinta syöttöboksi
+    width: screenWidth * 0.36,
+    justifyContent: "center",
     flexDirection: "row",
     borderRadius: 5,
     borderColor: "black",
@@ -553,36 +459,56 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "rgba(255, 255, 255, 1)",
   },
-  timeInput: {
+  timeInput: { //kellonajan text Input
     width: screenWidth * 0.16,
     marginHorizontal: 2,
     textAlign: "center",
-    fontSize: screenWidth * 0.08,
+    fontSize: screenWidth * 0.07,
   },
-  button: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    padding: 10,
-},
-overlay: {
+  overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-},
-menubutton: {
-  position: 'absolute',
-  top: 20,
-  left: 20,
-  padding: 10,
-},
-menuContainer: {
-  position: 'absolute',
-  left: 0,
-  top: 0,
-  width: '75%',
-  height: '100%',
-  backgroundColor: 'white',
-},
+  },
+  menuContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '75%',
+    height: '100%',
+    backgroundColor: 'white',
+  },
+  actionButton: {
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    borderRadius: 5,
+    marginVertical: 8,
+    alignItems: "center",
+    width: screenWidth * 0.8,
+    borderColor: "white",
+    borderWidth: 2,
+    backgroundColor: "black"
+  },
+  buttonText: {
+    fontSize: screenWidth * 0.07,
+    color: "white",
+    ...commonStyles.text,
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+  },
+  textInputBox: {
+    height: screenHeight * 0.07,
+    width: screenWidth * 0.8,
+    borderRadius: 5,
+    borderColor: "black",
+    textAlign: 'center',
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderWidth: 2,
+    marginBottom: "1%",
+    paddingHorizontal: 10,
+    fontSize: screenWidth * 0.06,
+    ...commonStyles.text,
+    marginVertical: 8,
+  },
 });
 
 export default ReportHours;

@@ -16,19 +16,15 @@ const Settings = () => {
     const navigation = useNavigation();
 
     const handleEditOwnDetails = () => {
-      //  navigation.navigate('EditOwnDetails');
+      navigation.navigate('EditOwnDetails');
     };
 
     const handleEditOthersDetails = () => {
-      //  navigation.navigate('EditOthersDetails');
+      navigation.navigate('EditOthersDetails');
     };
 
-    const handleResetOwnPassword = () => {
-         navigation.navigate('UpdatePassword');
-        };
-
     const handleEditRoles = () => {
-        //  navigation.navigate('EditRoles');
+        navigation.navigate('EditRoles');
         };
     
     const handleResetOthersPassword = () => {
@@ -48,10 +44,11 @@ const Settings = () => {
     return (
     <View style={styles.container}>
         <BackgroundImage style={styles.backgroundImage} />
-        <Text style={styles.buttonText}>Settings</Text>
+        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        <Text style={styles.welcomeText}>SETTINGS</Text>
         {userRole === 'WORKER' ? ( 
             // WORKER ohjataan suoraan edit own details
-            navigation.navigate('ShiftScreen') // <---- TÄMÄN PITÄISI OLLA EditOwnDetails (vai mikä nimeksi tuleekaan)
+            navigation.navigate('EditOwnDetails') // <--
         ) : (
             <>
                 <TouchableOpacity onPress={handleEditOwnDetails} style={styles.actionButton}>
@@ -60,16 +57,10 @@ const Settings = () => {
                 <TouchableOpacity onPress={handleEditRoles} style={styles.actionButton}>
                     <Text style={styles.buttonText}>Edit Roles</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleResetOwnPassword} style={styles.actionButton}>
-                    <Text style={styles.buttonText}>Reset Own Password</Text>
-                </TouchableOpacity>
                 {userRole === 'MASTER' && (
                     <>
                         <TouchableOpacity onPress={handleEditOthersDetails} style={styles.actionButton}>
                             <Text style={styles.buttonText}>Edit Others Details</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleResetOthersPassword} style={styles.actionButton}>
-                            <Text style={styles.buttonText}>Reset Others Password</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={handleEditAppearance} style={styles.actionButton}>
                             <Text style={styles.buttonText}>Edit Appearance</Text>
@@ -108,7 +99,24 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         resizeMode: "cover",
-    },
+    },logo: {
+        width: 200,
+        height: 250,
+        position: "absolute",
+        top: screenHeight * +0.08,
+        resizeMode: "contain",
+      },
+        welcomeText: {
+            textAlign: "center",
+            color: "white",
+            fontSize: 28,
+            paddingBottom: 20,
+            fontFamily: "Saira-Regular",
+            textShadowColor: "rgba(0, 0, 0, 1)",
+            textShadowOffset: { width: -1, height: 1 },
+            textShadowRadius: 10,
+            marginTop: 90,
+        },
 
 });
 

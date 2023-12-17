@@ -53,13 +53,13 @@ const ManageShifts = () => {
 
   const toggleMenu = () => {
     setMenuVisible(!isMenuVisible);
-};
+  };
 
-useFocusEffect(
-  React.useCallback(() => {
+  useFocusEffect(
+    React.useCallback(() => {
       setMenuVisible(false);
-  }, [])
-);
+    }, [])
+  );
 
   const generateNumberArray = (start, end) => {
     let numbers = [];
@@ -238,43 +238,50 @@ useFocusEffect(
   const endMinutesInputRef = useRef(null);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center", paddingTop: 0}}>
-        <BackgroundImage style={styles.backgroundImage}/>
-
-      <Text style={{ textAlign: 'center',marginTop: "20%", fontSize: 25, color: 'white' }}>Manage shifts</Text>
+    <KeyboardAvoidingView style={{ flex: 1, alignItems: "center" }}>
+      <BackgroundImage style={styles.backgroundImage} />
+      {/* Piti laittaa padding tähän väliin, muuten en saanut toimimaan: */}
+      <View style={{ paddingTop: 80 }}>
+      </View>
+      <Text style={styles.headlineText}>MANAGE SHIFTS</Text>
       {/* Button to Open Worker Selection Modal */}
-      <TouchableOpacity onPress={openModal} style={styles.button}>
-        <Text style={styles.workerText}>
+      <TouchableOpacity onPress={openModal} style={styles.actionButton}>
+        <Text style={styles.buttonText}>
           {selectedWorker
             ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
-            : "SELECT WORKER"}
+            : "Select Worker  "}
+          <Ionicons name="chevron-down-circle-outline" size={24} color="white" />
         </Text>
       </TouchableOpacity>
-
-      {/* Button to Show Date Picker Modal */}
-      <TouchableOpacity onPress={toggleDatePicker} style={styles.dateButton}>
+      {/* Button päivämäärän avaamiselle */}
+      <TouchableOpacity onPress={toggleDatePicker} style={styles.actionButton}>
         <Text style={styles.buttonText}>
-          {"SELECT DATE"}
+          {"Select Date   "}
+          <Ionicons name="chevron-down-circle-outline" size={24} color="white" />
         </Text>
       </TouchableOpacity>
-      {/* Date Picker Modal */}
+      {/* Päivämäärän valinta: */}
       <Modal
         visible={isDatePickerVisible}
         transparent={true}
         animationType="fade"
       >
-        <View style={styles.datecenteredView}>
-          <View style={styles.datemodalView}>
-            <View style={styles.dateContainer}>
-              {/* Label and Picker for Year */}
-              <Text style={styles.label}>Year</Text>
-              <View style={styles.datepickerContainer}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View style={{ textAlign: 'center' }}>
+              {/* Otsikko ja picker vuodelle */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={styles.label}>Year</Text>
+                <TouchableOpacity onPress={toggleDatePicker}>
+                  <Ionicons name="close" size={32} color="red" />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={date.year}
                   onValueChange={(itemValue) =>
                     setDate({ ...date, year: itemValue })
                   }
-                  style={styles.picker}
                 >
                   {years.map((year) => (
                     <Picker.Item
@@ -285,16 +292,14 @@ useFocusEffect(
                   ))}
                 </Picker>
               </View>
-
-              {/* Label and Picker for Month */}
+              {/* Otsikko ja picker kuukaudelle */}
               <Text style={styles.label}>Month</Text>
-              <View style={styles.datepickerContainer}>
+              <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={date.month}
                   onValueChange={(itemValue) =>
                     setDate({ ...date, month: itemValue })
                   }
-                  style={styles.picker}
                 >
                   {months.map((month) => (
                     <Picker.Item
@@ -305,16 +310,14 @@ useFocusEffect(
                   ))}
                 </Picker>
               </View>
-
-              {/* Label and Picker for Day */}
+              {/* Otsikko ja picker päivälle */}
               <Text style={styles.label}>Day</Text>
-              <View style={styles.datepickerContainer}>
+              <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={date.day}
                   onValueChange={(itemValue) =>
                     setDate({ ...date, day: itemValue })
                   }
-                  style={styles.picker}
                 >
                   {days.map((day) => (
                     <Picker.Item key={day} label={day.toString()} value={day} />
@@ -322,21 +325,26 @@ useFocusEffect(
                 </Picker>
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.buttonConfirm}
-              onPress={() => {
-                toggleDatePicker(); // This will hide the date picker modal
-                handleDateChange(); // This will update shiftDate based on the selected date
-              }}
-            >
-              <Text>CONFIRM</Text>
-            </TouchableOpacity>
+            {/* Nappi päivämäärän kuittaamiseen: */}
+            <View style={{ marginTop: 40 }}>
+              <TouchableOpacity
+                style={{ ...styles.actionButton, borderColor: "grey" }}
+                onPress={() => {
+                  toggleDatePicker(); // This will hide the date picker modal
+                  handleDateChange(); // This will update shiftDate based on the selected date
+                }}
+              >
+                <Text style={styles.buttonText}>{"Confirm   "}
+                <Ionicons name="checkmark" size={24} color="green" />  
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
       <View style={styles.timeContainer}>
         <View style={styles.timeContainer}>
-          {/* Start Time Input */}
+          {/* Kellonajan valinta: */}
           <View style={styles.timeInputContainer}>
             <TextInput
               style={styles.timeInput}
@@ -351,7 +359,6 @@ useFocusEffect(
               maxLength={2}
               placeholder="HH :"
             />
-
             <TextInput
               style={styles.timeInput}
               value={startTime.minute}
@@ -364,10 +371,7 @@ useFocusEffect(
               ref={startMinutesInputRef}
             />
           </View>
-
           <Text style={styles.dash}>-</Text>
-
-          {/* End Time Input */}
           <View style={styles.timeInputContainer}>
             <TextInput
               style={styles.timeInput}
@@ -382,7 +386,6 @@ useFocusEffect(
               maxLength={2}
               placeholder="HH :"
             />
-
             <TextInput
               style={styles.timeInput}
               value={endTime.minute}
@@ -394,7 +397,7 @@ useFocusEffect(
             />
           </View>
         </View>
-        {/* Modal for Selecting Worker */}
+        {/* Työntekijän valinta: */}
         <Modal
           animationType="fade"
           transparent={true}
@@ -404,7 +407,7 @@ useFocusEffect(
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <TextInput
-                style={styles.searchBox}
+                style={styles.workerSearchBox}
                 placeholder="Search by name"
                 value={searchText}
                 onChangeText={handleSearch}
@@ -423,9 +426,14 @@ useFocusEffect(
                   </TouchableOpacity>
                 )}
               />
-              <TouchableOpacity onPress={closeModal} style={styles.buttonClose}>
-                <Text style={styles.textStyle}>Close</Text>
-              </TouchableOpacity>
+              {/* Select worker Close-nappula: */}
+              <View style={{ marginTop: 40 }}>
+                <TouchableOpacity onPress={closeModal} style={{ ...styles.actionButton, borderColor: "grey" }}>
+                  <Text style={styles.buttonText}>Close{"   "}
+                    <Ionicons name="close" size={24} color="red" />
+                    </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
@@ -433,14 +441,14 @@ useFocusEffect(
       {!isDescriptionVisible && (
         <TouchableOpacity
           onPress={handleAddDescription}
-          style={styles.addButton}
+          style={styles.actionButton}
         >
-          <Text style={styles.buttonText}>ADD DESCRIPTION</Text>
+          <Text style={styles.buttonText}>Add Description</Text>
         </TouchableOpacity>
       )}
       {isDescriptionVisible && (
         <TextInput
-          style={styles.descriptionInput}
+          style={styles.textInputBox}
           placeholder="Comments about the shift"
           value={description}
           onChangeText={setDescription}
@@ -448,47 +456,79 @@ useFocusEffect(
         />
       )}
       {/* Button to Assign Shift */}
-      <TouchableOpacity style={styles.assignButton} onPress={handleAssignShift}>
-        <Text style={styles.buttonText}>ASSIGN SHIFT</Text>
+      <TouchableOpacity style={styles.actionButton} onPress={handleAssignShift}>
+        <Text style={styles.buttonText}>Assign Shift{"  "}
+          <Ionicons name="checkmark" size={24} color="green" />
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteShift}>
-        <Text style={styles.buttonText}>REMOVE SHIFTS</Text>
+      <TouchableOpacity style={styles.actionButton} onPress={handleDeleteShift}>
+        <Text style={styles.buttonText}>Delete Shifts{"  "}
+          <Ionicons name="arrow-forward" size={24} color="green" />
+        </Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 };
 
+const commonStyles = { //Useasti käytetyt tänne
+  text: {
+    fontFamily: "Saira-Regular"
+  },
+}
+
 const styles = StyleSheet.create({
-  deleteButton: {
-    backgroundColor: "rgba(255, 0, 0, 0.8)",
-    borderRadius: 5,
-    padding: 5,
-    marginVertical: 10,
-    alignItems: "center",
-    width: screenWidth * 0.9,
-    borderColor: "black",
-    borderWidth: 2,
-    marginTop: "20%",
+  backgroundImage: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
-  addButton: {
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    borderRadius: 5,
-    padding: 5,
-    marginVertical: 10,
-    alignItems: "center",
-    width: screenWidth * 0.9,
-    borderColor: "white",
-    borderWidth: 2,
-  },
-  dash: {
-    fontSize: screenWidth * 0.15,
-    fontFamily: "Saira-Regular",
+  headlineText: { //Otsikko
+    marginVertical: 8,
+    fontSize: screenWidth * 0.07,
+    ...commonStyles.text,
     color: "white",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
-  timeInputContainer: {
+  actionButton: { //Yleisen napin muotoilu
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    borderRadius: 5,
+    marginVertical: 8,
+    alignItems: "center",
+    width: screenWidth * 0.8,
+    borderColor: "white",
+    borderWidth: 2,
+    backgroundColor: "black"
+  },
+  buttonText: { //Yleisen napin teksti
+    fontSize: screenWidth * 0.07,
+    color: "white",
+    ...commonStyles.text,
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+  },
+  dash: { // väliviiva kellonajan boksien välissä
+    fontSize: screenWidth * 0.15,
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+    marginHorizontal: 5,
+    lineHeight: 80,
+    ...commonStyles.text,
+  },
+  timeContainer: {//kellonajan valinta 
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 70,
+  },
+  timeInputContainer: { //kellonajan valinta syöttöboksi
+    width: screenWidth * 0.36,
+    justifyContent: "center",
     flexDirection: "row",
     borderRadius: 5,
     borderColor: "black",
@@ -496,224 +536,77 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "rgba(255, 255, 255, 1)",
   },
-  timeInput: {
+  timeInput: { //kellonajan text Input
     width: screenWidth * 0.16,
     marginHorizontal: 2,
     textAlign: "center",
-    fontSize: screenWidth * 0.08,
+    fontSize: screenWidth * 0.07,
   },
-  timeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: screenWidth * 0.9,
-    alignItems: "center",
-  },
-  buttonConfirm: {
-    backgroundColor: "rgba(0, 237, 0, 0.8)",
-    borderRadius: 5,
-    padding: 15,
-    marginVertical: 10,
-    alignItems: "center",
-    width: "100%",
-    borderColor: "black",
-    borderWidth: 2,
-  },
-  picker: {
-    width: screenWidth * 0.7,
-    height: screenHeight * 0.2,
-    borderColor: "black",
+  pickerContainer: { //Päivämäärän valinta-picker
     borderWidth: 2,
     borderRadius: 5,
-  },
-  datepickerContainer: {
-    borderWidth: 2,
-    borderColor: "black",
-    borderRadius: 5,
-    width: screenWidth * 0.8,
-    height: screenHeight * 0.07,
+    height: screenHeight * 0.06,
     justifyContent: "center",
-    alignItems: "center",
-    marginBottom: "10%",
+    marginVertical: 8,
   },
-  backgroundImage: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-  },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: 0,
-  },
-  button: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderRadius: 5,
-    padding: 5,
-    marginVertical: 10,
-    alignItems: "center",
-    width: "90%",
-    borderColor: "white",
-    borderWidth: 2,
-  },
-  assignButton: {
-    backgroundColor: "rgba(77, 205, 0, 0.7)",
-    borderRadius: 5,
-    padding: 5,
-    marginVertical: 10,
-    alignItems: "center",
-    width: screenWidth * 0.9,
-    borderColor: "black",
-    borderWidth: 2,
-  },
-  dateButton: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderRadius: 5,
-    padding: 5,
-    marginVertical: 10,
-    alignItems: "center",
-    width: "90%",
-    borderColor: "white",
-    borderWidth: 2,
-  },
-  buttonText: {
-    fontSize: screenWidth * 0.09,
-    color: "white",
-    fontFamily: "Saira-Regular",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-  },
-  modalView: {
+  modalView: { // pop up modal 
     backgroundColor: "white",
     borderRadius: 5,
     padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
     elevation: 5,
-    width: "90%",
+    height: screenHeight * 0.7,
   },
-  searchBox: {
-    height: screenHeight * 0.07,
+  workerSearchBox: {
+    height: screenHeight * 0.06,
     borderWidth: 1,
-    padding: 10,
-    width: "100%",
-    marginBottom: 20,
+    textAlign: 'center',
+    marginBottom: 15,
     borderRadius: 5,
-    fontFamily: "Saira-Regular",
+    ...commonStyles.text,
     fontSize: screenWidth * 0.06,
   },
-  item: {
+  item: { //Työntekijän search-box 
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "black",
     width: "100%",
-    alignItems: "center",
+    //alignItems: "center", nimi teksti keskelle mikäli halutaan
   },
-  itemText: {
-    fontSize: screenWidth * 0.08,
-    fontFamily: "Saira-Regular",
+  itemText: { //Työntekijän nimien listaus-teksti
+    fontSize: screenWidth * 0.07,
+    ...commonStyles.text,
   },
-  buttonClose: {
-    backgroundColor: "rgba(205, 0, 0, 1)",
-    borderRadius: 5,
-    padding: 10,
-    elevation: 2,
-    borderColor: "black",
-    borderWidth: 2,
-    marginTop: 20,
-    width: "80%",
-    alignItems: "center",
-  },
-  textStyle: {
-    color: "white",
-    textAlign: "center",
-    fontFamily: "Saira-Regular",
-    fontSize: 18,
-  },
-  descriptionInput: {
-    height: screenHeight * 0.12,
-    width: "90%",
+  textInputBox: { // vuoron kuvaus tekstisyöttö
+    height: screenHeight * 0.07,
+    width: screenWidth * 0.8,
     borderRadius: 5,
     borderColor: "black",
+    textAlign: 'center',
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderWidth: 2,
-    marginBottom: "10%",
+    marginBottom: "1%",
     paddingHorizontal: 10,
     fontSize: screenWidth * 0.06,
-    fontFamily: "Saira-Regular",
-    alignContent: "center",
-    textAlignVertical: "top",
+    ...commonStyles.text,
+    marginVertical: 8,
   },
-  label: {
-    fontSize: screenWidth * 0.06,
-    fontFamily: "Saira-Regular",
+  label: { // Year, month, day tekstit
+    fontSize: screenWidth * 0.07,
+    ...commonStyles.text,
     marginBottom: 5,
   },
   dateContainer: {
     width: "100%",
     alignItems: "center",
   },
-  datecenteredView: {
+  centeredView: { //Pop up ikkunat
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
   },
-  datemodalView: {
-    backgroundColor: "white",
-    borderRadius: 5,
-    padding: 20,
-    alignItems: "center",
-    width: "90%",
-  },
-  menubutton: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    padding: 10,
-},
-overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-},
-menuContainer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    width: '75%',
-    height: '100%',
-    backgroundColor: 'white',
-},
-workerText: {
-  
-  fontSize: screenWidth * 0.09,
-  color: "white",
-  fontFamily: "Saira-Regular",
-  textShadowColor: "rgba(0, 0, 0, 1)",
-  textShadowOffset: { width: -1, height: 1 },
-  textShadowRadius: 10,
-  paddingLeft: 20,
-},
-keyboardAvoidingContainer: {
-  flex: 1,
-  justifyContent: 'center',
-},
+
 });
 
 export default ManageShifts;

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { Dimensions, Image, StyleSheet, View } from 'react-native';
+import { DeviceEventEmitter, Dimensions, Image, StyleSheet, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import TopBarComponent from './Components/TopBarComponent';
 import MainAppNavigator from './Components/MainAppNavigator';
@@ -16,16 +16,33 @@ const Stack = createStackNavigator();
 
 export default function App() {
     const [hasLoggedIn, setHasLoggedIn] = React.useState(false); // triggeröi kumpi navigaattori käytössä returnissa
-    const [userData, setUserData] = React.useState(null); // käyttäjän tiedontallennukseen ja välittämiseen
+    const [userData, setUserData] = React.useState({}); // käyttäjän tiedontallennukseen ja välittämiseen
     const [firstLoad, setFirstLoad] = React.useState(true); // blokkaamaan splash.js jos on jo käynnistetty
+
+    useEffect (() => {
+      const firstLoadListener = DeviceEventEmitter.addListener('firstLoad', handleFirstLoad);
+      return () => {
+        firstLoadListener.remove();
+      }
+    } ,[]);
+
+    useEffect (() => {
+      console.log('userData is now ', userData);
+    }, [userData]);
+
 
     const handleFirstLoad = () => {
         setFirstLoad(false);
+        console.log('firstLoad on false, splash.js blokattu');
     }
 
     const handleLogin = (loginResponse) => { 
         setHasLoggedIn(true);
         setUserData(loginResponse);
+    }
+
+    const getUserData = () => {
+        return userData;
     }
 
     const handleLogOut = () => {
@@ -43,7 +60,6 @@ export default function App() {
         'Saira-Regular': require('./assets/fonts/Saira-Regular.ttf'),
     });
 
-    
 
     return (    // IMAGE on default taustakuva, yläpalkki pysyy vihreänä navigaattorin taustakuva vaihtuu jos on, jos ei niin default
      
@@ -57,16 +73,16 @@ export default function App() {
               <View style={{flex: 1}}>
               <GestureHandlerRootView style={{backgroundColor: 'transparent',}}>
               
-              <View style={{top: 0, left:0, width: '100%', height: '10%', backgroundColor: 'transparent', padding: 0, margin: 0,}}> 
-                <TopBarComponent handleLogout={handleLogOut} userRole={userData?.role} /> 
+              <View style={{top: 0, width: '100%', height: screenHeight*0.1, backgroundColor: 'rgba(31,27,24,255)', borderBottomColor:'rgba(143,138,134,255)', borderBottomWidth: 2, padding: 0, margin: 0,}}> 
+                <TopBarComponent handleLogout={handleLogOut} userRole={userData?.role} companyName={userData?.companyname} /> 
               </View>
               </GestureHandlerRootView>
-              
-                <MainAppNavigator screenProps={{ userData: userData, handleLogout: handleLogOut}}/>
+                
+                <MainAppNavigator handleLogin={handleLogin} handleLogout={handleLogOut} setUserData={setUserData} userData={userData} getUserData={getUserData}/>
                 </View>
               </>
           ) : (
-              <AppEntryNavigator handleLogin={handleLogin} handleLogOut={handleLogOut} setUserData={setUserData} handleFirstLoad={handleFirstLoad} firstLoad={firstLoad} />
+              <AppEntryNavigator handleLogin={handleLogin} handleLogOut={handleLogOut} setUserData={setUserData} firstLoad={firstLoad} />
           )}
           
         </View>
@@ -83,9 +99,9 @@ const styles = StyleSheet.create({
   backgroundImage: {
     position: 'absolute',
     width: screenWidth,
-    height: screenHeight,
     resizeMode: 'cover',
     zIndex: -1,
+    bottom: 0,
   },
   maincontainer: {
     flex: 1,

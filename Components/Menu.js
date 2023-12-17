@@ -11,10 +11,11 @@ import {
   Dimensions,
 } from "react-native";
 
-export default function Menu({ userRole, toggleMenu}) {
+export default function Menu({ userRole, toggleMenu, companyName}) {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigation = useNavigation();
+
 
   // useEffect to handle re-rendering when the Menu becomes visible
   useEffect(() => {
@@ -53,15 +54,16 @@ export default function Menu({ userRole, toggleMenu}) {
   let menuItems = [];
   if (userRole === "WORKER") {
     menuItems = [
-      { label: "CLOSE", icon: "close"},
+      { label: companyName, isCompanyName: true, icon: "business" },
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
       { label: "MY HISTORY", icon: "refresh" },
       { label: "SETTINGS", icon: "settings" },
+      { label: "CLOSE", icon: "close"},
     ];
   } else if (userRole === "SUPERVISOR") {
     menuItems = [
-      { label: "CLOSE", icon: "close"},
+      { label: companyName, isCompanyName: true, icon: "business" },
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
       { label: "MY HISTORY", icon: "refresh" },
@@ -69,10 +71,12 @@ export default function Menu({ userRole, toggleMenu}) {
       { label: "EMPLOYEE HISTORY", icon: "folder" },
       { label: "MANAGE SHIFTS", icon: "build" },
       { label: "SETTINGS", icon: "settings" },
+      { label: "CLOSE", icon: "close"},
     ];
   } else if (userRole === "MASTER") {
     menuItems = [
-      { label: "CLOSE", icon: "close"},
+      { label: companyName, isCompanyName: true, icon: "business" },
+    
       { label: "REPORT HOURS", icon: "time" },
       { label: "MY SHIFTS", icon: "calendar" },
       { label: "MY HISTORY", icon: "refresh" },
@@ -81,6 +85,7 @@ export default function Menu({ userRole, toggleMenu}) {
       { label: "EMPLOYEE HISTORY", icon: "folder" },
       { label: "EDIT EMAILS", icon: "mail" },
       { label: "SETTINGS", icon: "settings" },
+      { label: "CLOSE", icon: "close"},
      
     ];
   }
@@ -88,16 +93,18 @@ export default function Menu({ userRole, toggleMenu}) {
   return (
     <KeyboardAvoidingView style={styles.container}>
       <View style={styles.labelsContainer}>
-        {menuItems.map((menuItem, index) => (
-      <TouchableOpacity
-        style={styles.menuItem}
-        key={index}
-        onPress={() => {
-          handlePress(menuItem.label);
-          toggleMenu();
-        }}
-        >
-        <Ionicons
+      {menuItems.map((menuItem, index) => (
+  <TouchableOpacity
+    style={styles.menuItem}
+    key={index}
+    onPress={() => {
+      if (!menuItem.isCompanyName) {
+        handlePress(menuItem.label);
+        toggleMenu();
+      }
+    }}
+  >
+    <Ionicons
       name={menuItem.icon}
       color={menuItem.label === "CLOSE" ? "red" : "white"}
       style={[
@@ -105,7 +112,9 @@ export default function Menu({ userRole, toggleMenu}) {
         menuItem.icon === "refresh" ? styles.flipIcon : null,
       ]}
     />
-    <Text style={styles.label}>{menuItem.label}</Text>
+    <Text style={[styles.label, menuItem.isCompanyName ? styles.companyName : null]}>
+      {menuItem.label}
+    </Text>
   </TouchableOpacity>
 ))}
       </View>
@@ -122,7 +131,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#002233",
+
+    backgroundColor: "rgba(31,27,24,255)",
+    borderRightColor: "rgba(143,138,134,255)",
+    borderRightWidth: 2.5,
+
+  }, companyName: {
+    fontWeight: "bold",
   },
   labelsContainer: {
     paddingTop: 0,
@@ -132,6 +147,7 @@ const styles = StyleSheet.create({
     width: "90%",
     height: screenHeight,
   },
+
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -150,7 +166,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: screenWidth * 0.06,
     fontFamily: "Saira-Regular",
-    color: "white",
+    color: "rgba(143,138,134,255)",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,

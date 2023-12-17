@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { TouchableOpacity, Alert, StyleSheet, DeviceEventEmitter } from 'react-native';
+import { TouchableOpacity, Alert, StyleSheet, DeviceEventEmitter, Dimensions } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -18,6 +18,7 @@ const Logout = ({logOut}) => {
       logOutListener.remove();
     }
   }, []);
+  
 
   const handleLogout = async () => {
     try {
@@ -30,12 +31,13 @@ const Logout = ({logOut}) => {
         throw new Error('Token was not removed from storage');
       }
 
-      // jos löytyy refresh token, poista sekin -tero
-      const hasRefreshToken = await RefreshTokenCheck();
-      if(hasRefreshToken) {
+      // jos löytyy refresh token, poista sekin. While loop jotta varmasti lähtee -tero
+      let hasRefreshToken = await RefreshTokenCheck();
+      while(hasRefreshToken) {
         await removeRefreshToken();
+        hasRefreshToken = await RefreshTokenCheck();
       }
-
+  
       // katso että refresh token poistui -tero
       const refreshTokenAfterLogout = await RefreshTokenCheck();
       if (refreshTokenAfterLogout) {
@@ -84,17 +86,17 @@ const Logout = ({logOut}) => {
 
   return (
     <TouchableOpacity style={styles.logoutbutton} onPress={handleLogout}>
-      <Ionicons name="log-in-outline" size={45} color="white" />
+      <Ionicons name="log-in-outline" size={45} color="rgba(143,138,134,255)" />
     </TouchableOpacity>
   );
 };
+const containerH = Dimensions.get('window').height * 0.1;
 
 const styles = StyleSheet.create({
     logoutbutton: {
         position: 'absolute',
-        top: 20,
         right: 20,
-        padding: 10,
+        paddingTop: containerH * 0.35,
         backgroundColor: 'transparent',
       }
     });

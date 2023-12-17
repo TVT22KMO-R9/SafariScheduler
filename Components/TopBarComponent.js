@@ -8,7 +8,7 @@ import { Dimensions, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function TopBarComponent({handleLogout, userRole}){
+export default function TopBarComponent({handleLogout, userRole, companyName}){
     const [isMenuVisible, setMenuVisible] = React.useState(false);
 
     const toggleMenu = () => {
@@ -24,7 +24,7 @@ export default function TopBarComponent({handleLogout, userRole}){
     return (
         <View style={styles.container}>
            <TouchableOpacity onPress={toggleMenu} style={styles.menu}>
-            <Ionicons name="menu" size={45} color="white" />
+            <Ionicons name="menu" size={45} color="rgba(143,138,134,255)" />
             </TouchableOpacity>
                 <Modal
                 animationType="slide"
@@ -34,7 +34,7 @@ export default function TopBarComponent({handleLogout, userRole}){
                 >
                 <View style={styles.modalContainer}>
                     <View style={styles.menuContainer}>
-                    <Menu userRole={userRole} toggleMenu={toggleMenu}/>
+                    <Menu userRole={userRole} toggleMenu={toggleMenu} companyName={companyName}/>
                     </View>
                     <TouchableWithoutFeedback onPress={toggleMenu}>
                     <View style={styles.overlay} />
@@ -50,6 +50,7 @@ export default function TopBarComponent({handleLogout, userRole}){
 const window = Dimensions.get('window');
 const screenWidth = window.width;
 const screenHeight = window.height;
+const containerH = Dimensions.get('window').height * 0.1;
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
@@ -57,11 +58,15 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
         flex: 1,
         width: screenWidth,
-        height: 100,
+        height: screenHeight * 0.1,
         position: 'absolute',
         top: 0,
-        zIndex: 1,
-        backgroundColor: 'transparent',
+        zIndex: 10,
+        backgroundColor: 'rgba(31,27,24,255)',
+        borderBottomColor: 'rgba(143,138,134,255)',
+        borderBottomWidth: 2.5,
+        padding: 0,
+        margin: 0,
     },
     overlay: {
         flex: 1,
@@ -83,9 +88,8 @@ const styles = StyleSheet.create({
         },
       menu:{
         position: 'absolute',
-        top: 20,
         left: 20,
-        paddingTop: 14,
+        paddingTop: containerH * 0.35,
 
       }
     });

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Image, StyleSheet, Button, Text } from "react-native";
+import { View, Image, StyleSheet, Button, Text, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native";
 const Welcome = ({ navigation }) => {
   return (
@@ -11,7 +11,7 @@ const Welcome = ({ navigation }) => {
       <Image source={require("../assets/logo.png")} style={styles.logo} />
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={styles.loginButton}
+          style={styles.registerButton}
           onPress={() => navigation.navigate("Login")}
         >
           <Text style={styles.buttonText}>LOGIN</Text>
@@ -27,6 +27,8 @@ const Welcome = ({ navigation }) => {
   );
 };
 
+const screenWidth = Dimensions.get("window").width;
+const screenHeight = Dimensions.get("window").height;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -65,12 +67,12 @@ const styles = StyleSheet.create({
   registerButton: {
     marginBottom: 30,
     marginTop: 50,
-    width: 200,
-    height: 90,
+    width: screenWidth * 0.8,
+    height: screenHeight * 0.1,
     borderRadius: 5,
-    backgroundColor: "rgba(0, 130, 255, 0.7)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     borderWidth: 2,
-    borderColor: "black",
+    borderColor: "white",
     justifyContent: "center",
     alignItems: "center",
   },

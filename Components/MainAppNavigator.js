@@ -11,17 +11,17 @@ import EditEmails from '../Screens/EditEmails';
 import UploadImgScreen from '../Screens/UploadImgScreen';
 import Settings from '../Screens/Settings';
 import UpdatePasswordScreen from '../Screens/UpdatePassword';
-import ResetOthersPassword from '../Screens/ResetOthersPassword';
-
-
+import OtherHistory from '../Screens/OthersHistory';
+import OtherShifts from '../Screens/OtherShifts';
+import EditOthersDetails from '../allsettings/EditOthersDetails';
+import EditOwnDetails from '../allsettings/EditOwnDetails';
+import EditRoles from '../Screens/EditRoles';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const Stack = createStackNavigator();
 
-export default function MainAppNavigator() {
+export default function MainAppNavigator({handleLogin, handleLogout, setUserData, userData, getUserData}) {
     
-
-
-    // TODO: pass handleLogin and handleLogout to the screens that need them
 
     return (
         <Stack.Navigator initialRouteName="ShiftScreen">
@@ -76,12 +76,34 @@ export default function MainAppNavigator() {
                 options={{ headerShown: false }}
             />
             <Stack.Screen
-                name="ResetOthersPassword"
-                component={ResetOthersPassword}
+
+                name="OthersHistory"
+                component={OtherHistory}
                 options={{ headerShown: false }}
             />
-            
-          
+            <Stack.Screen
+                name="OtherShifts"
+                component={OtherShifts}
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+                name="EditOwnDetails"
+                component={EditOwnDetails}
+                options={{ headerShown: false }}
+                initialParams={{ userData: userData, handleLogout: handleLogout }}
+            />
+            <Stack.Screen
+                name="EditOthersDetails"
+                component={EditOthersDetails}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="EditRoles"
+                component={EditRoles}
+                options={{ headerShown: false }}
+                initialParams={{currentUserRole: userData?.role, currentUserId: userData?.userId}}
+            />
         </Stack.Navigator>
     )
 }
