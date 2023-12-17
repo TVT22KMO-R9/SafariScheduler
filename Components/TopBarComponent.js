@@ -24,7 +24,7 @@ export default function TopBarComponent({handleLogout, userRole}){
     return (
         <View style={styles.container}>
            <TouchableOpacity onPress={toggleMenu} style={styles.menu}>
-            <Ionicons name="menu" size={45} color="white" />
+            <Ionicons name="menu" size={45} color="rgba(143,138,134,255)" />
             </TouchableOpacity>
                 <Modal
                 animationType="slide"
@@ -60,8 +60,12 @@ const styles = StyleSheet.create({
         height: 100,
         position: 'absolute',
         top: 0,
-        zIndex: 1,
-        backgroundColor: 'transparent',
+        zIndex: 10,
+        backgroundColor: 'rgba(31,27,24,255)',
+        borderBottomColor: 'rgba(143,138,134,255)',
+        borderBottomWidth: 15.5,
+        
+
     },
     overlay: {
         flex: 1,

@@ -16,7 +16,7 @@ const Home = (userRole) => {
 
   return (
     <TouchableOpacity style={styles.logoutbutton} onPress={navigateToHome}>
-      <Ionicons name="home-outline" size={40} color="white" />
+      <Ionicons name="home-outline" size={40} color="rgba(143,138,134,255)" />
     </TouchableOpacity>
   );
 };  

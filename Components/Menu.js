@@ -122,7 +122,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#002233",
+    backgroundColor: "rgba(31,27,24,255)",
+    borderRightColor: "rgba(143,138,134,255)",
+    borderRightWidth: 2,
   },
   labelsContainer: {
     paddingTop: 0,
@@ -150,7 +152,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: screenWidth * 0.06,
     fontFamily: "Saira-Regular",
-    color: "white",
+    color: "rgba(143,138,134,255)",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
