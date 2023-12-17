@@ -122,9 +122,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+
     backgroundColor: "rgba(31,27,24,255)",
     borderRightColor: "rgba(143,138,134,255)",
     borderRightWidth: 2,
+
   },
   labelsContainer: {
     paddingTop: 0,

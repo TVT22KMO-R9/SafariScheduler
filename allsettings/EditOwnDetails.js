@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState,} from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity,
-    Modal, TouchableWithoutFeedback, Image,
-    TextInput, Alert, ScrollView,
-    KeyboardAvoidingView, FlatList,
+    TextInput, Alert,
 } from 'react-native';
 import { useFocusEffect,} from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons } from "@expo/vector-icons";
-import Menu from '../Components/Menu';
-import Logout from '../Components/Logout';
-import Home from '../Components/Home';
 import { WORKERS, SERVER_BASE_URL, EDIT_OWN } from '@env'
 import BackgroundImage from '../utility/BackGroundImage';
 
@@ -18,12 +12,12 @@ import BackgroundImage from '../utility/BackGroundImage';
 
 const EditOwnDetails = ({route}) => {
     const [isMenuVisible, setMenuVisible] = useState(false);
-    const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
+    const [isEditOpen, setisEditOpen] = useState(false);
     const [newEmail, setNewEmail] = useState('');
-    const [isNewFirstNameVisible, setIsNewFirstNameVisible] = useState(false);
     const [newFirstName, setNewFirstName] = useState('');
-
-    const { userData, setUserData } = route.params;
+    const [newLastName, setNewLastName] = useState('');
+    const [newNumber, setNewNumber] = useState('');
+    const { userData, handleLogout } = route.params;
 
 
     const toggleMenu = () => {
@@ -31,8 +25,8 @@ const EditOwnDetails = ({route}) => {
     };
     
     //Muuttaa add email-napin TextInsertiksi
-    const handleNewEmailButton = () => {
-        setIsNewEmailVisible(true);
+    const handleNewInfoButton = () => {
+        setisEditOpen(true);
     };
 
     const validateEmailFormat = (email) => {
@@ -42,97 +36,87 @@ const EditOwnDetails = ({route}) => {
  
 
     //Edit email
-    const EditEmail = async () => {
+    const EditInfo = async () => {
         try {
             const authToken = await AsyncStorage.getItem("userToken");
             if (!authToken) {
                 Alert.alert("Error", "Authentication token not found");
                 return;
             }
-            const emailData = {
-                email: newEmail.toLowerCase(),
-                role: selectedRole.value.toUpperCase()
-            };
-            if (!validateEmailFormat(emailData.email)) {
-                Alert.alert("Error", "Invalid email format");
+            const updatedData = {};
+
+            if (newEmail && newEmail !== userData.email) {
+                if (!validateEmailFormat(newEmail)) {
+                    Alert.alert("Error", "Invalid email format");
+                    return;
+                }
+                updatedData.email = newEmail.toLowerCase();
+            }
+    
+            if (newFirstName && newFirstName !== userData.firstName) {
+                updatedData.firstName = newFirstName;
+            }
+    
+            if (newLastName && newLastName !== userData.lastName) {
+                updatedData.lastName = newLastName;
+            }
+    
+            if (newNumber && newNumber !== userData.phoneNumber) {
+                updatedData.phoneNumber = newNumber;
+            }
+            if (Object.keys(updatedData).length === 0) {
+                Alert.alert("Info not modified", "No changes detected");
+                setisEditOpen(false);
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${SERVER_BASE_URL}${EDIT_OWN}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`
+                        Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify(emailData),
+                    body: JSON.stringify(updatedData),
                 });
-                console.log(emailData)
+
                 if (response.ok) {
-                    Alert.alert("Email edited succesfully")
+                    Alert.alert(
+                        "Info edited successfully",
+                        "You have to logout because of reasons",
+                        [
+                            {
+                                text: "I submit to my faith",
+                                onPress: () => {
+                                    handleLogout(); // Call handleLogout when OK is pressed
+                                },
+                            },
+                        ],
+                        { cancelable: false }
+                    );
                 } else {
                     const errorText = await response.text();
-                    Alert.alert("Error", errorText || "Failed to edit email");
+                    Alert.alert("Error", errorText || "Failed to edit info");
                 }
             } catch (error) {
-                Alert.alert("Error adding email", error.message || "Unknown error");
+                Alert.alert("Error editing info", error.message || "Unknown error");
             }
-            setIsNewEmailVisible(false);
-            setNewEmail('') //nollaa tekstikentät napin painalluksen jälkeen
+
+            setisEditOpen(false);
+            setNewEmail('');
+            setNewFirstName('');
+            setNewLastName('');
+            setNewNumber('');
         } catch (error) {
             console.error('Async function error:', error.message || "Unknown error");
         }
     };
-
-    const EditFirstName = async () => {
-        try {
-            const authToken = await AsyncStorage.getItem("userToken");
-            if (!authToken) {
-                Alert.alert("Error", "Authentication token not found");
-                return;
-            }
-            const firstNameData = {
-                firstName: newName.toLowerCase(),
-                role: selectedRole.value.toUpperCase()
-            };
-            if (!validateEmailFormat(firstNameData
-                .firstName)) {
-                Alert.alert("Error", "Invalid name format");
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${SERVER_BASE_URL}${EDIT_OWN}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(firstNameData),
-                });
-                console.log(firstNameData)
-                if (response.ok) {
-                    Alert.alert("Name edited succesfully")
-                } else {
-                    const errorText = await response.text();
-                    Alert.alert("Error", errorText || "Failed to edit name");
-                }
-            } catch (error) {
-                Alert.alert("Error adding name", error.message || "Unknown error");
-            }
-            setIsNewFirstNameVisible(false);
-            setNewFirstName('') //nollaa tekstikentät napin painalluksen jälkeen
-        } catch (error) {
-            console.error('Async function error:', error.message || "Unknown error");
-        }
-    };
-
 
     //Aktivoituu kun screen tulee näkyviin. Muuten tekstikentät jää auki, ja data näkyviin yms.
     useFocusEffect(
         React.useCallback(() => {
             setMenuVisible(false)
-            setIsNewEmailVisible(false)
+            setisEditOpen(false)
             setNewEmail('')
         }, [])
     );
@@ -140,128 +124,72 @@ const EditOwnDetails = ({route}) => {
     return (
         <View style={styles.container}>
               <BackgroundImage style={styles.backgroundImage}/>
-              <ScrollView style={styles.scrollView}>
+              <Text style={styles.infoText}>YOUR INFO</Text>
+              <View style={styles.scrollView}>
               {userData && (
                     <View style={styles.userDataContainer}>
                         <Text style={styles.userDataText}>Role: {userData.role}</Text>
                         <Text style={styles.userDataText}>Email: {userData.email}</Text>
                         <Text style={styles.userDataText}>First name: {userData.firstName}</Text>
                         <Text style={styles.userDataText}>Last name: {userData.lastName}</Text> 
-                        <Text style={styles.userDataText}>Number: {userData.phoneNumber}</Text>
+                        <Text style={styles.userDataText}>Phone number: {userData.phoneNumber}</Text>
                     </View>
             )}
-        </ScrollView>
-            <View style={{ paddingTop: 10 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>EDIT EMAIL</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
+                </View>
+                        {!isEditOpen && (
+                        <TouchableOpacity onPress={handleNewInfoButton} style={styles.actionButton}>
+                        <Text style={styles.buttonText}>Edit your info</Text>
+                        </TouchableOpacity>
+                    )}
+                    {isEditOpen && (
+                        <>
+                    <View>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder="Modify email"
+                            placeholder={userData.email}
                             keyboardType="email-address"
                             autoCapitalize="none"
                             value={newEmail}
                             onChangeText={setNewEmail}
                         />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
+                    </View>
+                    <View>
+                        <TextInput
+                            style={styles.emailInput}
+                            placeholder={userData.firstName}
+                            value={newFirstName}
+                            onChangeText={setNewFirstName}
+                        />
+                    </View>
+                    <View>
+                        <TextInput
+                            style={styles.emailInput}
+                            placeholder={userData.lastName}
+                            value={newLastName}
+                            onChangeText={setNewLastName}
+                        />
+                    </View>
+                    <View>
+                        <TextInput
+                            style={styles.emailInput}
+                            placeholder={userData.phoneNumber}
+                            keyboardType="phone-pad"
+                            value={newNumber}
+                            onChangeText={setNewNumber}
+                        />
+                    </View>
                     </>
-                )}  
+            )}
+            {isEditOpen && (
+                <TouchableOpacity
+                style={{ ...styles.actionButton, backgroundColor: 'green' }}
+                onPress={EditInfo}
+                >
+                <Text style={styles.confirmText}>CONFIRM</Text>
+                </TouchableOpacity>
+            )}
             </View>
-            <View style={{ paddingTop: 10 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>EDIT FIRST NAME</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Modify first name"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={newEmail}
-                            onChangeText={setNewEmail}
-                        />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditFirstName}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </>
-                )}  
-            </View> 
-            <View style={{ paddingTop: 10 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>EDIT LAST NAME</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Modify email"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={newEmail}
-                            onChangeText={setNewEmail}
-                        />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </>
-                )}  
-            </View> 
-            <View style={{ paddingTop: 10 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>EDIT NUMBER</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Modify email"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={newEmail}
-                            onChangeText={setNewEmail}
-                        />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </>
-                )}  
-            </View>
-             
-        </View>
-    );
+  );
 };
 
 const styles = StyleSheet.create({
@@ -299,17 +227,19 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginVertical: 6,
         alignItems: "center",
-        width: screenWidth * 0.9,
+        width: screenWidth * 0.8,
         borderColor: "white",
         borderWidth: 2,
     },
     buttonText: {
-        fontSize: screenWidth * 0.07,
+        fontSize: screenWidth * 0.05,
         color: "white",
         fontFamily: "Saira-Regular",
         textShadowColor: "rgba(0, 0, 0, 1)",
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 10,
+        paddingTop:12,
+        paddingBottom:12,
     },
     emailInput: {
         height: screenHeight * 0.07,
@@ -323,28 +253,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         fontSize: screenWidth * 0.06,
         fontFamily: "Saira-Regular",
-
-    },
-    pickerButton: { //tässä samat asetukset kuin yllä, mutta tekstin keskittämiseen viimeinen rivi
-        height: screenHeight * 0.07,
-        width: screenWidth * 0.9,
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
-        borderRadius: 5,
-        borderColor: "black",
-        borderWidth: 2,
-        marginBottom: "1%",
-        paddingHorizontal: 10,
-        fontSize: screenWidth * 0.06,
-        fontFamily: "Saira-Regular",
-        textAlign: 'center',
-        paddingVertical: (screenHeight * 0.05 - screenWidth * 0.06) / 2,
     },
     scrollView: { //User Data
-        maxHeight: 300, // Set a maximum height for the scrollable box
         marginVertical: 10,
         paddingHorizontal: 20,
     },
     userDataContainer: {
+        paddingTop: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#CCCCCC',
         paddingBottom: 10,
@@ -353,19 +268,25 @@ const styles = StyleSheet.create({
     userDataText: {
         color: 'white',
         fontFamily: "Saira-Regular",
-        fontSize: screenWidth * 0.05,
-    },
-    pickerStyle: {
-        backgroundColor: "white",
-        borderWidth: 1,
-        borderColor: "black",
-        borderRadius: 5,
-        width: screenWidth * 0.9,
-        height: screenHeight * 0.07,
-        marginBottom: "1%",
         fontSize: screenWidth * 0.06,
+    },
+    confirmText: {
+        fontSize: screenWidth * 0.07,
+        color: "white",
         fontFamily: "Saira-Regular",
-        color: "black",
+        textShadowColor: "rgba(0, 0, 0, 1)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10,
+        paddingBottom:10,
+        paddingTop:10,
+    },
+    infoText: {
+        fontSize: screenWidth * 0.10,
+        color: "white",
+        fontFamily: "Saira-Regular",
+        textShadowColor: "rgba(0, 0, 0, 1)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10,
     },
 });
 

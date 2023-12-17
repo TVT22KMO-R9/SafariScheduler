@@ -21,7 +21,7 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const Stack = createStackNavigator();
 
-export default function MainAppNavigator({handleLogin, handeLogout, setUserData, userData, getUserData}) {
+export default function MainAppNavigator({handleLogin, handleLogout, setUserData, userData, getUserData}) {
     
 
     return (
@@ -97,7 +97,7 @@ export default function MainAppNavigator({handleLogin, handeLogout, setUserData,
                 name="EditOwnDetails"
                 component={EditOwnDetails}
                 options={{ headerShown: false }}
-                initialParams={{ userData: userData, setUserData: setUserData }}
+                initialParams={{ userData: userData, handleLogout: handleLogout }}
             />
             <Stack.Screen
                 name="EditOthersDetails"
