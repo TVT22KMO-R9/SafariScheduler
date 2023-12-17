@@ -165,7 +165,7 @@ function EditOthersDetails() {
         <Text style={styles.buttonText}>
           {selectedWorker
             ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
-            : "Edit employee info"}
+            : "Edit Employee Info"}
         </Text>
       </TouchableOpacity>
       <Modal
@@ -211,7 +211,7 @@ function EditOthersDetails() {
         <Text style={styles.buttonText}>
           {selectedWorker
             ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
-            : "Reset employee password"}
+            : "Reset Employee Password"}
         </Text>
       </TouchableOpacity>
       <Modal
@@ -295,6 +295,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
+        fontFamily: "Saira-Regular",
         width: screenWidth * 0.8,
         borderColor: "white",
         borderWidth: 2,

@@ -44,7 +44,8 @@ const Settings = () => {
     return (
     <View style={styles.container}>
         <BackgroundImage style={styles.backgroundImage} />
-        <Text style={styles.buttonText}>SETTINGS</Text>
+        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        <Text style={styles.welcomeText}>SETTINGS</Text>
         {userRole === 'WORKER' ? ( 
             // WORKER ohjataan suoraan edit own details
             navigation.navigate('EditOwnDetails') // <--
@@ -98,7 +99,24 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         resizeMode: "cover",
-    },
+    },logo: {
+        width: 200,
+        height: 250,
+        position: "absolute",
+        top: screenHeight * +0.08,
+        resizeMode: "contain",
+      },
+        welcomeText: {
+            textAlign: "center",
+            color: "white",
+            fontSize: 28,
+            paddingBottom: 20,
+            fontFamily: "Saira-Regular",
+            textShadowColor: "rgba(0, 0, 0, 1)",
+            textShadowOffset: { width: -1, height: 1 },
+            textShadowRadius: 10,
+            marginTop: 90,
+        },
 
 });
 
