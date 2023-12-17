@@ -11,7 +11,9 @@ import {
   ScrollView,
   Modal,
   TouchableWithoutFeedback,
-  StyleSheet
+  StyleSheet,
+  TextInput,
+  FlatList
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { EMPLOYEE_COMING_SHIFTS, SERVER_BASE_URL } from "@env";
@@ -19,14 +21,18 @@ import BackgroundImage from "../utility/BackGroundImage";
 
 const OtherShifts = () => {
   const [shifts, setShifts] = useState([]);
+  const [chosenShifts, setChosenShifts] = useState([]);
   const [isMenuVisible, setMenuVisible] = useState(false);
   const [selectedWorker, setSelectedWorker] = useState(null);
   const route = useRoute();
   const userRole = route.params?.userRole;
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [workersForModal, setWorkersForModal] = useState([]);
+  const [filteredWorkers, setFilteredWorkers] = useState([]);
 
-  const toggleMenu = () => {
-    setMenuVisible(!isMenuVisible);
-  };
+
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -59,7 +65,9 @@ const OtherShifts = () => {
       if (response.ok) {
         const data = await response.json();
         const groupedShifts = groupShiftsByUserId(data);
+        const workers = listWorkersFromResponse(data);
         setShifts(groupedShifts);
+        setWorkersForModal(workers);
 
         console.log("Shifts:", data);
       } else {
@@ -74,6 +82,50 @@ const OtherShifts = () => {
   useEffect(() => {
     fetchShifts();
   }, []);
+
+  useEffect(() => {
+    console.log("Updated chosen shifts:", chosenShifts);
+  }, [chosenShifts]);
+  
+
+  const handlePress = (worker) => {
+    setSelectedWorker(worker);
+    closeModal();
+
+   
+    const workerShifts = shifts[worker.id]?.shifts;  // haetaan työntekijän vuorot userId:llä
+    if (workerShifts) {
+      const groupedShifts = groupShiftsByMonth(Object.values(workerShifts).flat());
+      setChosenShifts(groupedShifts);
+      console.log("Chosen shifts:", groupedShifts);
+    } else {
+      setChosenShifts({}); 
+    }
+};
+
+const groupShiftsByMonth = (shiftsArray) => {
+  const grouped = {};
+  shiftsArray.forEach(shift => {
+      const monthYear = `${new Date(shift.date).getMonth()}-${new Date(shift.date).getFullYear()}`;
+      if (!grouped[monthYear]) {
+          grouped[monthYear] = [];
+      }
+      grouped[monthYear].push(shift);
+  });
+  return grouped;
+};
+
+const listWorkersFromResponse = (response) => {
+  const uniqueUserIds = [...new Set(response.map(shift => shift.userId))];
+  const workers = uniqueUserIds.map(userId => {
+    const shift = response.find(shift => shift.userId === userId);
+    const { firstName, lastName, role } = shift;
+    return { id: userId, firstName, lastName, role };
+  });
+  console.log("Workers:", workers);
+  return workers;
+};
+
 
   const groupShiftsByUserId = (shifts) => {
     const grouped = {};
@@ -101,6 +153,26 @@ const OtherShifts = () => {
     return grouped;
   };
 
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleSearch = (text) => {
+    setSearchText(text);
+    if (text) {
+      const filtered = workers.filter(worker =>
+        `${worker.firstName} ${worker.lastName}`.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredWorkers(filtered);
+    } else {
+      setFilteredWorkers(workers);
+    }
+  };
+
 
   const renderShiftsByUserId = () => {
     return Object.keys(shifts).map(userId => {
@@ -120,66 +192,45 @@ const OtherShifts = () => {
     });
   };
 
+
+
   const renderShiftsByMonth = () => {
-    if (!selectedWorker) {
+    if (!selectedWorker || !chosenShifts) {
       return null;
     }
-  
-    
-  const workerShifts = selectedWorker.shifts;
 
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1; // getMonth() returns a zero-based month
-  const currentYear = currentDate.getFullYear();
+    console.log("Renderiin tulleet vuorot:" + chosenShifts);
   
     return (
       <View>
-        <TouchableOpacity onPress={() => setSelectedWorker(null)}>
-          <Text style={styles.lastNameHeader}>
-            {selectedWorker.firstName || selectedWorker.lastName
-              ? `${selectedWorker.firstName || ''} ${selectedWorker.lastName || ''}`.trim()
-              : 'Anonymous'}
-          </Text>
-        </TouchableOpacity>
-        {Object.keys(workerShifts).map(monthYear => {
+        {Object.keys(chosenShifts).map(monthYear => {
           const [month, year] = monthYear.split('-');
-          const monthName = new Date(year, month).toLocaleString('en-US', { month: 'long' });
+          const monthName = new Date(year, month ).toLocaleString('en-US', { month: 'long' });
   
-          const monthHeader = month !== currentMonth || year !== currentYear
-            ? <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
-            : null;
-  
-
-  return (
-    <View key={monthYear}>
-      {monthHeader}
-      <View style={{alignItems: "center", justifyContent: "center"}}>
-      {workerShifts[monthYear] && workerShifts[monthYear].map(shift => {
-        const { day, weekday } = formatDate(shift.date);
-        const formattedShift = {
-          ...shift,
-          day,
-          weekday,
-          month: monthName,
-          year,
-          startTime: formatTime(shift.startTime),
-          endTime: shift.endTime && formatTime(shift.endTime),
-        };return (
-          <ShiftCard key={shift.id} shift={formattedShift} />
-        );
-      
-      })
-      }
-      </View>
-    </View>
-  );
-})}
-
-
+          return (
+            <View key={monthYear} style={{alignContent: 'center', justifyContent:'center'}}>
+              <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
+              {chosenShifts[monthYear].map(shift => {
+                const { day, weekday } = formatDate(shift.date);
+                const formattedShift = {
+                  ...shift,
+                  day,
+                  weekday,
+                  month: monthName,
+                  year,
+                  startTime: formatTime(shift.startTime),
+                  endTime: shift.endTime && formatTime(shift.endTime),
+                };
+                return <ShiftCard key={shift.id} shift={formattedShift} />;
+              })}
+            </View>
+          );
+        })}
       </View>
     );
-    
-  }
+  };
+  
+  
   
 
   useFocusEffect(
@@ -192,12 +243,59 @@ const OtherShifts = () => {
   return (
     <View style={styles.container}>
       <BackgroundImage style={styles.backgroundImage}/>
-      <ScrollView style={styles.scrollView}>
+     
+      <TouchableOpacity onPress={openModal} style={styles.button}>
+        <Text style={styles.buttonText}>
+          {selectedWorker
+            ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
+            : "SELECT WORKER"}
+        </Text>
+      </TouchableOpacity>
+      <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TextInput
+                style={styles.searchBox}
+                placeholder="Search by name"
+                value={searchText}
+                onChangeText={handleSearch}
+              />
+              <FlatList
+                data={workersForModal}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.item}
+                      onPress={() => handlePress(item)}
+                    >
+                      <Text style={styles.itemText}>
+                        {item.firstName || item.lastName 
+                          ? `${item.firstName || ''} ${item.lastName || ''}`.trim() 
+                          : 'Anonymous'}
+                        {item.role === 'WORKER' && ' (W)'}
+                        {item.role === 'SUPERVISOR' && ' (S)'}
+                        {item.role === 'MASTER' && ' (M)'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+              />
+              <TouchableOpacity onPress={closeModal} style={styles.buttonClose}>
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        
+        <ScrollView style={styles.scrollView}>
+      {selectedWorker && renderShiftsByMonth()}
+    </ScrollView>
+    
       
-      <Text style={styles.headerText}>OTHER SHIFTS</Text> 
-        {renderShiftsByUserId()}
-        {renderShiftsByMonth()}
-      </ScrollView>
     </View>
   );
 };
@@ -213,8 +311,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
+    
   }, 
   headerText: {
     textAlign: "center",
@@ -225,25 +324,6 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
-    paddingTop: screenHeight * 0.15,
-  },
-  shiftContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0)",
-    borderBottomWidth: 1,
-    borderBottomColor: "black",
-    width: Dimensions.get("window").width * 0.9,
-    alignItems: "center",
-    justifyContent: "center",
-
-  },
-  shiftText: {
-    fontSize: Dimensions.get("window").width * 0.08,
-    fontFamily: "Saira-Regular",
-    color: "white",
-    paddingHorizontal:7,
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 4,
   },
   monthHeader: {
     fontSize: Dimensions.get("window").width * 0.1,
@@ -257,12 +337,27 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   button: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    padding: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+        borderRadius: 5,
+        alignItems: "center",
+        justifyContent: "center",
+        width: screenWidth * 0.8,
+        borderColor: "white",
+        borderWidth: 2,
+        height: screenHeight * 0.07,
+        marginTop: 90,
   },
-  
+  buttonText: {
+    color: 'white',
+    fontSize: screenWidth * 0.06,
+    fontFamily: 'Saira-Regular',
+    textShadowColor: 'rgba(0, 0, 0, 1)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+    alignItems: 'center',
+
+    
+  },
   pageHeader: {
     textAlign: 'center',
     color: 'white',
@@ -286,7 +381,60 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
     textTransform: "uppercase",
-  }
+  }, centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderRadius: 5,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: "90%",
+  },
+  searchBox: {
+    height: screenHeight * 0.07,
+    borderWidth: 1,
+    padding: 10,
+    width: "100%",
+    marginBottom: 20,
+    borderRadius: 5,
+    fontFamily: "Saira-Regular",
+    fontSize: screenWidth * 0.06,
+  },
+  item: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
+    width: "100%",
+    alignItems: "center",
+  },
+  itemText: {
+    fontSize: screenWidth * 0.08,
+    fontFamily: "Saira-Regular",
+  },
+  buttonClose: {
+    backgroundColor: "rgba(205, 0, 0, 1)",
+    borderRadius: 5,
+    padding: 10,
+    elevation: 2,
+    borderColor: "black",
+    borderWidth: 2,
+    marginTop: 20,
+    width: "80%",
+    alignItems: "center",
+  },
 });
 
 export default OtherShifts;
