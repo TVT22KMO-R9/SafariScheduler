@@ -133,7 +133,9 @@ const EditOwnDetails = ({route}) => {
     return (
         <View style={styles.container}>
               <BackgroundImage style={styles.backgroundImage}/>
-              <Text style={styles.infoText}>YOUR INFO</Text>
+              <Text style={styles.infoText}>
+                {userDataToUse ? (workerData ? 'EMPLOYEE INFO' : 'YOUR INFO') : ''}
+                </Text>
               <View style={styles.scrollView}>
               {userDataToUse && (
                     <View style={styles.userDataContainer}>
@@ -147,7 +149,7 @@ const EditOwnDetails = ({route}) => {
                 </View>
                         {!isEditOpen && (
                         <TouchableOpacity onPress={handleNewInfoButton} style={styles.actionButton}>
-                        <Text style={styles.buttonText}>Edit your info</Text>
+                        <Text style={styles.buttonText}>Edit info</Text>
                         </TouchableOpacity>
                     )}
                     {isEditOpen && (
@@ -197,9 +199,11 @@ const EditOwnDetails = ({route}) => {
                 <Text style={styles.confirmText}>CONFIRM</Text>
                 </TouchableOpacity>
             )}
-            <TouchableOpacity onPress={handleResetOwnPassword} style={styles.actionButton}>
-                    <Text style={styles.buttonText}>Reset Own Password</Text>
+            {userDataToUse && !workerData && ( // Condition to hide the button if userDataToUse comes from workerData
+                <TouchableOpacity onPress={handleResetOwnPassword} style={styles.actionButton}>
+                    <Text style={styles.buttonText}>Reset password</Text>
                 </TouchableOpacity>
+                )}
             </View>
   );
 };

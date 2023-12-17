@@ -11,8 +11,6 @@ import EditEmails from '../Screens/EditEmails';
 import UploadImgScreen from '../Screens/UploadImgScreen';
 import Settings from '../Screens/Settings';
 import UpdatePasswordScreen from '../Screens/UpdatePassword';
-import ResetOthersPassword from '../Screens/ResetOthersPassword';
-
 import OtherHistory from '../Screens/OthersHistory';
 import OtherShifts from '../Screens/OtherShifts';
 import EditOthersDetails from '../allsettings/EditOthersDetails';
@@ -74,11 +72,6 @@ export default function MainAppNavigator({handleLogin, handleLogout, setUserData
             <Stack.Screen
                 name="UpdatePassword"
                 component={UpdatePasswordScreen}
-                options={{ headerShown: false }}
-            />
-            <Stack.Screen
-                name="ResetOthersPassword"
-                component={ResetOthersPassword}
                 options={{ headerShown: false }}
             />
             <Stack.Screen
