@@ -132,7 +132,6 @@ const Login = () => {
         const errorText = await response.text();
         throw new Error(`Login failed: ${response.statusText} - ${errorText}`);
       }
-      console.log(response.json());
       return await response.json();
     } catch (error) {
       console.error(error);
