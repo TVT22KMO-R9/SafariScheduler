@@ -15,14 +15,13 @@ const EditEmails = () => {
     const [isMenuVisible, setMenuVisible] = useState(false);
     const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
     const [isDeleteEmailVisible, setIsDeleteEmailVisible] = useState(false);
-    //const [roleWithEmail, setRoleWithEmail] = useState('');
     const [newEmail, setNewEmail] = useState('');
     const [deleteEmail, setDeleteEmail] = useState('');
-    const route = useRoute();
-    const userRole = route.params?.userRole;
     const [userData, setUserData] = useState([]);
     const [isPickerVisible, setPickerVisible] = useState(false);
     const [selectedRole, setSelectedRole] = useState(null);
+    
+    
 
     const toggleMenu = () => {
         setMenuVisible(!isMenuVisible);
@@ -35,11 +34,13 @@ const EditEmails = () => {
     //Muuttaa add email-napin TextInsertiksi
     const handleNewEmailButton = () => {
         setIsNewEmailVisible(true);
+        setIsDeleteEmailVisible(false);
     };
 
     //Muuttaa delete email-napin TextInsertiksi
     const handleDeleteEmailButton = () => {
-        setIsDeleteEmailVisible(true)
+        setIsDeleteEmailVisible(true);
+        setIsNewEmailVisible(false);
     }
 
     const validateEmailFormat = (email) => {
@@ -76,8 +77,6 @@ const EditEmails = () => {
         { label: 'MASTER', value: 'MASTER' },
     ];
 
-
-
     //Esimies voi lisätä sähköpostin (ja roolin) hyväksytylle listalle, jotta käyttäjän voi luoda
     const AddNewEmail = async () => {
         try {
@@ -86,12 +85,10 @@ const EditEmails = () => {
                 Alert.alert("Error", "Authentication token not found");
                 return;
             }
-
             if (!selectedRole) {
                 Alert.alert("Error", "Please select a role");
                 return;
             }
-
             const emailData = {
                 email: newEmail.toLowerCase(),
                 role: selectedRole.value.toUpperCase()
@@ -100,7 +97,6 @@ const EditEmails = () => {
                 Alert.alert("Error", "Invalid email format");
                 return;
             }
-
             try {
                 const response = await fetch(`${SERVER_BASE_URL}${WORKERS}/add`, {
                     method: 'POST',
