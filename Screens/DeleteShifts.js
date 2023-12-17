@@ -239,9 +239,15 @@ const DeleteShifts = () => {
 
       // If the delete request is successful, show a success message.
       if (response.ok) {
+        
         Alert.alert("Success", "Shift deleted successfully.");
+        console.log(response)
         // Update the state to remove the deleted shift.
-        setWorkerShifts(workerShifts.filter((shift) => shift.id !== shiftId));
+        // setWorkerShifts(workerShifts.filter((shift) => shift.id !== shiftId)); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // Close the shift details modal.
+        closeShiftDetails(); // teron fix
+        fetchAllShifts(); // Fetch all shifts again to update the list. // teron fix
+        fetchAllWorkers(); // Fetch all workers again to update the list. // teron fixi
       } else {
         // If the delete request is not successful, show an error message.
         Alert.alert("Error", "Failed to delete the shift.");
@@ -249,7 +255,8 @@ const DeleteShifts = () => {
       }
     } catch (error) {
       // If an error occurs during the delete request, show an error message.
-      Alert.alert("Error", "An error occurred.");
+      //Alert.alert("Error", "An error occurred.");
+      console.log(error);
     }
   };
 
@@ -382,13 +389,13 @@ const DeleteShifts = () => {
                 ) : null}
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
-                    style={{...styles.actionButton, width: screenWidth * 0.45}}
-                    onPress={handleDeleteShift}
+                    style={{...styles.actionButton, width: screenWidth * 0.35}}
+                    onPress={() => handleDeleteShift(selectedShift.id)}
                   >
                     <Text style={styles.buttonText}>Delete Shift</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={{...styles.actionButton, width:  screenWidth * 0.45}}
+                    style={{...styles.actionButton, width:  screenWidth * 0.35}}
                     onPress={closeShiftDetails}
                   >
                     <Text style={styles.buttonText}>Close</Text>
@@ -444,7 +451,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black"
   },
   buttonText: {
-    fontSize: screenWidth * 0.07,
+    fontSize: screenWidth * 0.055,
     color: "white",
     ...commonStyles.text,
     textShadowColor: "rgba(0, 0, 0, 1)",
@@ -464,6 +471,7 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 5,
     height: screenHeight * 0.7,
+    width: screenWidth * 0.8,
   },
   buttonClose: {
     backgroundColor: "rgba(255, 0, 0, 0.9)",
@@ -488,10 +496,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: "black",
-    width: screenWidth * 0.9,
+    width: screenWidth * 0.8,
   },
   shiftText: {
-    fontSize: screenWidth * 0.06,
+    fontSize: screenWidth * 0.045,
     ...commonStyles.text,
   },
   dateHeader: {
@@ -558,8 +566,9 @@ const styles = StyleSheet.create({
     fontSize: screenWidth * 0.06,
   },
   descriptionText: {
-    fontSize: 16,
+    fontSize: screenHeight * 0.02,
     marginVertical: 5,
+    
   },
   descriptionBox: {
     backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -568,7 +577,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: "black",
-    width: screenWidth * 0.8,
+    width: screenWidth * 0.7,
     maxHeight: screenHeight * 0.3,
   },
   breaksText: {
