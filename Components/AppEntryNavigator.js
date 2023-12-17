@@ -10,7 +10,7 @@ import CreateUser from '../Screens/CreateUser';
 
 const Stack = createStackNavigator();
 
-export default function AppEntryNavigator({handleLogin, handleLogOut, setUserData, firstLoad, handleFirstLoad}) {
+export default function AppEntryNavigator({handleLogin, handleLogOut, setUserData, firstLoad, }) {
     return (
         <Stack.Navigator initialRouteName={firstLoad ? "Splash" : "Welcome"}>
             {firstLoad && (
@@ -18,7 +18,7 @@ export default function AppEntryNavigator({handleLogin, handleLogOut, setUserDat
                     name="Splash"
                     component={Splash}
                     options={{ headerShown: false }}
-                    initialParams={{ handleFirstLoad: handleFirstLoad }}
+                   
                 />
             )}
             <Stack.Screen

@@ -155,6 +155,7 @@ const listWorkersFromResponse = (response) => {
 
   const openModal = () => {
     setModalVisible(true);
+    setFilteredWorkers(workersForModal);
   };
 
   const closeModal = () => {
@@ -164,17 +165,18 @@ const listWorkersFromResponse = (response) => {
   const handleSearch = (text) => {
     setSearchText(text);
     if (text) {
-      const filtered = workers.filter(worker =>
+      const filtered = workersForModal.filter(worker =>
         `${worker.firstName} ${worker.lastName}`.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredWorkers(filtered);
     } else {
-      setFilteredWorkers(workers);
+      setFilteredWorkers(workersForModal);
     }
   };
+  
 
 
-  const renderShiftsByUserId = () => {
+/***  const renderShiftsByUserId = () => {
     return Object.keys(shifts).map(userId => {
       const user = shifts[userId];
       return (
@@ -190,7 +192,7 @@ const listWorkersFromResponse = (response) => {
         </View>
       );
     });
-  };
+  }; */
 
 
 
@@ -243,8 +245,23 @@ const listWorkersFromResponse = (response) => {
   return (
     <View style={styles.container}>
       <BackgroundImage style={styles.backgroundImage}/>
+      {selectedWorker === null ? (
+        <View style={{justifyContent:'center', alignItems:'center'}}>
+       <Image
+          source={require("../assets/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        
+        <Text style={styles.welcomeText}>VIEW SHIFTS FOR:</Text>
+        </View>
+        ) : null}
      
-      <TouchableOpacity onPress={openModal} style={styles.button}>
+      <TouchableOpacity
+      style={[
+      styles.button,
+      { marginTop: selectedWorker !== null ? screenHeight * 0.1 : screenHeight * 0.01 }
+      ]} onPress={openModal}>
         <Text style={styles.buttonText}>
           {selectedWorker
             ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
@@ -266,7 +283,7 @@ const listWorkersFromResponse = (response) => {
                 onChangeText={handleSearch}
               />
               <FlatList
-                data={workersForModal}
+                data={filteredWorkers}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <TouchableOpacity
@@ -311,10 +328,26 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignItems: "center",
     
+  }, logo: {
+    width: 200,
+    height: 250,
+    position: "absolute",
+    top: screenHeight * +0.08,
+    resizeMode: "contain",
   }, 
+  welcomeText: {
+    textAlign: "center",
+    color: "white",
+    fontSize: 25,
+    fontFamily: "Saira-Regular",
+    marginTop: screenHeight * 0.4,
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+  },
   headerText: {
     textAlign: "center",
     color: "white",
@@ -345,7 +378,6 @@ const styles = StyleSheet.create({
         borderColor: "white",
         borderWidth: 2,
         height: screenHeight * 0.07,
-        marginTop: 90,
   },
   buttonText: {
     color: 'white',

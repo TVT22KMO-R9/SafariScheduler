@@ -97,6 +97,7 @@ const Login = () => {
       console.log('Token stored successfully');
       console.log(`User's Role: ${json.role}`);
       console.log(`User token: ${token}`);
+      console.log(json);
       // navigation.navigate('ShiftScreen', { userRole: json.role });
       login();
       setUserData(json); // tallennetaan koko vastaus userDataan niin sieltä saa settingsit ja roolit ja muut
@@ -131,7 +132,7 @@ const Login = () => {
         const errorText = await response.text();
         throw new Error(`Login failed: ${response.statusText} - ${errorText}`);
       }
-  
+      console.log(response.json());
       return await response.json();
     } catch (error) {
       console.error(error);

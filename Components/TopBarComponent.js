@@ -8,7 +8,7 @@ import { Dimensions, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function TopBarComponent({handleLogout, userRole}){
+export default function TopBarComponent({handleLogout, userRole, companyName}){
     const [isMenuVisible, setMenuVisible] = React.useState(false);
 
     const toggleMenu = () => {
@@ -34,7 +34,7 @@ export default function TopBarComponent({handleLogout, userRole}){
                 >
                 <View style={styles.modalContainer}>
                     <View style={styles.menuContainer}>
-                    <Menu userRole={userRole} toggleMenu={toggleMenu}/>
+                    <Menu userRole={userRole} toggleMenu={toggleMenu} companyName={companyName}/>
                     </View>
                     <TouchableWithoutFeedback onPress={toggleMenu}>
                     <View style={styles.overlay} />

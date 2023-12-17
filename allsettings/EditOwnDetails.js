@@ -1,7 +1,7 @@
 import React, { useState,} from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity,
-    TextInput, Alert,
+    TextInput, Alert, DeviceEventEmitter,
 } from 'react-native';
 import { useFocusEffect,} from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -87,8 +87,8 @@ const EditOwnDetails = ({route}) => {
                         [
                             {
                                 text: "I submit to my faith",
-                                onPress: () => {
-                                    handleLogout(); // Call handleLogout when OK is pressed
+                                onPress:  () => {
+                                  DeviceEventEmitter.emit('logout'); // Call handleLogout when OK is pressed
                                 },
                             },
                         ],
