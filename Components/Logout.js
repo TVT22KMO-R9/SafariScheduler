@@ -18,6 +18,7 @@ const Logout = ({logOut}) => {
       logOutListener.remove();
     }
   }, []);
+  
 
   const handleLogout = async () => {
     try {
@@ -30,12 +31,13 @@ const Logout = ({logOut}) => {
         throw new Error('Token was not removed from storage');
       }
 
-      // jos löytyy refresh token, poista sekin -tero
-      const hasRefreshToken = await RefreshTokenCheck();
-      if(hasRefreshToken) {
+      // jos löytyy refresh token, poista sekin. While loop jotta varmasti lähtee -tero
+      let hasRefreshToken = await RefreshTokenCheck();
+      while(hasRefreshToken) {
         await removeRefreshToken();
+        hasRefreshToken = await RefreshTokenCheck();
       }
-
+  
       // katso että refresh token poistui -tero
       const refreshTokenAfterLogout = await RefreshTokenCheck();
       if (refreshTokenAfterLogout) {

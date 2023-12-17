@@ -62,6 +62,14 @@ export default function ShiftScreen({screenProps}) {
   };
 
   useEffect(() => {
+    // Set default "No assigned shift" data for all boxes on component mount
+    const defaultShiftData = { description: "No assigned shift", frontPageDisplay: "No assigned shift" };
+    setBox1Data(defaultShiftData);
+    setBox2Data(defaultShiftData);
+    setBox3Data(defaultShiftData);
+  }, []);
+
+  useEffect(() => {
     const fetchBoxData = async () => {
       try {
         const authToken = await AsyncStorage.getItem('userToken');

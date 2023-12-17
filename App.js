@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { Dimensions, Image, StyleSheet, View } from 'react-native';
+import { DeviceEventEmitter, Dimensions, Image, StyleSheet, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import TopBarComponent from './Components/TopBarComponent';
 import MainAppNavigator from './Components/MainAppNavigator';
@@ -19,8 +19,17 @@ export default function App() {
     const [userData, setUserData] = React.useState({}); // käyttäjän tiedontallennukseen ja välittämiseen
     const [firstLoad, setFirstLoad] = React.useState(true); // blokkaamaan splash.js jos on jo käynnistetty
 
+    useEffect (() => {
+      const firstLoadListener = DeviceEventEmitter.addListener('firstLoad', handleFirstLoad);
+      return () => {
+        firstLoadListener.remove();
+      }
+    } ,[]);
+
+
     const handleFirstLoad = () => {
         setFirstLoad(false);
+        console.log('firstLoad on false, splash.js blokattu');
     }
 
     const handleLogin = (loginResponse) => { 
@@ -61,7 +70,7 @@ export default function App() {
               <GestureHandlerRootView style={{backgroundColor: 'transparent',}}>
               
               <View style={{top: 0, left:0, width: '100%', height: '10%', backgroundColor: 'transparent', padding: 0, margin: 0,}}> 
-                <TopBarComponent handleLogout={handleLogOut} userRole={userData?.role} /> 
+                <TopBarComponent handleLogout={handleLogOut} userRole={userData?.role} companyName={userData?.companyname} /> 
               </View>
               </GestureHandlerRootView>
                 
@@ -69,7 +78,7 @@ export default function App() {
                 </View>
               </>
           ) : (
-              <AppEntryNavigator handleLogin={handleLogin} handleLogOut={handleLogOut} setUserData={setUserData} handleFirstLoad={handleFirstLoad} firstLoad={firstLoad} />
+              <AppEntryNavigator handleLogin={handleLogin} handleLogOut={handleLogOut} setUserData={setUserData} firstLoad={firstLoad} />
           )}
           
         </View>
