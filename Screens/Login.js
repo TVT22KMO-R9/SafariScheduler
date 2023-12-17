@@ -223,7 +223,7 @@ const handleBackGroundSettings = async (newBackgroundURL) => {
               <Ionicons
                 name={rememberMe ? 'checkbox-outline' : 'square-outline'}
                 size={30}
-                color={rememberMe ? 'rgba(0, 0, 0, 1)' : 'black'}
+                color={rememberMe ? 'white' : 'white'}
               />
             </TouchableOpacity>
             <Text style={styles.label}>Remember Me</Text>
@@ -253,12 +253,12 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.6,
     paddingVertical: 10,
     paddingHorizontal: 15,
-    backgroundColor: 'rgba(0, 205, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 20,
-    borderColor: "black",
+    borderColor: "white",
     borderWidth: 2,
   },
   activityIndicator: {
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "white",
-    fontSize: screenWidth * 0.15,
+    fontSize: screenHeight * 0.07,
     fontFamily: "Saira-Regular",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
@@ -307,6 +307,7 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     marginRight: 8,
+    
   },
   checkboxText: {
     fontSize: screenWidth * 0.1,

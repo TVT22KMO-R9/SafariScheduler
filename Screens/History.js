@@ -138,7 +138,7 @@ export default function History() {
     <KeyboardAvoidingView style={styles.container}>
         <BackgroundImage style={styles.backgroundImage}/>
       <ScrollView style={styles.scrollView}>
-        <Text style={{ textAlign: 'center', color: 'white', fontSize: 25, paddingBottom: 20, paddingTop: 20 }}>My shift history</Text>
+        <Text style={styles.headerText}>MY REPORT HISTORY</Text>
         {renderShiftsByMonth()}
       </ScrollView>
     </KeyboardAvoidingView>
@@ -159,6 +159,18 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  }, headerText: {
+    textAlign: "center",
+    color: "white",
+    fontSize: 25,
+    paddingBottom: 20,
+    borderBottomColor: "white",
+    borderBottomWidth: 2,
+    fontFamily: "Saira-Regular",
+    textShadowColor: "rgba(0, 0, 0, 1)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+    marginTop: 90,
   },
   shiftContainer: {
     backgroundColor: "rgba(255, 255, 255, 0)",
