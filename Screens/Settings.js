@@ -24,7 +24,7 @@ const Settings = () => {
     };
 
     const handleEditRoles = () => {
-        //  navigation.navigate('EditRoles');
+        navigation.navigate('EditRoles');
         };
     
     const handleResetOthersPassword = () => {
@@ -47,7 +47,7 @@ const Settings = () => {
         <Text style={styles.buttonText}>SETTINGS</Text>
         {userRole === 'WORKER' ? ( 
             // WORKER ohjataan suoraan edit own details
-            navigation.navigate('ShiftScreen') // <---- TÄMÄN PITÄISI OLLA EditOwnDetails (vai mikä nimeksi tuleekaan)
+            navigation.navigate('EditOwnDetails') // <--
         ) : (
             <>
                 <TouchableOpacity onPress={handleEditOwnDetails} style={styles.actionButton}>

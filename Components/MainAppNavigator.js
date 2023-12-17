@@ -15,6 +15,7 @@ import OtherHistory from '../Screens/OthersHistory';
 import OtherShifts from '../Screens/OtherShifts';
 import EditOthersDetails from '../allsettings/EditOthersDetails';
 import EditOwnDetails from '../allsettings/EditOwnDetails';
+import EditRoles from '../Screens/EditRoles';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const Stack = createStackNavigator();
@@ -96,6 +97,12 @@ export default function MainAppNavigator({handleLogin, handleLogout, setUserData
                 name="EditOthersDetails"
                 component={EditOthersDetails}
                 options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="EditRoles"
+                component={EditRoles}
+                options={{ headerShown: false }}
+                initialParams={{currentUserRole: userData?.role, currentUserId: userData?.userId}}
             />
         </Stack.Navigator>
     )
