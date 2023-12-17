@@ -76,7 +76,7 @@ const EditEmails = () => {
         { label: 'MASTER', value: 'MASTER' },
     ];
 
-    
+
 
     //Esimies voi lisätä sähköpostin (ja roolin) hyväksytylle listalle, jotta käyttäjän voi luoda
     const AddNewEmail = async () => {
@@ -100,7 +100,7 @@ const EditEmails = () => {
                 Alert.alert("Error", "Invalid email format");
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${SERVER_BASE_URL}${WORKERS}/add`, {
                     method: 'POST',
@@ -211,92 +211,95 @@ const EditEmails = () => {
 
     return (
         <View style={styles.container}>
-              <BackgroundImage style={styles.backgroundImage}/>
-            <View style={{ paddingTop: 100 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>ADD NEW EMAIL</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Add new approved email"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={newEmail}
-                            onChangeText={setNewEmail}
-                        />
-                        <View style={styles.centeredContainer}>
-                            {/* Button to open the picker */}
-                            <TouchableOpacity onPress={() => setPickerVisible(true)}>
-                                <Text style={styles.pickerButton}>
-                                <Ionicons name="chevron-down-circle-outline" size={24} color="black" />
-                                    {selectedRole ? selectedRole.label : 'Select Role'}</Text>
-                                    
-                            </TouchableOpacity>
-
-                        </View>
-
-                        {/* Custom picker */}
-                        <CustomPicker
-                            visible={isPickerVisible}
-                            data={roles}
-                            selectedItem={selectedRole}
-                            onSelect={handleRoleSelection}
-                            onClose={() => setPickerVisible(false)}
-                        />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={AddNewEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </>
-                )}
-                {/* Remove email-toiminta */}
-                {!isDeleteEmailVisible && (
-                    <TouchableOpacity style={styles.actionButton} onPress={handleDeleteEmailButton}>
-                        <Text style={styles.buttonText}>REMOVE EMAIL</Text>
-                    </TouchableOpacity>
-                )}
-                {isDeleteEmailVisible && (
-                    <KeyboardAvoidingView
-                        enabled={false}
-                    >
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder='Enter e-mail to be deleted'
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={deleteEmail.toLowerCase()}
-                            onChangeText={setDeleteEmail}
-                        />
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={handleDeleteEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </KeyboardAvoidingView>
-                )}
-
-                {/* Approved emailit näkyviin listana:*/}
-                <TouchableOpacity style={styles.actionButton} onPress={handleSeeUsersInfo}>
-                    <Text style={styles.buttonText}>VIEW USERS INFO</Text>
+            <BackgroundImage style={styles.backgroundImage} />
+            <View style={{ paddingTop: 50 }}></View>
+            <Text style={styles.headlineText}>EDIT EMAILS</Text>
+            {/* Add new email-toiminta */}
+            {!isNewEmailVisible && (
+                <TouchableOpacity
+                    onPress={handleNewEmailButton}
+                    style={styles.actionButton}
+                >
+                    <Text style={styles.buttonText}>Add New Email</Text>
                 </TouchableOpacity>
+            )}
+            {isNewEmailVisible && (
+                <>
+                    <TextInput
+                        style={styles.emailInput}
+                        placeholder="Add new approved email"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        value={newEmail}
+                        onChangeText={setNewEmail}
+                    />
+                    <View style={styles.centeredContainer}>
+                        {/* Nappi pickerin avaamiseen*/}
+                        <TouchableOpacity onPress={() => setPickerVisible(true)}>
+                            <Text style={styles.pickerButton}>
 
-                <ScrollView style={styles.scrollView}>
-                    {userData.map((user, index) => (
-                        <View style={styles.userDataContainer} key={index}>
-                            {/* <Text style={styles.userDataText}>ID: {user.id}</Text> */}
-                            <Text style={styles.userDataText}>Email: {user.email}</Text>
-                            <Text style={styles.userDataText}>Role: {user.role}</Text>
-                            <Text style={styles.userDataText}>Registered: {user.registered ? 'Yes' : 'No'}</Text>
-                        </View>
-                    ))}
-                </ScrollView>
-            </View>   
+                                {selectedRole ? selectedRole.label : 'Select Role   '}
+                                <Ionicons name="chevron-down-circle-outline" size={24} color="black" />
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    {/* Custom picker */}
+                    <CustomPicker
+                        visible={isPickerVisible}
+                        data={roles}
+                        selectedItem={selectedRole}
+                        onSelect={handleRoleSelection}
+                        onClose={() => setPickerVisible(false)}
+                    />
+
+                    <TouchableOpacity style={styles.actionButton} onPress={AddNewEmail}>
+                        <Text style={styles.buttonText}>Confirm{"  "}
+                            <Ionicons name="checkmark" size={24} color="green" /></Text>
+                    </TouchableOpacity>
+                </>
+            )}
+            {/* Remove email-toiminta */}
+            {!isDeleteEmailVisible && (
+                <TouchableOpacity style={styles.actionButton} onPress={handleDeleteEmailButton}>
+                    <Text style={styles.buttonText}>Remove Email</Text>
+                </TouchableOpacity>
+            )}
+            {isDeleteEmailVisible && (
+                <KeyboardAvoidingView
+                    enabled={false}
+                >
+                    <TextInput
+                        style={styles.emailInput}
+                        placeholder='Enter e-mail to be deleted'
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        value={deleteEmail.toLowerCase()}
+                        onChangeText={setDeleteEmail}
+                    />
+                    <TouchableOpacity style={styles.actionButton} onPress={handleDeleteEmail}>
+                        <Text style={styles.buttonText}>Confirm{"   "}
+                            <Ionicons name="checkmark" size={24} color="green" />
+                        </Text>
+                    </TouchableOpacity>
+                </KeyboardAvoidingView>
+            )}
+
+            {/* Approved emailit näkyviin listana:*/}
+            <TouchableOpacity style={styles.actionButton} onPress={handleSeeUsersInfo}>
+                <Text style={styles.buttonText}>View Users Info</Text>
+            </TouchableOpacity>
+
+            <ScrollView style={styles.scrollView}>
+                {userData.map((user, index) => (
+                    <View style={styles.userDataContainer} key={index}>
+                        {/* <Text style={styles.userDataText}>ID: {user.id}</Text> */}
+                        <Text style={styles.userDataText}>Email: {user.email}</Text>
+                        <Text style={styles.userDataText}>Role: {user.role}</Text>
+                        <Text style={styles.userDataText}>Registered: {user.registered ? 'Yes' : 'No'}</Text>
+                    </View>
+                ))}
+            </ScrollView>
+
         </View>
     );
 };
@@ -312,6 +315,16 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    headlineText: {
+        marginVertical: 8,
+        fontSize: screenWidth * 0.07,
+        fontFamily: "Saira-Regular",
+        color: "white",
+        textShadowColor: "rgba(0, 0, 0, 1)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10,
+
     },
     button: {
         position: 'absolute',
@@ -360,7 +373,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         fontSize: screenWidth * 0.06,
         fontFamily: "Saira-Regular",
-
     },
     pickerButton: { //tässä samat asetukset kuin yllä, mutta tekstin keskittämiseen viimeinen rivi
         height: screenHeight * 0.07,
