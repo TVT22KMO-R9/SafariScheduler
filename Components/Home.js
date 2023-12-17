@@ -22,13 +22,14 @@ const Home = (userRole) => {
 };  
 
 const ScreenWidth = Dimensions.get('window').width;
+const containerH = Dimensions.get('window').height * 0.1;
 
 const styles = StyleSheet.create({
     logoutbutton: {
         position: 'absolute',
         left: ScreenWidth/2,
         marginLeft: -20,
-        paddingTop: 10,
+        paddingTop: containerH * 0.35,
         backgroundColor: 'transparent',
       }
     });

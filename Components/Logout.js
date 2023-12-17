@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { TouchableOpacity, Alert, StyleSheet, DeviceEventEmitter } from 'react-native';
+import { TouchableOpacity, Alert, StyleSheet, DeviceEventEmitter, Dimensions } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -90,13 +90,13 @@ const Logout = ({logOut}) => {
     </TouchableOpacity>
   );
 };
+const containerH = Dimensions.get('window').height * 0.1;
 
 const styles = StyleSheet.create({
     logoutbutton: {
         position: 'absolute',
-        top: 20,
         right: 20,
-        padding: 10,
+        paddingTop: containerH * 0.35,
         backgroundColor: 'transparent',
       }
     });
