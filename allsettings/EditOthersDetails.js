@@ -1,408 +1,363 @@
-import React, { useState, useEffect } from 'react';
-import {
-    View, Text, StyleSheet, TouchableOpacity,
-    Modal, TouchableWithoutFeedback, Image,
-    TextInput, Alert, ScrollView,
-    KeyboardAvoidingView, FlatList,
-} from 'react-native';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons } from "@expo/vector-icons";
-import Menu from '../Components/Menu';
-import Logout from '../Components/Logout';
-import Home from '../Components/Home';
-import { WORKERS, SERVER_BASE_URL, EDIT_OWN } from '@env'
+import React, { useEffect, useState } from 'react';
+import { View, Text, Pressable, Alert, KeyboardAvoidingView, TextInput, FlatList, TouchableOpacity, Modal, Dimensions, Image } from 'react-native';
+import { StyleSheet } from 'react-native';
 import BackgroundImage from '../utility/BackGroundImage';
+import { SERVER_BASE_URL, WORKERS } from '@env';
+import { getToken } from '../utility/Token';
+import { useNavigation } from '@react-navigation/native';
+
+function EditOthersDetails() {
+  const [workers, setWorkers] = useState([]);
+  const [filteredWorkers, setFilteredWorkers] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [selectedWorker, setSelectedWorker] = useState(null);
+  const [isModalInfoVisible, setModalInfoVisible] = useState(false);
+  const [isModalPassVisible, setModalPassVisible] = useState(false);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    fetchWorkers();
+  }, []);
 
 
-const EditOthersDetails = () => {
-    const [isMenuVisible, setMenuVisible] = useState(false);
-    const [isNewEmailVisible, setIsNewEmailVisible] = useState(false);
-    const [newEmail, setNewEmail] = useState('');
-    const route = useRoute();
-    const userRole = route.params?.userRole;
-    const [userData, setUserData] = useState([]);
-    const [isPickerVisible, setPickerVisible] = useState(false);
-    const [selectedRole, setSelectedRole] = useState(null);
-    const [isNewFirstNameVisible, setIsNewFirstNameVisible] = useState(false);
-    const [newFirstName, setNewFirstName] = useState('');
-
-    const toggleMenu = () => {
-        setMenuVisible(!isMenuVisible);
+  const handleResetOthersPassword = () => {
+    navigation.navigate('ResetOthersPassword');
     };
-    
-    //Muuttaa add email-napin TextInsertiksi
-    const handleNewEmailButton = () => {
-        setIsNewEmailVisible(true);
-    };
+ 
+    const fetchWorkers = async () => {
+        const token = await getToken();
 
-    const validateEmailFormat = (email) => {
-        const emailRegex = /\S+@\S+\.\S+/;
-        return emailRegex.test(email); //palauttaa false jos ei täsmää
-    } 
-
-    //Edit email
-    const EditEmail = async () => {
         try {
-            const authToken = await AsyncStorage.getItem("userToken");
-            if (!authToken) {
-                Alert.alert("Error", "Authentication token not found");
-                return;
-            }
-            const emailData = {
-                email: newEmail.toLowerCase(),
-                role: selectedRole.value.toUpperCase()
-            };
-            if (!validateEmailFormat(emailData.email)) {
-                Alert.alert("Error", "Invalid email format");
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${SERVER_BASE_URL}${EDIT_OWN}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(emailData),
-                });
-                console.log(emailData)
-                if (response.ok) {
-                    Alert.alert("Email edited succesfully")
-                } else {
-                    const errorText = await response.text();
-                    Alert.alert("Error", errorText || "Failed to edit email");
-                }
-            } catch (error) {
-                Alert.alert("Error adding email", error.message || "Unknown error");
-            }
-            setIsNewEmailVisible(false);
-            setNewEmail('') //nollaa tekstikentät napin painalluksen jälkeen
-        } catch (error) {
-            console.error('Async function error:', error.message || "Unknown error");
-        }
-    };
-
-    const EditFirstName = async () => {
-        try {
-            const authToken = await AsyncStorage.getItem("userToken");
-            if (!authToken) {
-                Alert.alert("Error", "Authentication token not found");
-                return;
-            }
-            const firstNameData = {
-                firstName: newName.toLowerCase(),
-                role: selectedRole.value.toUpperCase()
-            };
-            if (!validateEmailFormat(firstNameData
-                .firstName)) {
-                Alert.alert("Error", "Invalid name format");
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${SERVER_BASE_URL}${EDIT_OWN}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(firstNameData),
-                });
-                console.log(firstNameData)
-                if (response.ok) {
-                    Alert.alert("Name edited succesfully")
-                } else {
-                    const errorText = await response.text();
-                    Alert.alert("Error", errorText || "Failed to edit name");
-                }
-            } catch (error) {
-                Alert.alert("Error adding name", error.message || "Unknown error");
-            }
-            setIsNewFirstNameVisible(false);
-            setNewFirstName('') //nollaa tekstikentät napin painalluksen jälkeen
-        } catch (error) {
-            console.error('Async function error:', error.message || "Unknown error");
-        }
-    };
-
-
-    //Näkyville tulevat tiedot
-    const handleSeeUsersInfo = async () => {
-        try {
-            const authToken = await AsyncStorage.getItem("userToken");
-            if (!authToken) {
-                Alert.alert("Error", "Authentication token not found");
-                return;
-            }
-
-            try {
-                const response = await fetch(`${SERVER_BASE_URL}${WORKERS}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserData(data); // Set fetched data to state
-                } else {
-                    throw new Error('Failed to get users data');
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
+            const response = await fetch(SERVER_BASE_URL+WORKERS, {
+                method: "GET",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
+            });
+            if(response.ok) {
+                const data = await response.json();
+                setWorkers(data);
+                setFilteredWorkers(data);
+            } else {
+                throw new Error("Failed to fetch workers");
+                Alert.alert("Error", "Failed to fetch workers");
             }
         } catch (error) {
-            console.error('Async function error:', error);
+            console.error("Error fetching workers:", error);
+            Alert.alert("Error", "An error occurred while fetching workers");
         }
-    };
+    }
 
-    useEffect(() => {
-        handleSeeUsersInfo();
-    }, []);
+    const handleSearch = (text) => {
+        setSearchText(text);
+        if (text) {
+          const filtered = workers.filter(worker =>
+            `${worker.firstName} ${worker.lastName}`.toLowerCase().includes(text.toLowerCase())
+          );
+          setFilteredWorkers(filtered);
+        } else {
+          setFilteredWorkers(workers);
+        }
+      };
 
-    //Aktivoituu kun screen tulee näkyviin. Muuten tekstikentät jää auki, ja data näkyviin yms.
-    useFocusEffect(
-        React.useCallback(() => {
-            setMenuVisible(false)
-            setIsNewEmailVisible(false)
-            setNewEmail('')
-            setUserData([])
-        }, [])
+      const openModalInfo = () => {
+        setModalInfoVisible(true);
+      };
+
+        const openModalPass = () => {
+            setModalPassVisible(true);
+          };
+
+          const closeModalInfo = () => {
+            setSelectedWorker(null);
+            setModalInfoVisible(false);
+          };
+
+        const closeModalPass = () => {
+            setSelectedWorker(null);
+            setModalPassVisible(false);
+          };
+
+        const selectWorker = (worker) => {
+        setSelectedWorker(worker);
+        closeModal();
+        };
+
+
+        const resetPassword = async (userId) => {
+            try {
+                const response = await fetch(`${SERVER_BASE_URL}/api/user/update/password/${userId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        'Authorization': "Bearer " + await getToken(),
+                    },
+                    body: JSON.stringify({ newPassword: "testpassword" }),
+                });
+        
+                if(response.ok) {
+                    Alert.alert("Success! Password is now 'testpassword'");
+                }
+                else {
+                    throw new Error("Failed to reset password");
+                }
+            }
+            catch (error) {
+                console.error("Error resetting password:", error);
+                Alert.alert("Error", "An error occurred while resetting password");
+            }
+          };
+ 
+  const handlePress = (worker) => {
+    const workerName = worker.firstName || worker.lastName 
+      ? `${worker.firstName || ''} ${worker.lastName || ''}`.trim() 
+      : 'Anonymous';
+  
+    Alert.alert(
+      "Edit employee details",
+      `Do you want to edit ${workerName}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "OK", 
+          onPress: async () => {
+            // Pass the selected worker's data to the EditOwnDetails screen
+            navigation.navigate('EditOwnDetails', { workerData: worker });
+            closeModalInfo();
+          } 
+        }
+      ]
     );
+  };
 
-    return (
-        <View style={styles.container}>
-              <BackgroundImage style={styles.backgroundImage}/>
-              <ScrollView style={styles.scrollView}>
-            {userData.length > 0 && ( // Check if userData array is not empty
-                <View style={styles.userDataContainer}>
-                    <Text style={styles.userDataText}>Role: {userData[0].role}</Text>
-                    <Text style={styles.userDataText}>Email: {userData[0].email}</Text>
-                    <Text style={styles.userDataText}>First name: {userData[0].firstName}</Text>
-                    <Text style={styles.userDataText}>Last name: {userData[0].lastName}</Text> 
-                    <Text style={styles.userDataText}>Number: {userData[0].phoneNumber}</Text>
-                </View>
-            )}
-        </ScrollView>
-            <View style={{ paddingTop: 10 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>EDIT EMAIL</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Modify email"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={newEmail}
-                            onChangeText={setNewEmail}
-                        />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </>
-                )}  
-            </View>
-            <View style={{ paddingTop: 10 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>EDIT FIRST NAME</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Modify first name"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={newEmail}
-                            onChangeText={setNewEmail}
-                        />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditFirstName}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </>
-                )}  
-            </View> 
-            <View style={{ paddingTop: 10 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>EDIT LAST NAME</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Modify email"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={newEmail}
-                            onChangeText={setNewEmail}
-                        />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </>
-                )}  
-            </View> 
-            <View style={{ paddingTop: 10 }}>
-                {/* Add new email-toiminta */}
-                {!isNewEmailVisible && (
-                    <TouchableOpacity
-                        onPress={handleNewEmailButton}
-                        style={styles.actionButton}
-                    >
-                        <Text style={styles.buttonText}>EDIT NUMBER</Text>
-                    </TouchableOpacity>
-                )}
-                {isNewEmailVisible && (
-                    <>
-                        <TextInput
-                            style={styles.emailInput}
-                            placeholder="Modify email"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            value={newEmail}
-                            onChangeText={setNewEmail}
-                        />
-
-                        <TouchableOpacity style={{ ...styles.actionButton, backgroundColor: 'green' }} onPress={EditEmail}>
-                            <Text style={styles.buttonText}>CONFIRM</Text>
-                        </TouchableOpacity>
-                    </>
-                )}  
-            </View>
-             
-        </View>
+  const handlePressPass = (worker) => {
+    const workerName = worker.firstName || worker.lastName 
+      ? `${worker.firstName || ''} ${worker.lastName || ''}`.trim() 
+      : 'Anonymous';
+  
+    Alert.alert(
+      "Reset Password",
+      `Are you sure you want to reset the password for ${workerName}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "OK", 
+          onPress: async () => {
+            await resetPassword(worker.id);
+            closeModalPass();
+          } 
+        }
+      ]
     );
-};
+  };
 
+  return (
+    <KeyboardAvoidingView style={styles.container}>
+        <BackgroundImage style={styles.backgroundImage} />
+        <Image source={require("../assets/logo.png")} style={styles.logo} />
+        <TouchableOpacity onPress={openModalInfo} style={styles.button}>
+        <Text style={styles.buttonText}>
+          {selectedWorker
+            ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
+            : "Edit employee info"}
+        </Text>
+      </TouchableOpacity>
+      <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isModalInfoVisible}
+          onRequestClose={closeModalInfo}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TextInput
+                style={styles.searchBox}
+                placeholder="Search by name"
+                value={searchText}
+                onChangeText={handleSearch}
+              />
+              <FlatList
+                data={filteredWorkers}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.item}
+                      onPress={() => handlePress(item)}
+                    >
+                      <Text style={styles.itemText}>
+                        {item.firstName || item.lastName 
+                          ? `${item.firstName || ''} ${item.lastName || ''}`.trim() 
+                          : 'Anonymous'}
+                        {item.role === 'WORKER' && ' (W)'}
+                        {item.role === 'SUPERVISOR' && ' (S)'}
+                        {item.role === 'MASTER' && ' (M)'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+              />
+              <TouchableOpacity onPress={closeModalInfo} style={styles.buttonClose}>
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        <TouchableOpacity onPress={openModalPass} style={styles.button}>
+        <Text style={styles.buttonText}>
+          {selectedWorker
+            ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
+            : "Reset employee password"}
+        </Text>
+      </TouchableOpacity>
+      <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isModalPassVisible}
+          onRequestClose={closeModalPass}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TextInput
+                style={styles.searchBox}
+                placeholder="Search by name"
+                value={searchText}
+                onChangeText={handleSearch}
+              />
+              <FlatList
+                data={filteredWorkers}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.item}
+                      onPress={() => handlePressPass(item)}
+                    >
+                      <Text style={styles.itemText}>
+                        {item.firstName || item.lastName 
+                          ? `${item.firstName || ''} ${item.lastName || ''}`.trim() 
+                          : 'Anonymous'}
+                        {item.role === 'WORKER' && ' (W)'}
+                        {item.role === 'SUPERVISOR' && ' (S)'}
+                        {item.role === 'MASTER' && ' (M)'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+              />
+              <TouchableOpacity onPress={closeModalPass} style={styles.buttonClose}>
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+    </KeyboardAvoidingView>
+  );
+}
+
+export default EditOthersDetails;
+
+const screenHeight = Dimensions.get('window').height;
+const screenWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
-    backgroundImage: {
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-        resizeMode: "cover",
-    },
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    button: {
+    backgroundImage: {
         position: 'absolute',
-        top: 20,
-        left: 20,
-        padding: 10,
-    },
-    overlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    menuContainer: {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: '75%',
+        width: '100%',
         height: '100%',
-        backgroundColor: 'white',
-    },
-    actionButton: {
-        backgroundColor: "rgba(0, 0, 0, 0.7)",
-        borderRadius: 5,
-        marginVertical: 6,
-        alignItems: "center",
-        width: screenWidth * 0.9,
-        borderColor: "white",
-        borderWidth: 2,
-    },
-    buttonText: {
-        fontSize: screenWidth * 0.07,
-        color: "white",
-        fontFamily: "Saira-Regular",
-        textShadowColor: "rgba(0, 0, 0, 1)",
+        resizeMode: 'cover',
+      },
+      logo: {
+        width: 200,
+        height: 250,
+        position: "absolute",
+        top: screenHeight * +0.08,
+        resizeMode: "contain",
+      },
+      buttonText: {
+        color: 'white',
+        fontSize: screenWidth * 0.06,
+        fontFamily: 'Saira-Regular',
+        textShadowColor: 'rgba(0, 0, 0, 1)',
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 10,
-    },
-    emailInput: {
-        height: screenHeight * 0.07,
-        width: screenWidth * 0.9,
+        alignItems: 'center',
+        
+      },
+      button: {
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
         borderRadius: 5,
-        borderColor: "black",
-        textAlign: 'center',
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        alignItems: "center",
+        justifyContent: "center",
+        width: screenWidth * 0.8,
+        borderColor: "white",
         borderWidth: 2,
-        marginBottom: "1%",
-        paddingHorizontal: 10,
-        fontSize: screenWidth * 0.06,
-        fontFamily: "Saira-Regular",
-
-    },
-    pickerButton: { //tässä samat asetukset kuin yllä, mutta tekstin keskittämiseen viimeinen rivi
         height: screenHeight * 0.07,
-        width: screenWidth * 0.9,
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
-        borderRadius: 5,
-        borderColor: "black",
-        borderWidth: 2,
-        marginBottom: "1%",
-        paddingHorizontal: 10,
-        fontSize: screenWidth * 0.06,
-        fontFamily: "Saira-Regular",
-        textAlign: 'center',
-        paddingVertical: (screenHeight * 0.05 - screenWidth * 0.06) / 2,
+        marginTop: 30,
+    },  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderRadius: 5,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
     },
-    scrollView: { //User Data
-        maxHeight: 300, // Set a maximum height for the scrollable box
-        marginVertical: 10,
-        paddingHorizontal: 20,
-    },
-    userDataContainer: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#CCCCCC',
-        paddingBottom: 10,
-        marginBottom: 10,
-    },
-    userDataText: {
-        color: 'white',
-        fontFamily: "Saira-Regular",
-        fontSize: screenWidth * 0.05,
-    },
-    pickerStyle: {
-        backgroundColor: "white",
-        borderWidth: 1,
-        borderColor: "black",
-        borderRadius: 5,
-        width: screenWidth * 0.9,
-        height: screenHeight * 0.07,
-        marginBottom: "1%",
-        fontSize: screenWidth * 0.06,
-        fontFamily: "Saira-Regular",
-        color: "black",
-    },
-});
-
-export default EditOthersDetails;
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: "90%",
+  },
+  searchBox: {
+    height: screenHeight * 0.07,
+    borderWidth: 1,
+    padding: 10,
+    width: "100%",
+    marginBottom: 20,
+    borderRadius: 5,
+    fontFamily: "Saira-Regular",
+    fontSize: screenWidth * 0.06,
+  },
+  item: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
+    width: "100%",
+    alignItems: "center",
+  },
+  itemText: {
+    fontSize: screenWidth * 0.08,
+    fontFamily: "Saira-Regular",
+  },
+  buttonClose: {
+    backgroundColor: "rgba(205, 0, 0, 1)",
+    borderRadius: 5,
+    padding: 10,
+    elevation: 2,
+    borderColor: "black",
+    borderWidth: 2,
+    marginTop: 20,
+    width: "80%",
+    alignItems: "center",
+  },
+  textStyle: {
+    color: "white",
+    textAlign: "center",
+    fontFamily: "Saira-Regular",
+    fontSize: 18,
+  },
+    });

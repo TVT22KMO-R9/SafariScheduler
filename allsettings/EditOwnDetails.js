@@ -19,6 +19,10 @@ const EditOwnDetails = ({route}) => {
     const [newNumber, setNewNumber] = useState('');
     const { userData, handleLogout } = route.params;
     const navigation = useNavigation();
+    const { workerData } = route.params;
+
+    // Use the selected worker's data if available, otherwise use userData
+    const userDataToUse = workerData || route.params.userData;
 
 
     const handleResetOwnPassword = () => {
@@ -129,21 +133,23 @@ const EditOwnDetails = ({route}) => {
     return (
         <View style={styles.container}>
               <BackgroundImage style={styles.backgroundImage}/>
-              <Text style={styles.infoText}>YOUR INFO</Text>
+              <Text style={styles.infoText}>
+                {userDataToUse ? (workerData ? 'EMPLOYEE INFO' : 'YOUR INFO') : ''}
+                </Text>
               <View style={styles.scrollView}>
-              {userData && (
+              {userDataToUse && (
                     <View style={styles.userDataContainer}>
-                        <Text style={styles.userDataText}>Role: {userData.role}</Text>
-                        <Text style={styles.userDataText}>Email: {userData.email}</Text>
-                        <Text style={styles.userDataText}>First name: {userData.firstName}</Text>
-                        <Text style={styles.userDataText}>Last name: {userData.lastName}</Text> 
-                        <Text style={styles.userDataText}>Phone number: {userData.phoneNumber}</Text>
+                        <Text style={styles.userDataText}>Role: {userDataToUse.role}</Text>
+                        <Text style={styles.userDataText}>Email: {userDataToUse.email}</Text>
+                        <Text style={styles.userDataText}>First name: {userDataToUse.firstName}</Text>
+                        <Text style={styles.userDataText}>Last name: {userDataToUse.lastName}</Text> 
+                        <Text style={styles.userDataText}>Phone number: {userDataToUse.phoneNumber}</Text>
                     </View>
             )}
                 </View>
                         {!isEditOpen && (
                         <TouchableOpacity onPress={handleNewInfoButton} style={styles.actionButton}>
-                        <Text style={styles.buttonText}>Edit your info</Text>
+                        <Text style={styles.buttonText}>Edit info</Text>
                         </TouchableOpacity>
                     )}
                     {isEditOpen && (
@@ -151,7 +157,7 @@ const EditOwnDetails = ({route}) => {
                     <View>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder={userData.email}
+                            placeholder={userDataToUse.email}
                             keyboardType="email-address"
                             autoCapitalize="none"
                             value={newEmail}
@@ -161,7 +167,7 @@ const EditOwnDetails = ({route}) => {
                     <View>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder={userData.firstName}
+                            placeholder={userDataToUse.firstName}
                             value={newFirstName}
                             onChangeText={setNewFirstName}
                         />
@@ -169,7 +175,7 @@ const EditOwnDetails = ({route}) => {
                     <View>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder={userData.lastName}
+                            placeholder={userDataToUse.lastName}
                             value={newLastName}
                             onChangeText={setNewLastName}
                         />
@@ -177,7 +183,7 @@ const EditOwnDetails = ({route}) => {
                     <View>
                         <TextInput
                             style={styles.emailInput}
-                            placeholder={userData.phoneNumber}
+                            placeholder={userDataToUse.phoneNumber}
                             keyboardType="phone-pad"
                             value={newNumber}
                             onChangeText={setNewNumber}
@@ -193,9 +199,11 @@ const EditOwnDetails = ({route}) => {
                 <Text style={styles.confirmText}>CONFIRM</Text>
                 </TouchableOpacity>
             )}
-            <TouchableOpacity onPress={handleResetOwnPassword} style={styles.actionButton}>
-                    <Text style={styles.buttonText}>Reset Own Password</Text>
+            {userDataToUse && !workerData && ( // Condition to hide the button if userDataToUse comes from workerData
+                <TouchableOpacity onPress={handleResetOwnPassword} style={styles.actionButton}>
+                    <Text style={styles.buttonText}>Reset password</Text>
                 </TouchableOpacity>
+                )}
             </View>
   );
 };

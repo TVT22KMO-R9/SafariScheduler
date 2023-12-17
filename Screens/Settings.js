@@ -61,9 +61,6 @@ const Settings = () => {
                         <TouchableOpacity onPress={handleEditOthersDetails} style={styles.actionButton}>
                             <Text style={styles.buttonText}>Edit Others Details</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={handleResetOthersPassword} style={styles.actionButton}>
-                            <Text style={styles.buttonText}>Reset Others Password</Text>
-                        </TouchableOpacity>
                         <TouchableOpacity onPress={handleEditAppearance} style={styles.actionButton}>
                             <Text style={styles.buttonText}>Edit Appearance</Text>
                         </TouchableOpacity>
