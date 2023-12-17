@@ -151,16 +151,15 @@ const ReportHours = () => {
   return (
     <View style={styles.container}>
       <BackgroundImage style={styles.backgroundImage} />
-      <View style={{ paddingTop: 50 }}>
-
+      {/* Piti laittaa padding tähän väliin, muuten en saanut toimimaan */}
+      <View style={{ paddingTop: 80 }}>
       </View>
       <Text style={styles.headlineText}>REPORT HOURS</Text>
-
       {/* Nappi päivämäärän valinnalle */}
       <TouchableOpacity onPress={togglePicker} style={styles.actionButton}>
         <Text style={styles.buttonText}>
+          {"Select date   "}
           <Ionicons name="chevron-down-circle-outline" size={24} color="white" />
-          {"Select date"}
         </Text>
       </TouchableOpacity>
       {/* Työvuoron kellonajan lisäys*/}
@@ -248,8 +247,8 @@ const ReportHours = () => {
       {/* Työvuoron lisäyksen kuittaus-nappi */}
       <TouchableOpacity style={styles.actionButton} onPress={submitShift}>
         <Text style={styles.buttonText}>
+          {"Confirm   "}
           <Ionicons name="checkmark" size={24} color="green" />
-          {"Confirm"}
         </Text>
       </TouchableOpacity>
       {/* Pickeri päivämäärälle */}
@@ -266,7 +265,7 @@ const ReportHours = () => {
             <View style={{ textAlign: 'center' }}>
               {/* Otsikko ja picker vuodelle */}
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={[styles.buttonText, { color: 'black' }]}>YEAR</Text>
+                <Text style={styles.label}>YEAR</Text>
                 <TouchableOpacity onPress={togglePicker}>
                   <Ionicons name="close" size={32} color="red" />
                 </TouchableOpacity>
@@ -290,7 +289,7 @@ const ReportHours = () => {
               </View>
 
               {/* Otsikko ja picker kuukaudelle */}
-              <Text style={[styles.buttonText, { color: 'black' }]}>MONTH</Text>
+              <Text style={[styles.label, { color: 'black' }]}>MONTH</Text>
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={date.month}
@@ -309,7 +308,7 @@ const ReportHours = () => {
               </View>
 
               {/* Otsikko ja picker päivälle */}
-              <Text style={[styles.buttonText, { color: 'black'  }]}>DAY</Text>
+              <Text style={[styles.label, { color: 'black' }]}>DAY</Text>
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={date.day}
@@ -328,16 +327,16 @@ const ReportHours = () => {
               </View>
             </View>
 
-            {/* Nappi päivämäärän kuittaamiseen */}
-            <View style={{  marginTop: 40 }}>
-            <TouchableOpacity
-              style={{...styles.actionButton, borderColor: "grey"}}
-              onPress={() => setPickerVisible(!isPickerVisible)}
-            >
-              <Text style={styles.buttonText}><Ionicons name="checkmark" size={24} color="green" />
-                {"Confirm"}
-              </Text>
-            </TouchableOpacity>
+            {/* Nappi päivämäärän kuittaamiseen: */}
+            <View style={{ marginTop: 40 }}>
+              <TouchableOpacity
+                style={{ ...styles.actionButton, borderColor: "grey" }}
+                onPress={() => setPickerVisible(!isPickerVisible)}
+              >
+                <Text style={styles.buttonText}><Ionicons name="checkmark" size={24} color="green" />
+                  {"Confirm"}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -356,7 +355,6 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     alignItems: "center",
-    paddingTop: 0,
   },
   headlineText: {
     marginVertical: 8,
@@ -376,10 +374,9 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   label: {
-    fontSize: screenWidth * 0.1,
+    fontSize: screenWidth * 0.07,
     color: "black",
     ...commonStyles.text,
-
   },
   backgroundImage: {
     position: "absolute",
@@ -387,7 +384,6 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-
   dash: {
     fontSize: screenWidth * 0.15,
     color: "white",
@@ -490,7 +486,7 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 2,
     backgroundColor: "black"
-  }, 
+  },
   buttonText: {
     fontSize: screenWidth * 0.07,
     color: "white",
@@ -498,7 +494,7 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
-  }, 
+  },
   textInputBox: {
     height: screenHeight * 0.07,
     width: screenWidth * 0.8,
