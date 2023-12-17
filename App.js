@@ -69,7 +69,7 @@ export default function App() {
               <View style={{flex: 1}}>
               <GestureHandlerRootView style={{backgroundColor: 'transparent',}}>
               
-              <View style={{top: 0, left:0, width: '100%', height: '10%', backgroundColor: 'transparent', padding: 0, margin: 0,}}> 
+              <View style={{top: 0, width: '100%', height: screenHeight*0.1, backgroundColor: 'rgba(31,27,24,255)', borderBottomColor:'rgba(143,138,134,255)', borderBottomWidth: 2, padding: 0, margin: 0,}}> 
                 <TopBarComponent handleLogout={handleLogOut} userRole={userData?.role} companyName={userData?.companyname} /> 
               </View>
               </GestureHandlerRootView>
@@ -95,9 +95,9 @@ const styles = StyleSheet.create({
   backgroundImage: {
     position: 'absolute',
     width: screenWidth,
-    height: screenHeight,
     resizeMode: 'cover',
     zIndex: -1,
+    bottom: 0,
   },
   maincontainer: {
     flex: 1,

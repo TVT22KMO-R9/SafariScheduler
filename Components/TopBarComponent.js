@@ -57,15 +57,15 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
         flex: 1,
         width: screenWidth,
-        height: 100,
+        height: screenHeight * 0.1,
         position: 'absolute',
         top: 0,
         zIndex: 10,
         backgroundColor: 'rgba(31,27,24,255)',
         borderBottomColor: 'rgba(143,138,134,255)',
-        borderBottomWidth: 15.5,
-        
-
+        borderBottomWidth: 2,
+        padding: 0,
+        margin: 0,
     },
     overlay: {
         flex: 1,
