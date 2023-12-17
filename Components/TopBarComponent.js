@@ -50,6 +50,7 @@ export default function TopBarComponent({handleLogout, userRole, companyName}){
 const window = Dimensions.get('window');
 const screenWidth = window.width;
 const screenHeight = window.height;
+const containerH = Dimensions.get('window').height * 0.1;
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
@@ -87,9 +88,8 @@ const styles = StyleSheet.create({
         },
       menu:{
         position: 'absolute',
-        top: 20,
         left: 20,
-        paddingTop: 14,
+        paddingTop: containerH * 0.35,
 
       }
     });
