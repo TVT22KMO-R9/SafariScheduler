@@ -149,7 +149,7 @@ const EditOwnDetails = ({route}) => {
                 </View>
                         {!isEditOpen && (
                         <TouchableOpacity onPress={handleNewInfoButton} style={styles.actionButton}>
-                        <Text style={styles.buttonText}>Edit info</Text>
+                        <Text style={styles.buttonText}>Edit Info</Text>
                         </TouchableOpacity>
                     )}
                     {isEditOpen && (
@@ -193,7 +193,7 @@ const EditOwnDetails = ({route}) => {
             )}
             {isEditOpen && (
                 <TouchableOpacity
-                style={{ ...styles.actionButton, backgroundColor: 'green' }}
+                style={{ ...styles.actionButton }}
                 onPress={EditInfo}
                 >
                 <Text style={styles.confirmText}>CONFIRM</Text>
