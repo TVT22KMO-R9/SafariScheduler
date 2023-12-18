@@ -89,7 +89,7 @@ const EditOwnDetails = ({route}) => {
                     body: JSON.stringify(updatedData),
                 });
 
-                if (response.ok) {
+                if (response.ok && !workerData) {
                     Alert.alert(
                         "Info edited successfully",
                         "You have to logout because of reasons",
@@ -103,7 +103,12 @@ const EditOwnDetails = ({route}) => {
                         ],
                         { cancelable: false }
                     );
-                } else {
+                } else if (workerData) {
+                    Alert.alert(
+                        "Info edited successfully",
+                    );
+                }
+                else {
                     const errorText = await response.text();
                     Alert.alert("Error", errorText || "Failed to edit info");
                 }
