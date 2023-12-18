@@ -213,8 +213,8 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    width: Dimensions.get('window').width,
-    paddingHorizontal: Dimensions.get('window').width * 0.05,
+    
+    
 
   },
 });
