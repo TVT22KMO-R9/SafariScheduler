@@ -132,7 +132,7 @@ const ReportHours = () => {
         }
       } catch (error) {
         console.error("Fetch error:", error);
-        Alert.alert("An error occurred while reporting the shift");
+        Alert.alert("Can't report shift hours for future dates");
       }
     };
     await getTokenAndMakeRequest(shiftData);

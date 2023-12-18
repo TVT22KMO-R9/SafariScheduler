@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { SERVER_BASE_URL, LAST_31_SHIFTS_ENDPOINT } from '@env'
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import { SERVER_BASE_URL, LAST_31_SHIFTS_ENDPOINT } from "@env";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
   StyleSheet,
@@ -20,28 +23,39 @@ import {
 import BackgroundImage from "../utility/BackGroundImage";
 import ShiftCard from "../Components/ShiftCard";
 
+// History functional component definition
 export default function History() {
+  // State for storing shifts data
   const [shifts, setShifts] = useState([]);
+  // State to manage the visibility of the menu
   const [isMenuVisible, setMenuVisible] = useState(false);
+  // Accessing route parameters
   const route = useRoute();
+  // Extracting the user role from route parameters
   const userRole = route.params?.userRole;
 
+  // Function to toggle the menu's visibility
   const toggleMenu = () => {
     setMenuVisible(!isMenuVisible);
   };
 
+  // Hook for navigation
   const navigation = useNavigation();
 
+  // Function to format a date string
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate().toString();
-    const weekday = date.toLocaleString('en-US', { weekday: 'short' }).substring(0, 3);
+    const weekday = date
+      .toLocaleString("en-US", { weekday: "short" })
+      .substring(0, 3);
     return { day, weekday };
   };
 
+  // Function to group shifts by month
   const groupShiftsByMonth = (shifts) => {
     const grouped = {};
-    shifts.forEach(shift => {
+    shifts.forEach((shift) => {
       const month = new Date(shift.date).getMonth();
       const year = new Date(shift.date).getFullYear();
       const monthYear = `${month}-${year}`;
@@ -52,24 +66,33 @@ export default function History() {
     });
     return grouped;
   };
+
+  // Function to format a time string
   const formatTime = (timeString) => {
-    if (!timeString) return '';
-    const [hours, minutes] = timeString.split(':');
+    if (!timeString) return "";
+    const [hours, minutes] = timeString.split(":");
     return `${hours}:${minutes}`; // Returns time in HH:mm format
   };
 
+  // Function to fetch shifts from the server
   const fetchShifts = async () => {
     try {
+      // Retrieving the authentication token from storage
       const authToken = await AsyncStorage.getItem("userToken");
       if (!authToken) {
         Alert.alert("Error", "Authentication token not found");
         return;
       }
 
-      const response = await fetch(`${SERVER_BASE_URL}${LAST_31_SHIFTS_ENDPOINT}`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      // Making a fetch request to get shifts
+      const response = await fetch(
+        `${SERVER_BASE_URL}${LAST_31_SHIFTS_ENDPOINT}`,
+        {
+          headers: { Authorization: `Bearer ${authToken}` },
+        }
+      );
 
+      // Checking if the response is successful
       if (response.ok) {
         const data = await response.json();
         const groupedShifts = groupShiftsByMonth(data);
@@ -81,14 +104,14 @@ export default function History() {
       console.error("Error fetching shifts:", error);
       Alert.alert("Error", "An error occurred while fetching shifts");
     }
-    console.log(`${SERVER_BASE_URL}${LAST_31_SHIFTS_ENDPOINT}`);
   };
 
+  // Effect hook to fetch shifts on component mount
   useEffect(() => {
     fetchShifts();
   }, []);
 
-  //triggers when the screen comes into focus
+  // Focus effect hook triggers when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       setMenuVisible(false);
@@ -96,21 +119,26 @@ export default function History() {
     }, [])
   );
 
+  // Function to render shifts grouped by month
   const renderShiftsByMonth = () => {
-    let currentMonth = '';
-    let currentYear = '';
+    let currentMonth = "";
+    let currentYear = "";
 
-    return Object.keys(shifts).map(monthYear => {
-      const [month, year] = monthYear.split('-');
-      const monthName = new Date(year, month).toLocaleString('en-US', { month: 'long' });
+    return Object.keys(shifts).map((monthYear) => {
+      const [month, year] = monthYear.split("-");
+      const monthName = new Date(year, month).toLocaleString("en-US", {
+        month: "long",
+      });
 
-      const monthHeader = month !== currentMonth || year !== currentYear
-        ? <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
-        : null;
+      // Generating a header for each new month-year group
+      const monthHeader =
+        month !== currentMonth || year !== currentYear ? (
+          <Text style={styles.monthHeader}>{`${monthName} ${year}`}</Text>
+        ) : null;
 
+      // Updating current month and year to handle headers
       currentMonth = month;
       currentYear = year;
-
       return (
         <View key={monthYear}>
           {monthHeader}
@@ -125,9 +153,7 @@ export default function History() {
               startTime: formatTime(shift.startTime),
               endTime: shift.endTime && formatTime(shift.endTime),
             };
-            return (
-              <ShiftCard key={shift.id} shift={formattedShift} />
-            );
+            return <ShiftCard key={shift.id} shift={formattedShift} />;
           })}
         </View>
       );
@@ -136,7 +162,7 @@ export default function History() {
 
   return (
     <KeyboardAvoidingView style={styles.container}>
-        <BackgroundImage style={styles.backgroundImage}/>
+      <BackgroundImage style={styles.backgroundImage} />
       <ScrollView style={styles.scrollView}>
         <Text style={styles.headerText}>MY REPORT HISTORY</Text>
         {renderShiftsByMonth()}
@@ -145,7 +171,7 @@ export default function History() {
   );
 }
 
-const window = Dimensions.get('window');
+const window = Dimensions.get("window");
 const screenWidth = window.width;
 const screenHeight = window.height;
 const styles = StyleSheet.create({
@@ -159,7 +185,8 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
-  }, headerText: {
+  },
+  headerText: {
     textAlign: "center",
     color: "white",
     fontSize: 25,
@@ -180,7 +207,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-
   },
   shiftText: {
     fontSize: Dimensions.get("window").width * 0.08,
@@ -206,7 +232,7 @@ const styles = StyleSheet.create({
   },
   dayText: {
     fontSize: Dimensions.get("window").width * 0.15,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: "white",
     textShadowColor: "rgba(0, 0, 0, 1)",
     textShadowOffset: { width: -1, height: 1 },
@@ -248,21 +274,21 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   button: {
-    position: 'absolute',
+    position: "absolute",
     top: 20,
     left: 20,
     padding: 10,
   },
   menuContainer: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     top: 0,
-    width: Dimensions.get('window').width * 0.75,
-    height: '100%',
-    backgroundColor: 'white',
+    width: Dimensions.get("window").width * 0.75,
+    height: "100%",
+    backgroundColor: "white",
   },
   scrollView: {
     marginTop: 70,

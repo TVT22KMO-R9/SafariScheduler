@@ -25,28 +25,27 @@ const formatDate = (dateString) => {
   const options = {
     weekday: "short", // Short name of the day.
     month: "2-digit", // Numeric month.
-    day: "2-digit",   // Numeric day of the month.
+    day: "2-digit", // Numeric day of the month.
   };
 
   // Format the date using a localized string.
   let formattedDate = date.toLocaleString("default", options);
 
   // Split the formatted date string at spaces.
-  const parts = formattedDate.split(' ');
+  const parts = formattedDate.split(" ");
   if (parts.length > 1) {
     // Change the letters of the weekday abbreviation to uppercase.
     parts[0] = parts[0].toUpperCase();
     // Reassemble the parts back into a single string.
-    formattedDate = parts.join(' ');
+    formattedDate = parts.join(" ");
   }
 
   // Remove the last dot from the string, if present.
-  formattedDate = formattedDate.replace(/\.$/, '');
+  formattedDate = formattedDate.replace(/\.$/, "");
 
   // Return the formatted date.
   return formattedDate;
 };
-
 
 const DeleteShifts = () => {
   // Initialize state variables for storing workers, shifts, modal visibility,
@@ -165,7 +164,6 @@ const DeleteShifts = () => {
       if (response.ok) {
         const data = await response.json();
         setAllShifts(data); // Update the state with the fetched shifts.
-        console.log("Fetched Shifts:", data);
       } else {
         // If the response is not successful, show an error alert.
         Alert.alert("Error", "Failed to fetch shifts.");
@@ -239,9 +237,8 @@ const DeleteShifts = () => {
 
       // If the delete request is successful, show a success message.
       if (response.ok) {
-        
         Alert.alert("Success", "Shift deleted successfully.");
-        console.log(response)
+        console.log(response);
         // Update the state to remove the deleted shift.
         // setWorkerShifts(workerShifts.filter((shift) => shift.id !== shiftId)); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // Close the shift details modal.
@@ -260,7 +257,6 @@ const DeleteShifts = () => {
     }
   };
 
-
   return (
     <View style={styles.container}>
       <BackgroundImage style={styles.backgroundImage} />
@@ -271,8 +267,13 @@ const DeleteShifts = () => {
         style={styles.actionButton}
       >
         <Text style={styles.buttonText}>
-          <Ionicons name="chevron-down-circle-outline" size={24} color="white" />
-          {"Select Worker"}</Text>
+          <Ionicons
+            name="chevron-down-circle-outline"
+            size={24}
+            color="white"
+          />
+          {"Select Worker"}
+        </Text>
       </TouchableOpacity>
 
       {/* FlatList to display grouped shifts */}
@@ -292,9 +293,11 @@ const DeleteShifts = () => {
               >
                 <Text style={styles.shiftText}>
                   {/* Display shift details */}
-                  {`${shift.firstName} ${shift.lastName
-                    } ${shift.startTime.slice(0, -3)} - ${shift.endTime ? shift.endTime.slice(0, -3) : ""
-                    }`}
+                  {`${shift.firstName} ${
+                    shift.lastName
+                  } ${shift.startTime.slice(0, -3)} - ${
+                    shift.endTime ? shift.endTime.slice(0, -3) : ""
+                  }`}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -335,23 +338,25 @@ const DeleteShifts = () => {
                         : styles.workerText
                     }
                   >
-                    {`${worker.firstName || "First"} ${worker.lastName || "Last"}`}
+                    {`${worker.firstName || "First"} ${
+                      worker.lastName || "Last"
+                    }`}
                   </Text>
                 </TouchableOpacity>
               )}
             />
             <TouchableOpacity
-              style={{ ...styles.actionButton, borderColor: "grey" }}
+              style={{ ...styles.actionButton2, borderColor: "grey" }}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.buttonText}>{"Close   "}
-              <Ionicons name="close" size={24} color="red" />
+              <Text style={styles.buttonText}>
+                {"Close   "}
+                <Ionicons name="close" size={24} color="red" />
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
 
       <Modal
         animationType="slide"
@@ -367,11 +372,13 @@ const DeleteShifts = () => {
                   {formatDate(selectedShift.date)}
                 </Text>
                 <Text style={styles.shiftText}>
-                  {`${selectedShift.firstName} ${selectedShift.lastName
-                    } ${selectedShift.startTime.slice(0, -3)} - ${selectedShift.endTime
+                  {`${selectedShift.firstName} ${
+                    selectedShift.lastName
+                  } ${selectedShift.startTime.slice(0, -3)} - ${
+                    selectedShift.endTime
                       ? selectedShift.endTime.slice(0, -3)
                       : ""
-                    }`}
+                  }`}
                 </Text>
                 {selectedShift.description ? (
                   <View style={styles.descriptionBox}>
@@ -389,13 +396,19 @@ const DeleteShifts = () => {
                 ) : null}
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
-                    style={{...styles.actionButton, width: screenWidth * 0.35}}
+                    style={{
+                      ...styles.actionButton,
+                      width: screenWidth * 0.35,
+                    }}
                     onPress={() => handleDeleteShift(selectedShift.id)}
                   >
                     <Text style={styles.buttonText}>Delete Shift</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={{...styles.actionButton, width:  screenWidth * 0.35}}
+                    style={{
+                      ...styles.actionButton,
+                      width: screenWidth * 0.35,
+                    }}
                     onPress={closeShiftDetails}
                   >
                     <Text style={styles.buttonText}>Close</Text>
@@ -413,11 +426,12 @@ const DeleteShifts = () => {
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 
-const commonStyles = { //Useasti käytetyt tänne
+const commonStyles = {
+  //Useasti käytetyt tänne
   text: {
-    fontFamily: "Saira-Regular"
+    fontFamily: "Saira-Regular",
   },
-}
+};
 
 const styles = StyleSheet.create({
   backgroundImage: {
@@ -426,7 +440,8 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  headlineText: { //Otsikko
+  headlineText: {
+    //Otsikko
     marginVertical: 8,
     fontSize: screenWidth * 0.07,
     ...commonStyles.text,
@@ -448,7 +463,17 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.8,
     borderColor: "white",
     borderWidth: 2,
-    backgroundColor: "black"
+    backgroundColor: "black",
+  },
+  actionButton2: {
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    borderRadius: 5,
+    marginVertical: 8,
+    alignItems: "center",
+    width: screenWidth * 0.69,
+    borderColor: "white",
+    borderWidth: 2,
+    backgroundColor: "black",
   },
   buttonText: {
     fontSize: screenWidth * 0.055,
@@ -568,7 +593,6 @@ const styles = StyleSheet.create({
   descriptionText: {
     fontSize: screenHeight * 0.02,
     marginVertical: 5,
-    
   },
   descriptionBox: {
     backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -584,24 +608,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginVertical: 5,
   },
-  searchInput: { // työntekijän search teksiboksi  
+  searchInput: {
+    // työntekijän search teksiboksi
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     padding: 10,
     marginVertical: 5,
     borderRadius: 5,
     borderWidth: 1,
     borderColor: "black",
-    width: screenWidth * 0.8,
+    width: screenWidth * 0.69,
     fontSize: screenWidth * 0.06,
     ...commonStyles.text,
   },
-  workerItem: { //työntekijälista
+  workerItem: {
+    //työntekijälista
     padding: 5,
     borderRadius: 5,
     marginVertical: 5,
     borderColor: "black",
     borderWidth: 1,
-    width: screenWidth * 0.8,
+    width: screenWidth * 0.69,
     //alignItems: "center", jos halutaan nimet keskelle
   },
   selectedWorkerItem: {
@@ -614,16 +640,17 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.8,
     //alignItems: "center",
   },
-  workerText: { //Työntekijälistan teksti
+  workerText: {
+    //Työntekijälistan teksti
     fontSize: screenWidth * 0.07,
     ...commonStyles.text,
   },
-  selectedWorkerText: { //Työntekijälistan teksti valituille työntekijöille
+  selectedWorkerText: {
+    //Työntekijälistan teksti valituille työntekijöille
     fontSize: screenWidth * 0.07,
     ...commonStyles.text,
     color: "rgba(0,0,0,1)",
   },
-  
 });
 
 export default DeleteShifts;
