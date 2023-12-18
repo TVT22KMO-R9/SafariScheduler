@@ -28,6 +28,7 @@ import Home from "../Components/Home";
 import Logout from "../Components/Logout";
 import Menu from "../Components/Menu";
 import BackgroundImage from "../utility/BackGroundImage";
+import { getToken } from "../utility/Token";
 
 screenWidth = Dimensions.get("window").width;
 screenHeight = Dimensions.get("window").height;
@@ -41,6 +42,7 @@ const ManageShifts = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [shiftDate, setShiftDate] = useState("");
+  const [shiftPutDate, setShiftPutDate] = useState(""); // For PUT
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [description, setDescription] = useState("");
@@ -117,9 +119,20 @@ const ManageShifts = () => {
     return `${formattedDay}.${formattedMonth}.${date.year}`;
   };
 
+    // Function to format a date YYYY-MM-DD
+    const formatDateForPut = (date) => {
+      if (!date.year || !date.month || !date.day) {
+        console.error("Incomplete date object:", date);
+        return ""; // Returning an empty string for incomplete date
+      }
+      const formattedMonth = date.month.padStart(2, "0");
+      const formattedDay = date.day.padStart(2, "0");
+      return `${date.year}-${formattedMonth}-${formattedDay}`;
+    };
+
   // Function to fetch workers from the server
   const fetchWorkers = async () => {
-    const token = await fetchAuthToken();
+    const token = await getToken();
     if (!token) return;
 
     const url = `${SERVER_BASE_URL}${WORKERS}`;
@@ -128,7 +141,7 @@ const ManageShifts = () => {
       const response = await fetch(url, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: "Bearer " + token,
         },
       });
 
@@ -137,7 +150,7 @@ const ManageShifts = () => {
         setWorkers(data); // Updating the workers state with fetched data
         setFilteredWorkers(data); // Updating the filtered workers state
       } else {
-        console.error("Failed to fetch workers:", await response.text());
+        console.error("Failed to fetch workers:", await response);
         Alert.alert("Error", "Failed to fetch workers.");
       }
     } catch (error) {
@@ -190,12 +203,14 @@ const ManageShifts = () => {
     // Preparing shift data for the request
     const shiftData = {
       id: selectedWorker.id,
-      date: shiftDate,
+      date: shiftPutDate,
       startTime: formatTime(startTime),
       endTime: endTime ? formatTime(endTime) : undefined,
       description: description,
-      breaksTotal: breaksTotal,
+     breaksTotal: breaksTotal,
     };
+
+    console.log("shiftDate ", shiftDate);
 
     try {
       const token = await fetchAuthToken(); // Fetching auth token
@@ -203,7 +218,7 @@ const ManageShifts = () => {
         Alert.alert("Error", "Authentication token not found");
         return;
       }
-
+       console.log("shiftData", shiftData);
       // Sending a request to assign the shift
       const response = await fetch(`${SERVER_BASE_URL}${ADD_SHIFT}`, {
         method: "PUT",
@@ -220,6 +235,7 @@ const ManageShifts = () => {
         Alert.alert("Success", "Shift assigned successfully.");
       } else {
         Alert.alert("Error", "Failed to assign the shift.");
+        console.log("Failed to assign the shift:", await response.text());
       }
     } catch (error) {
       Alert.alert("Error", "An error occurred while assigning the shift.");
@@ -232,10 +248,15 @@ const ManageShifts = () => {
     return `${time.hour}:${time.minute}:00`;
   };
 
+ 
+
+
   // Function to handle date change
   const handleDateChange = () => {
     const formattedDate = formatDate(date); // Formatting the date
+    const formattedPutDate = formatDateForPut(date); // Formatting the date for PUT
     setShiftDate(formattedDate); // Updating the shift date state
+    setShiftPutDate(formattedPutDate); // Updating the shift date state for PUT
     toggleDatePicker(); // Closing the date picker
   };
 
