@@ -20,17 +20,24 @@ import { UPCOMING_SHIFTS, SERVER_BASE_URL } from "@env";
 import Home from "../Components/Home";
 import BackgroundImage from "../utility/BackGroundImage";
 
+// MyShifts functional component
 const MyShifts = () => {
+  // State for storing shift data
   const [shifts, setShifts] = useState([]);
+  // State for handling menu visibility
   const [isMenuVisible, setMenuVisible] = useState(false);
+
+  // Accessing route parameters
   const route = useRoute();
+  // Extracting the user role from route parameters
   const userRole = route.params?.userRole;
 
+  // Function to toggle the visibility of the menu
   const toggleMenu = () => {
     setMenuVisible(!isMenuVisible);
   };
 
-
+  // Function to format a date string
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate().toString();
@@ -38,6 +45,7 @@ const MyShifts = () => {
     return { day, weekday };
   };
 
+  // Function to group shifts by month
   const groupShiftsByMonth = (shifts) => {
     const grouped = {};
     shifts.forEach(shift => {
@@ -51,12 +59,15 @@ const MyShifts = () => {
     });
     return grouped;
   };
+
+  // Function to format a time string
   const formatTime = (timeString) => {
     if (!timeString) return '';
     const [hours, minutes] = timeString.split(':');
     return `${hours}:${minutes}`; // Returns time in HH:mm format
   };
 
+  // Function to fetch shift data from the server
   const fetchShifts = async () => {
     try {
       const authToken = await AsyncStorage.getItem("userToken");
@@ -80,13 +91,14 @@ const MyShifts = () => {
       console.error("Error fetching shifts:", error);
       Alert.alert("Error", "An error occurred while fetching shifts");
     }
-    console.log(`${SERVER_BASE_URL}${UPCOMING_SHIFTS}`);
   };
 
+  // UseEffect hook to fetch shifts when the component mounts
   useEffect(() => {
     fetchShifts();
   }, []);
 
+  // Function to render shifts grouped by month
   const renderShiftsByMonth = () => {
     let currentMonth = '';
     let currentYear = '';
@@ -125,7 +137,7 @@ const MyShifts = () => {
     });
   };
 
-  //triggers when the screen comes into focus
+  // UseFocusEffect hook triggers when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       setMenuVisible(false);
@@ -133,12 +145,12 @@ const MyShifts = () => {
     }, [])
   );
 
+  // JSX layout for the component
   return (
     <View style={styles.container}>
       <BackgroundImage style={styles.backgroundImage}/>
       <ScrollView style={styles.scrollView}>
-      
-      <Text style={styles.headerText}>MY SHIFTS</Text> 
+        <Text style={styles.headerText}>MY SHIFTS</Text> 
         {renderShiftsByMonth()}
       </ScrollView>
     </View>
@@ -155,7 +167,7 @@ const styles = StyleSheet.create({
   headerText: {
     textAlign: "center",
     color: "white",
-    fontSize: 25,
+    fontSize: Dimensions.get("window").width * 0.08,
     paddingBottom: 20,
     borderBottomColor: "white",
     borderBottomWidth: 2,
@@ -169,69 +181,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-  },
-  shiftContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0)",
-    borderBottomWidth: 1,
-    borderBottomColor: "black",
-    width: Dimensions.get("window").width * 0.9,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-
-  },
-  shiftText: {
-    fontSize: Dimensions.get("window").width * 0.08,
-    fontFamily: "Saira-Regular",
-    color: "white",
-    paddingHorizontal:7,
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 4,
-  },
-  timeContainer: {
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  shiftDescription: {
-    fontSize: Dimensions.get("window").width * 0.05,
-    color: "white",
-    fontFamily: "Saira-Regular",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 3,
-  },
-  dayText: {
-    fontSize: Dimensions.get("window").width * 0.15,
-    fontWeight: 'bold',
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 3,
-    fontFamily: "Saira-Regular",
-  },
-  weekdayContainer: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "center",
-  },
-  weekdayText: {
-    fontSize: Dimensions.get("window").width * 0.06,
-    color: "white",
-    fontFamily: "Saira-Regular",
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 3,
-  },
-  dashText: {
-    fontSize: Dimensions.get("window").width * 0.07,
-    fontFamily: "Saira-Regular",
-    color: "white",
-    paddingHorizontal:4,
-    textShadowColor: "rgba(0, 0, 0, 1)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 4,
   },
   monthHeader: {
     fontSize: Dimensions.get("window").width * 0.1,
@@ -263,7 +212,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   scrollView: {
-   
+    flex: 1,
+    width: Dimensions.get('window').width,
+    paddingHorizontal: Dimensions.get('window').width * 0.05,
+
   },
 });
 

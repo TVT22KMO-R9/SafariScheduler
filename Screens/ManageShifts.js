@@ -18,17 +18,23 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import { WORKERS, ADD_SHIFT, SERVER_BASE_URL, DELETE_SHIFT } from "@env";
-import { useNavigation, useFocusEffect, useRoute } from "@react-navigation/native";
-import DeleteShifts from './DeleteShifts';
+import {
+  useNavigation,
+  useFocusEffect,
+  useRoute,
+} from "@react-navigation/native";
+import DeleteShifts from "./DeleteShifts";
 import Home from "../Components/Home";
 import Logout from "../Components/Logout";
-import Menu from '../Components/Menu';
+import Menu from "../Components/Menu";
 import BackgroundImage from "../utility/BackGroundImage";
 
 screenWidth = Dimensions.get("window").width;
 screenHeight = Dimensions.get("window").height;
 
+// ManageShifts functional component
 const ManageShifts = () => {
+  // State for managing various aspects of shift management
   const [workers, setWorkers] = useState([]);
   const [filteredWorkers, setFilteredWorkers] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -46,21 +52,29 @@ const ManageShifts = () => {
     day: new Date().getDate().toString(),
   });
   const [isDescriptionVisible, setDescriptionVisible] = useState(false);
+
+  // Navigation hook
   const navigation = useNavigation();
+  // State for menu visibility
   const [isMenuVisible, setMenuVisible] = useState(false);
+  // Route hook to access route parameters
   const route = useRoute();
+  // Extracting user role from route parameters
   const userRole = route.params?.userRole;
 
+  // Function to toggle menu visibility
   const toggleMenu = () => {
     setMenuVisible(!isMenuVisible);
   };
 
+  // Effect hook to reset menu visibility when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       setMenuVisible(false);
     }, [])
   );
 
+  // Function to generate an array of numbers (for days, months, or years)
   const generateNumberArray = (start, end) => {
     let numbers = [];
     for (let i = start; i <= end; i++) {
@@ -69,34 +83,41 @@ const ManageShifts = () => {
     return numbers;
   };
 
+  // Function to generate an array of days for a given month and year
   const generateDaysArray = (year, month) => {
     const daysInMonth = new Date(year, month, 0).getDate();
-    return Array.from({ length: daysInMonth }, (_, index) => (index + 1).toString());
+    return Array.from({ length: daysInMonth }, (_, index) =>
+      (index + 1).toString()
+    );
   };
 
+  // Generating arrays for days, months, and years
   const days = generateDaysArray(date.year, date.month);
   const months = generateNumberArray(1, 12);
   const years = generateNumberArray(2020, 2050);
 
+  // Function to toggle date picker visibility
   const toggleDatePicker = () => {
     setDatePickerVisible(!isDatePickerVisible);
   };
 
+  // Function to handle adding a description
   const handleAddDescription = () => {
     setDescriptionVisible(true);
   };
 
+  // Function to format a date object into a string
   const formatDate = (date) => {
     if (!date.year || !date.month || !date.day) {
       console.error("Incomplete date object:", date);
-      return ""; // Or return a default date string
+      return ""; // Returning an empty string for incomplete date
     }
-
-    const formattedMonth = date.month.toString().padStart(2, "0");
-    const formattedDay = date.day.toString().padStart(2, "0");
-    return `${date.year}-${formattedMonth}-${formattedDay}`;
+    const formattedMonth = date.month.padStart(2, "0");
+    const formattedDay = date.day.padStart(2, "0");
+    return `${formattedDay}.${formattedMonth}.${date.year}`;
   };
 
+  // Function to fetch workers from the server
   const fetchWorkers = async () => {
     const token = await fetchAuthToken();
     if (!token) return;
@@ -111,14 +132,12 @@ const ManageShifts = () => {
         },
       });
 
-      console.log("Response Status:", response.status);
-
       if (response.ok) {
         const data = await response.json();
-        setWorkers(data);
-        setFilteredWorkers(data);
+        setWorkers(data); // Updating the workers state with fetched data
+        setFilteredWorkers(data); // Updating the filtered workers state
       } else {
-        console.log("Failed to fetch workers:", await response.text());
+        console.error("Failed to fetch workers:", await response.text());
         Alert.alert("Error", "Failed to fetch workers.");
       }
     } catch (error) {
@@ -127,45 +146,48 @@ const ManageShifts = () => {
     }
   };
 
+  // Function to handle search functionality
   const handleSearch = (text) => {
-    setSearchText(text);
+    setSearchText(text); // Updating the search text state
     if (text) {
+      // Filtering workers based on the search text
       const filtered = workers.filter((worker) => {
         const fullName = `${worker.firstName} ${worker.lastName}`.toLowerCase();
         return fullName.includes(text.toLowerCase());
       });
-      setFilteredWorkers(filtered);
+      setFilteredWorkers(filtered); // Updating the state with filtered workers
     } else {
-      setFilteredWorkers(workers);
+      setFilteredWorkers(workers); // Resetting to the original list of workers when search text is empty
     }
   };
 
+  // Function to fetch the authentication token
   const fetchAuthToken = async () => {
     try {
-      const token = await AsyncStorage.getItem("userToken");
+      const token = await AsyncStorage.getItem("userToken"); // Retrieving the token from storage
       if (!token) {
-        Alert.alert("Error", "Authentication token not found");
+        Alert.alert("Error", "Authentication token not found"); // Alert if token is not found
         return null;
       }
-      return token;
+      return token; // Returning the token
     } catch (error) {
-      Alert.alert("Error", "Failed to retrieve authentication token");
+      Alert.alert("Error", "Failed to retrieve authentication token"); // Alert on error
       return null;
     }
   };
 
+  // Function to handle shift assignment
   const handleAssignShift = async () => {
     if (!selectedWorker || !shiftDate || !startTime) {
+      // Validating if the necessary details are provided
       Alert.alert(
         "Error",
         "Please select a worker and fill in all required shift details."
       );
-      console.log("Selected Worker:", selectedWorker);
-      console.log("Shift Date:", shiftDate);
-      console.log("Start Time:", startTime);
       return;
     }
 
+    // Preparing shift data for the request
     const shiftData = {
       id: selectedWorker.id,
       date: shiftDate,
@@ -174,15 +196,15 @@ const ManageShifts = () => {
       description: description,
       breaksTotal: breaksTotal,
     };
-    console.log("Shift Data:", shiftData);
 
     try {
-      const token = await fetchAuthToken();
+      const token = await fetchAuthToken(); // Fetching auth token
       if (!token) {
         Alert.alert("Error", "Authentication token not found");
         return;
       }
 
+      // Sending a request to assign the shift
       const response = await fetch(`${SERVER_BASE_URL}${ADD_SHIFT}`, {
         method: "PUT",
         headers: {
@@ -194,46 +216,52 @@ const ManageShifts = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        DeviceEventEmitter.emit('newShiftAdded');
+        DeviceEventEmitter.emit("newShiftAdded"); // Emitting an event after successful shift addition
         Alert.alert("Success", "Shift assigned successfully.");
-        // Process responseData if needed
       } else {
         Alert.alert("Error", "Failed to assign the shift.");
       }
     } catch (error) {
       Alert.alert("Error", "An error occurred while assigning the shift.");
-      console.error(error);
     }
   };
 
+  // Function to format time
   const formatTime = (time) => {
-    // Assuming time is an object like { hour: '09', minute: '00' }
+    // Formatting time in HH:mm:ss format
     return `${time.hour}:${time.minute}:00`;
   };
 
+  // Function to handle date change
   const handleDateChange = () => {
-    const formattedDate = formatDate(date);
-    setShiftDate(formattedDate);
+    const formattedDate = formatDate(date); // Formatting the date
+    setShiftDate(formattedDate); // Updating the shift date state
+    toggleDatePicker(); // Closing the date picker
   };
 
+  // Function to handle the deletion of a shift
   const handleDeleteShift = () => {
-    navigation.navigate("DeleteShifts");
+    navigation.navigate("DeleteShifts"); // Navigating to the DeleteShifts screen
   };
 
+  // Function to open a modal
   const openModal = async () => {
-    setModalVisible(true);
-    await fetchWorkers();
+    setModalVisible(true); // Setting modal visibility to true
+    await fetchWorkers(); // Fetching workers data
   };
 
+  // Function to close the modal
   const closeModal = () => {
-    setModalVisible(false);
+    setModalVisible(false); // Setting modal visibility to false
   };
 
+  // Function to select a worker
   const selectWorker = (worker) => {
-    setSelectedWorker(worker);
-    closeModal();
+    setSelectedWorker(worker); // Setting the selected worker
+    closeModal(); // Closing the modal after selection
   };
 
+  // Refs for minute input fields
   const startMinutesInputRef = useRef(null);
   const endMinutesInputRef = useRef(null);
 
@@ -241,8 +269,7 @@ const ManageShifts = () => {
     <KeyboardAvoidingView style={{ flex: 1, alignItems: "center" }}>
       <BackgroundImage style={styles.backgroundImage} />
       {/* Piti laittaa padding tähän väliin, muuten en saanut toimimaan: */}
-      <View style={{ paddingTop: 80 }}>
-      </View>
+      <View style={{ paddingTop: 80 }}></View>
       <Text style={styles.headlineText}>MANAGE SHIFTS</Text>
       {/* Button to Open Worker Selection Modal */}
       <TouchableOpacity onPress={openModal} style={styles.actionButton}>
@@ -250,16 +277,25 @@ const ManageShifts = () => {
           {selectedWorker
             ? `${selectedWorker.firstName} ${selectedWorker.lastName}`
             : "Select Worker  "}
-          <Ionicons name="chevron-down-circle-outline" size={24} color="white" />
+          <Ionicons
+            name="chevron-down-circle-outline"
+            size={24}
+            color="white"
+          />
         </Text>
       </TouchableOpacity>
       {/* Button päivämäärän avaamiselle */}
       <TouchableOpacity onPress={toggleDatePicker} style={styles.actionButton}>
         <Text style={styles.buttonText}>
-          {"Select Date   "}
-          <Ionicons name="chevron-down-circle-outline" size={24} color="white" />
+          {shiftDate || "Select Date   "}
+          <Ionicons
+            name="chevron-down-circle-outline"
+            size={24}
+            color="white"
+          />
         </Text>
       </TouchableOpacity>
+
       {/* Päivämäärän valinta: */}
       <Modal
         visible={isDatePickerVisible}
@@ -268,9 +304,14 @@ const ManageShifts = () => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <View style={{ textAlign: 'center' }}>
+            <View style={{ textAlign: "center" }}>
               {/* Otsikko ja picker vuodelle */}
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Text style={styles.label}>Year</Text>
                 <TouchableOpacity onPress={toggleDatePicker}>
                   <Ionicons name="close" size={32} color="red" />
@@ -334,8 +375,9 @@ const ManageShifts = () => {
                   handleDateChange(); // This will update shiftDate based on the selected date
                 }}
               >
-                <Text style={styles.buttonText}>{"Confirm   "}
-                <Ionicons name="checkmark" size={24} color="green" />  
+                <Text style={styles.buttonText}>
+                  {"Confirm   "}
+                  <Ionicons name="checkmark" size={24} color="green" />
                 </Text>
               </TouchableOpacity>
             </View>
@@ -428,10 +470,14 @@ const ManageShifts = () => {
               />
               {/* Select worker Close-nappula: */}
               <View style={{ marginTop: 40 }}>
-                <TouchableOpacity onPress={closeModal} style={{ ...styles.actionButton, borderColor: "grey" }}>
-                  <Text style={styles.buttonText}>Close{"   "}
+                <TouchableOpacity
+                  onPress={closeModal}
+                  style={{ ...styles.actionButton, borderColor: "grey" }}
+                >
+                  <Text style={styles.buttonText}>
+                    Close{"   "}
                     <Ionicons name="close" size={24} color="red" />
-                    </Text>
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -457,24 +503,27 @@ const ManageShifts = () => {
       )}
       {/* Button to Assign Shift */}
       <TouchableOpacity style={styles.actionButton} onPress={handleAssignShift}>
-        <Text style={styles.buttonText}>Assign Shift{"  "}
+        <Text style={styles.buttonText}>
+          Assign Shift{"  "}
           <Ionicons name="checkmark" size={24} color="green" />
         </Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.actionButton} onPress={handleDeleteShift}>
-        <Text style={styles.buttonText}>Delete Shifts{"  "}
-          <Ionicons name="arrow-forward" size={24} color="green" />
+        <Text style={styles.buttonText}>
+          Delete Shifts{"  "}
+          <Ionicons name="arrow-forward" size={24} color="red" />
         </Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 };
 
-const commonStyles = { //Useasti käytetyt tänne
+const commonStyles = {
+  //Useasti käytetyt tänne
   text: {
-    fontFamily: "Saira-Regular"
+    fontFamily: "Saira-Regular",
   },
-}
+};
 
 const styles = StyleSheet.create({
   backgroundImage: {
@@ -483,7 +532,8 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  headlineText: { //Otsikko
+  headlineText: {
+    //Otsikko
     marginVertical: 8,
     fontSize: screenWidth * 0.07,
     ...commonStyles.text,
@@ -492,7 +542,8 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
-  actionButton: { //Yleisen napin muotoilu
+  actionButton: {
+    //Yleisen napin muotoilu
     backgroundColor: "rgba(0, 0, 0, 0.7)",
     borderRadius: 5,
     marginVertical: 8,
@@ -500,9 +551,10 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.8,
     borderColor: "white",
     borderWidth: 2,
-    backgroundColor: "black"
+    backgroundColor: "black",
   },
-  buttonText: { //Yleisen napin teksti
+  buttonText: {
+    //Yleisen napin teksti
     fontSize: screenWidth * 0.07,
     color: "white",
     ...commonStyles.text,
@@ -510,7 +562,8 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
-  dash: { // väliviiva kellonajan boksien välissä
+  dash: {
+    // väliviiva kellonajan boksien välissä
     fontSize: screenWidth * 0.15,
     color: "white",
     textShadowColor: "rgba(0, 0, 0, 1)",
@@ -520,13 +573,15 @@ const styles = StyleSheet.create({
     lineHeight: 80,
     ...commonStyles.text,
   },
-  timeContainer: {//kellonajan valinta 
+  timeContainer: {
+    //kellonajan valinta
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     height: 70,
   },
-  timeInputContainer: { //kellonajan valinta syöttöboksi
+  timeInputContainer: {
+    //kellonajan valinta syöttöboksi
     width: screenWidth * 0.36,
     justifyContent: "center",
     flexDirection: "row",
@@ -536,20 +591,23 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "rgba(255, 255, 255, 1)",
   },
-  timeInput: { //kellonajan text Input
+  timeInput: {
+    //kellonajan text Input
     width: screenWidth * 0.16,
     marginHorizontal: 2,
     textAlign: "center",
     fontSize: screenWidth * 0.07,
   },
-  pickerContainer: { //Päivämäärän valinta-picker
+  pickerContainer: {
+    //Päivämäärän valinta-picker
     borderWidth: 2,
     borderRadius: 5,
     height: screenHeight * 0.06,
     justifyContent: "center",
     marginVertical: 8,
   },
-  modalView: { // pop up modal 
+  modalView: {
+    // pop up modal
     backgroundColor: "white",
     borderRadius: 5,
     padding: 20,
@@ -559,29 +617,32 @@ const styles = StyleSheet.create({
   workerSearchBox: {
     height: screenHeight * 0.06,
     borderWidth: 1,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 15,
     borderRadius: 5,
     ...commonStyles.text,
     fontSize: screenWidth * 0.06,
   },
-  item: { //Työntekijän search-box 
+  item: {
+    //Työntekijän search-box
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "black",
     width: "100%",
     //alignItems: "center", nimi teksti keskelle mikäli halutaan
   },
-  itemText: { //Työntekijän nimien listaus-teksti
+  itemText: {
+    //Työntekijän nimien listaus-teksti
     fontSize: screenWidth * 0.07,
     ...commonStyles.text,
   },
-  textInputBox: { // vuoron kuvaus tekstisyöttö
+  textInputBox: {
+    // vuoron kuvaus tekstisyöttö
     height: screenHeight * 0.07,
     width: screenWidth * 0.8,
     borderRadius: 5,
     borderColor: "black",
-    textAlign: 'center',
+    textAlign: "center",
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderWidth: 2,
     marginBottom: "1%",
@@ -590,7 +651,8 @@ const styles = StyleSheet.create({
     ...commonStyles.text,
     marginVertical: 8,
   },
-  label: { // Year, month, day tekstit
+  label: {
+    // Year, month, day tekstit
     fontSize: screenWidth * 0.07,
     ...commonStyles.text,
     marginBottom: 5,
@@ -599,14 +661,14 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
-  centeredView: { //Pop up ikkunat
+  centeredView: {
+    //Pop up ikkunat
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 0,
     backgroundColor: "rgba(0, 0, 0, 0.2)",
   },
-
 });
 
 export default ManageShifts;
